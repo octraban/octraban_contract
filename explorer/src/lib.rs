@@ -1,17 +1,16 @@
 #![no_std]
 use soroban_sdk::{
-    contract, contractimpl, contracttype, symbol_short,
-    Address, Bytes, BytesN, Env, Map, String, Symbol, Vec,
-    log, panic_with_error,
+    contract, contracterror, contractimpl, contracttype, panic_with_error, symbol_short, Address,
+    Bytes, BytesN, Env, String, Symbol, Vec,
 };
 
 // ── Error codes ──────────────────────────────────────────────────────────────
-#[contracttype]
+#[contracterror]
 #[derive(Copy, Clone, Debug, Eq, PartialEq)]
 #[repr(u32)]
 pub enum Error {
-    NotFound      = 1,
-    Unauthorized  = 2,
+    NotFound = 1,
+    Unauthorized = 2,
     AlreadyExists = 3,
 }
 
@@ -19,8 +18,8 @@ pub enum Error {
 #[contracttype]
 pub enum DataKey {
     Admin,
-    Contract(BytesN<32>),   // contract_id → ContractMeta
-    EventLog(u64),          // seq → DecodedEvent
+    Contract(BytesN<32>), // contract_id → ContractMeta
+    EventLog(u64),        // seq → DecodedEvent
     EventSeq,
 }
 
@@ -30,9 +29,9 @@ pub enum DataKey {
 #[contracttype]
 #[derive(Clone)]
 pub struct ContractMeta {
-    pub name:        String,          // e.g. "StellarSwap"
+    pub name: String, // e.g. "StellarSwap"
     pub description: String,
-    pub functions:   Vec<FunctionAbi>,
+    pub functions: Vec<FunctionAbi>,
     pub registered_by: Address,
 }
 
@@ -40,30 +39,30 @@ pub struct ContractMeta {
 #[contracttype]
 #[derive(Clone)]
 pub struct FunctionAbi {
-    pub name:        Symbol,          // e.g. symbol_short!("swap")
-    pub description: String,          // "Swap token_in for token_out"
-    pub params:      Vec<ParamDef>,
+    pub name: Symbol,        // e.g. symbol_short!("swap")
+    pub description: String, // "Swap token_in for token_out"
+    pub params: Vec<ParamDef>,
 }
 
 /// One parameter definition.
 #[contracttype]
 #[derive(Clone)]
 pub struct ParamDef {
-    pub name:     Symbol,
-    pub kind:     Symbol,   // "address" | "i128" | "symbol" | "bytes"
+    pub name: Symbol,
+    pub kind: Symbol, // "address" | "i128" | "symbol" | "bytes"
 }
 
 /// A decoded, human-readable event stored on-chain.
 #[contracttype]
 #[derive(Clone)]
 pub struct DecodedEvent {
-    pub seq:          u64,
-    pub contract_id:  BytesN<32>,
-    pub function:     Symbol,
-    pub ledger:       u32,
-    pub description:  String,   // "Address GA… swapped 100 USDC → 98.7 XLM"
-    pub raw_topics:   Vec<String>,
-    pub raw_data:     Bytes,
+    pub seq: u64,
+    pub contract_id: BytesN<32>,
+    pub function: Symbol,
+    pub ledger: u32,
+    pub description: String, // "Address GA… swapped 100 USDC → 98.7 XLM"
+    pub raw_topics: Vec<String>,
+    pub raw_data: Bytes,
 }
 
 // ── Contract ──────────────────────────────────────────────────────────────────
@@ -72,7 +71,6 @@ pub struct ExplorerContract;
 
 #[contractimpl]
 impl ExplorerContract {
-
     // ── Admin ─────────────────────────────────────────────────────────────────
 
     /// Initialise with an admin address (call once).
@@ -88,10 +86,10 @@ impl ExplorerContract {
 
     /// Register ABI-like metadata for a Soroban contract.
     pub fn register_contract(
-        env:         Env,
-        caller:      Address,
+        env: Env,
+        caller: Address,
         contract_id: BytesN<32>,
-        meta:        ContractMeta,
+        meta: ContractMeta,
     ) {
         caller.require_auth();
         let key = DataKey::Contract(contract_id.clone());
@@ -99,23 +97,19 @@ impl ExplorerContract {
             panic_with_error!(&env, Error::AlreadyExists);
         }
         env.storage().persistent().set(&key, &meta);
-        env.events().publish(
-            (symbol_short!("register"), contract_id),
-            meta.name,
-        );
+        env.events()
+            .publish((symbol_short!("register"), contract_id), meta.name);
     }
 
     /// Update metadata (admin or original registrant only).
-    pub fn update_contract(
-        env:         Env,
-        caller:      Address,
-        contract_id: BytesN<32>,
-        meta:        ContractMeta,
-    ) {
+    pub fn update_contract(env: Env, caller: Address, contract_id: BytesN<32>, meta: ContractMeta) {
         caller.require_auth();
         let key = DataKey::Contract(contract_id.clone());
-        let existing: ContractMeta = env.storage().persistent()
-            .get(&key).unwrap_or_else(|| panic_with_error!(&env, Error::NotFound));
+        let existing: ContractMeta = env
+            .storage()
+            .persistent()
+            .get(&key)
+            .unwrap_or_else(|| panic_with_error!(&env, Error::NotFound));
 
         let admin: Address = env.storage().instance().get(&DataKey::Admin).unwrap();
         if caller != existing.registered_by && caller != admin {
@@ -126,7 +120,8 @@ impl ExplorerContract {
 
     /// Fetch metadata for a contract.
     pub fn get_contract(env: Env, contract_id: BytesN<32>) -> ContractMeta {
-        env.storage().persistent()
+        env.storage()
+            .persistent()
             .get(&DataKey::Contract(contract_id))
             .unwrap_or_else(|| panic_with_error!(&env, Error::NotFound))
     }
@@ -136,14 +131,14 @@ impl ExplorerContract {
     /// Submit a decoded event (called by the off-chain indexer via a trusted tx).
     /// The indexer decodes raw XDR and calls this to persist a human-readable record.
     pub fn submit_event(
-        env:         Env,
-        caller:      Address,
+        env: Env,
+        caller: Address,
         contract_id: BytesN<32>,
-        function:    Symbol,
-        ledger:      u32,
+        function: Symbol,
+        ledger: u32,
         description: String,
-        raw_topics:  Vec<String>,
-        raw_data:    Bytes,
+        raw_topics: Vec<String>,
+        raw_data: Bytes,
     ) {
         caller.require_auth();
         // Only admin or registered indexers may submit events.
@@ -152,7 +147,11 @@ impl ExplorerContract {
             panic_with_error!(&env, Error::Unauthorized);
         }
 
-        let seq: u64 = env.storage().instance().get(&DataKey::EventSeq).unwrap_or(0);
+        let seq: u64 = env
+            .storage()
+            .instance()
+            .get(&DataKey::EventSeq)
+            .unwrap_or(0);
         let event = DecodedEvent {
             seq,
             contract_id: contract_id.clone(),
@@ -162,7 +161,9 @@ impl ExplorerContract {
             raw_topics,
             raw_data,
         };
-        env.storage().persistent().set(&DataKey::EventLog(seq), &event);
+        env.storage()
+            .persistent()
+            .set(&DataKey::EventLog(seq), &event);
         env.storage().instance().set(&DataKey::EventSeq, &(seq + 1));
 
         env.events().publish(
@@ -173,19 +174,27 @@ impl ExplorerContract {
 
     /// Fetch a single decoded event by sequence number.
     pub fn get_event(env: Env, seq: u64) -> DecodedEvent {
-        env.storage().persistent()
+        env.storage()
+            .persistent()
             .get(&DataKey::EventLog(seq))
             .unwrap_or_else(|| panic_with_error!(&env, Error::NotFound))
     }
 
     /// Return the total number of stored events.
     pub fn event_count(env: Env) -> u64 {
-        env.storage().instance().get(&DataKey::EventSeq).unwrap_or(0)
+        env.storage()
+            .instance()
+            .get(&DataKey::EventSeq)
+            .unwrap_or(0)
     }
 
     /// Fetch a page of events [from, from+limit).
     pub fn get_events(env: Env, from: u64, limit: u32) -> Vec<DecodedEvent> {
-        let total: u64 = env.storage().instance().get(&DataKey::EventSeq).unwrap_or(0);
+        let total: u64 = env
+            .storage()
+            .instance()
+            .get(&DataKey::EventSeq)
+            .unwrap_or(0);
         let mut out: Vec<DecodedEvent> = Vec::new(&env);
         let end = (from + limit as u64).min(total);
         for seq in from..end {
@@ -241,7 +250,10 @@ mod tests {
             &cid,
             &symbol_short!("swap"),
             &4521983u32,
-            &String::from_str(&env, "Address GABC... swapped 100 USDC → 98.7 XLM on StellarSwap"),
+            &String::from_str(
+                &env,
+                "Address GABC... swapped 100 USDC → 98.7 XLM on StellarSwap",
+            ),
             &Vec::new(&env),
             &Bytes::new(&env),
         );
