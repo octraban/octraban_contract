@@ -248,18 +248,18 @@ mod tests {
         client.init(&admin);
 
         let cid: BytesN<32> = BytesN::from_array(&env, &[2u8; 32]);
-        client.submit_event(
-            &admin,
-            &cid,
-            &symbol_short!("swap"),
-            &4521983u32,
-            &String::from_str(
+        let input = EventInput {
+            contract_id: cid.clone(),
+            function: symbol_short!("swap"),
+            ledger: 4521983u32,
+            description: String::from_str(
                 &env,
                 "Address GABC... swapped 100 USDC → 98.7 XLM on StellarSwap",
             ),
-            &Vec::new(&env),
-            &Bytes::new(&env),
-        );
+            raw_topics: Vec::new(&env),
+            raw_data: Bytes::new(&env),
+        };
+        client.submit_event(&admin, &input);
 
         assert_eq!(client.event_count(), 1u64);
         let ev = client.get_event(&0u64);
