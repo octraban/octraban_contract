@@ -65,6 +65,18 @@ pub struct DecodedEvent {
     pub raw_data: Bytes,
 }
 
+/// Event submission parameters (reduces function parameter count)
+#[contracttype]
+#[derive(Clone)]
+pub struct EventInput {
+    pub contract_id: BytesN<32>,
+    pub function: Symbol,
+    pub ledger: u32,
+    pub description: String,
+    pub raw_topics: Vec<String>,
+    pub raw_data: Bytes,
+}
+
 // ── Contract ──────────────────────────────────────────────────────────────────
 #[contract]
 pub struct ExplorerContract;
@@ -130,16 +142,7 @@ impl ExplorerContract {
 
     /// Submit a decoded event (called by the off-chain indexer via a trusted tx).
     /// The indexer decodes raw XDR and calls this to persist a human-readable record.
-    pub fn submit_event(
-        env: Env,
-        caller: Address,
-        contract_id: BytesN<32>,
-        function: Symbol,
-        ledger: u32,
-        description: String,
-        raw_topics: Vec<String>,
-        raw_data: Bytes,
-    ) {
+    pub fn submit_event(env: Env, caller: Address, input: EventInput) {
         caller.require_auth();
         // Only admin or registered indexers may submit events.
         let admin: Address = env.storage().instance().get(&DataKey::Admin).unwrap();
@@ -154,12 +157,12 @@ impl ExplorerContract {
             .unwrap_or(0);
         let event = DecodedEvent {
             seq,
-            contract_id: contract_id.clone(),
-            function: function.clone(),
-            ledger,
-            description: description.clone(),
-            raw_topics,
-            raw_data,
+            contract_id: input.contract_id.clone(),
+            function: input.function.clone(),
+            ledger: input.ledger,
+            description: input.description.clone(),
+            raw_topics: input.raw_topics,
+            raw_data: input.raw_data,
         };
         env.storage()
             .persistent()
@@ -167,8 +170,8 @@ impl ExplorerContract {
         env.storage().instance().set(&DataKey::EventSeq, &(seq + 1));
 
         env.events().publish(
-            (symbol_short!("decoded"), contract_id, function),
-            description,
+            (symbol_short!("decoded"), input.contract_id, input.function),
+            input.description,
         );
     }
 
