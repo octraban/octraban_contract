@@ -81,6 +81,7 @@ pub struct EventInput {
 #[contract]
 pub struct ExplorerContract;
 
+#[allow(clippy::too_many_arguments)]
 #[contractimpl]
 impl ExplorerContract {
     // ── Admin ─────────────────────────────────────────────────────────────────
