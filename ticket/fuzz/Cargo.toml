@@ -1,0 +1,37 @@
+[package]
+name    = "ticket-fuzz"
+version = "0.0.1"
+edition = "2021"
+publish = false
+
+[package.metadata]
+cargo-fuzz = true
+
+[dependencies]
+libfuzzer-sys = "0.4"
+ticket        = { path = "..", features = ["testutils"] }
+soroban-sdk   = { version = "21.0.0", features = ["testutils"] }
+
+[[bin]]
+name  = "fuzz_mint"
+path  = "fuzz_targets/fuzz_mint.rs"
+test  = false
+doc   = false
+
+[[bin]]
+name  = "fuzz_transfer"
+path  = "fuzz_targets/fuzz_transfer.rs"
+test  = false
+doc   = false
+
+[[bin]]
+name  = "fuzz_full_lifecycle"
+path  = "fuzz_targets/fuzz_full_lifecycle.rs"
+test  = false
+doc   = false
+
+[[bin]]
+name  = "fuzz_verify"
+path  = "fuzz_targets/fuzz_verify.rs"
+test  = false
+doc   = false
