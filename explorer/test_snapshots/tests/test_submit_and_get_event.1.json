@@ -18,22 +18,56 @@
                   "address": "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAFCT4"
                 },
                 {
-                  "bytes": "0202020202020202020202020202020202020202020202020202020202020202"
-                },
-                {
-                  "symbol": "swap"
-                },
-                {
-                  "u32": 4521983
-                },
-                {
-                  "string": "Address GABC... swapped 100 USDC \\xe2\\x86\\x92 98.7 XLM on StellarSwap"
-                },
-                {
-                  "vec": []
-                },
-                {
-                  "bytes": ""
+                  "map": [
+                    {
+                      "key": {
+                        "symbol": "contract_id"
+                      },
+                      "val": {
+                        "bytes": "0202020202020202020202020202020202020202020202020202020202020202"
+                      }
+                    },
+                    {
+                      "key": {
+                        "symbol": "description"
+                      },
+                      "val": {
+                        "string": "Address GABC... swapped 100 USDC \\xe2\\x86\\x92 98.7 XLM on StellarSwap"
+                      }
+                    },
+                    {
+                      "key": {
+                        "symbol": "function"
+                      },
+                      "val": {
+                        "symbol": "swap"
+                      }
+                    },
+                    {
+                      "key": {
+                        "symbol": "ledger"
+                      },
+                      "val": {
+                        "u32": 4521983
+                      }
+                    },
+                    {
+                      "key": {
+                        "symbol": "raw_data"
+                      },
+                      "val": {
+                        "bytes": ""
+                      }
+                    },
+                    {
+                      "key": {
+                        "symbol": "raw_topics"
+                      },
+                      "val": {
+                        "vec": []
+                      }
+                    }
+                  ]
                 }
               ]
             }
@@ -342,22 +376,56 @@
                   "address": "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAFCT4"
                 },
                 {
-                  "bytes": "0202020202020202020202020202020202020202020202020202020202020202"
-                },
-                {
-                  "symbol": "swap"
-                },
-                {
-                  "u32": 4521983
-                },
-                {
-                  "string": "Address GABC... swapped 100 USDC \\xe2\\x86\\x92 98.7 XLM on StellarSwap"
-                },
-                {
-                  "vec": []
-                },
-                {
-                  "bytes": ""
+                  "map": [
+                    {
+                      "key": {
+                        "symbol": "contract_id"
+                      },
+                      "val": {
+                        "bytes": "0202020202020202020202020202020202020202020202020202020202020202"
+                      }
+                    },
+                    {
+                      "key": {
+                        "symbol": "description"
+                      },
+                      "val": {
+                        "string": "Address GABC... swapped 100 USDC \\xe2\\x86\\x92 98.7 XLM on StellarSwap"
+                      }
+                    },
+                    {
+                      "key": {
+                        "symbol": "function"
+                      },
+                      "val": {
+                        "symbol": "swap"
+                      }
+                    },
+                    {
+                      "key": {
+                        "symbol": "ledger"
+                      },
+                      "val": {
+                        "u32": 4521983
+                      }
+                    },
+                    {
+                      "key": {
+                        "symbol": "raw_data"
+                      },
+                      "val": {
+                        "bytes": ""
+                      }
+                    },
+                    {
+                      "key": {
+                        "symbol": "raw_topics"
+                      },
+                      "val": {
+                        "vec": []
+                      }
+                    }
+                  ]
                 }
               ]
             }
