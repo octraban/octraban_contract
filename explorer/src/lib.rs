@@ -29,6 +29,7 @@ pub enum DataKey {
 #[contracttype]
 #[derive(Clone)]
 pub struct ContractMeta {
+    pub version: u32, // Metadata schema version for forward compatibility
     pub name: String, // e.g. "StellarSwap"
     pub description: String,
     pub functions: Vec<FunctionAbi>,
@@ -233,6 +234,7 @@ mod tests {
 
         let cid: BytesN<32> = BytesN::from_array(&env, &[1u8; 32]);
         let meta = ContractMeta {
+            version: 1,
             name: String::from_str(&env, "StellarSwap"),
             description: String::from_str(&env, "DEX on Stellar"),
             functions: Vec::new(&env),
