@@ -191,19 +191,21 @@ impl ExplorerContract {
             .unwrap_or(0)
     }
 
-    /// Fetch a page of events [from, from+limit).
-    pub fn get_events(env: Env, from: u64, limit: u32) -> Vec<DecodedEvent> {
+    /// Fetch events starting from cursor (inclusive seq). Returns up to `limit` events.
+    /// Use the last event's `seq + 1` as the next cursor.
+    pub fn get_events(env: Env, cursor: u64, limit: u32) -> Vec<DecodedEvent> {
         let total: u64 = env
             .storage()
             .instance()
             .get(&DataKey::EventSeq)
             .unwrap_or(0);
         let mut out: Vec<DecodedEvent> = Vec::new(&env);
-        let end = (from + limit as u64).min(total);
-        for seq in from..end {
+        let mut seq = cursor;
+        while (out.len() as u32) < limit && seq < total {
             if let Some(ev) = env.storage().persistent().get(&DataKey::EventLog(seq)) {
                 out.push_back(ev);
             }
+            seq += 1;
         }
         out
     }
@@ -264,6 +266,45 @@ mod tests {
         assert_eq!(client.event_count(), 1u64);
         let ev = client.get_event(&0u64);
         assert_eq!(ev.ledger, 4521983u32);
+    }
+
+    #[test]
+    fn test_cursor_pagination() {
+        let (env, client) = setup();
+        let admin = Address::generate(&env);
+        client.init(&admin);
+
+        let cid: BytesN<32> = BytesN::from_array(&env, &[3u8; 32]);
+        let base = EventInput {
+            contract_id: cid.clone(),
+            function: symbol_short!("swap"),
+            ledger: 100u32,
+            description: String::from_str(&env, "test"),
+            raw_topics: Vec::new(&env),
+            raw_data: Bytes::new(&env),
+        };
+
+        for i in 0..5 {
+            client.submit_event(&admin, &base);
+        }
+        assert_eq!(client.event_count(), 5u64);
+
+        let page1 = client.get_events(&0u64, &2u32);
+        assert_eq!(page1.len(), 2);
+        assert_eq!(page1.get(0).unwrap().seq, 0);
+        assert_eq!(page1.get(1).unwrap().seq, 1);
+
+        let page2 = client.get_events(&2u64, &2u32);
+        assert_eq!(page2.len(), 2);
+        assert_eq!(page2.get(0).unwrap().seq, 2);
+        assert_eq!(page2.get(1).unwrap().seq, 3);
+
+        let page3 = client.get_events(&4u64, &2u32);
+        assert_eq!(page3.len(), 1);
+        assert_eq!(page3.get(0).unwrap().seq, 4);
+
+        let empty = client.get_events(&10u64, &5u32);
+        assert_eq!(empty.len(), 0);
     }
 
     #[test]
