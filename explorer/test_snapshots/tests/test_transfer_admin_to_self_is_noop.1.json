@@ -12,54 +12,81 @@
           "function": {
             "contract_fn": {
               "contract_address": "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD2KM",
-              "function_name": "register_contract",
+              "function_name": "transfer_admin",
               "args": [
                 {
                   "address": "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAFCT4"
                 },
                 {
-                  "bytes": "0101010101010101010101010101010101010101010101010101010101010101"
+                  "address": "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAFCT4"
+                }
+              ]
+            }
+          },
+          "sub_invocations": []
+        }
+      ]
+    ],
+    [
+      [
+        "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAFCT4",
+        {
+          "function": {
+            "contract_fn": {
+              "contract_address": "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD2KM",
+              "function_name": "submit_event",
+              "args": [
+                {
+                  "address": "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAFCT4"
                 },
                 {
                   "map": [
                     {
                       "key": {
+                        "symbol": "contract_id"
+                      },
+                      "val": {
+                        "bytes": "0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b"
+                      }
+                    },
+                    {
+                      "key": {
                         "symbol": "description"
                       },
                       "val": {
-                        "string": "DEX on Stellar"
+                        "string": "self transfer test"
                       }
                     },
                     {
                       "key": {
-                        "symbol": "functions"
+                        "symbol": "function"
                       },
                       "val": {
-                        "vec": []
+                        "symbol": "ping"
                       }
                     },
                     {
                       "key": {
-                        "symbol": "name"
-                      },
-                      "val": {
-                        "string": "StellarSwap"
-                      }
-                    },
-                    {
-                      "key": {
-                        "symbol": "registered_by"
-                      },
-                      "val": {
-                        "address": "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAFCT4"
-                      }
-                    },
-                    {
-                      "key": {
-                        "symbol": "version"
+                        "symbol": "ledger"
                       },
                       "val": {
                         "u32": 1
+                      }
+                    },
+                    {
+                      "key": {
+                        "symbol": "raw_data"
+                      },
+                      "val": {
+                        "bytes": ""
+                      }
+                    },
+                    {
+                      "key": {
+                        "symbol": "raw_topics"
+                      },
+                      "val": {
+                        "vec": []
                       }
                     }
                   ]
@@ -90,10 +117,10 @@
             "key": {
               "vec": [
                 {
-                  "symbol": "Contract"
+                  "symbol": "EventLog"
                 },
                 {
-                  "bytes": "0101010101010101010101010101010101010101010101010101010101010101"
+                  "u64": 0
                 }
               ]
             },
@@ -110,10 +137,10 @@
                 "key": {
                   "vec": [
                     {
-                      "symbol": "Contract"
+                      "symbol": "EventLog"
                     },
                     {
-                      "bytes": "0101010101010101010101010101010101010101010101010101010101010101"
+                      "u64": 0
                     }
                   ]
                 },
@@ -122,15 +149,47 @@
                   "map": [
                     {
                       "key": {
-                        "symbol": "description"
+                        "symbol": "contract_id"
                       },
                       "val": {
-                        "string": "DEX on Stellar"
+                        "bytes": "0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b"
                       }
                     },
                     {
                       "key": {
-                        "symbol": "functions"
+                        "symbol": "description"
+                      },
+                      "val": {
+                        "string": "self transfer test"
+                      }
+                    },
+                    {
+                      "key": {
+                        "symbol": "function"
+                      },
+                      "val": {
+                        "symbol": "ping"
+                      }
+                    },
+                    {
+                      "key": {
+                        "symbol": "ledger"
+                      },
+                      "val": {
+                        "u32": 1
+                      }
+                    },
+                    {
+                      "key": {
+                        "symbol": "raw_data"
+                      },
+                      "val": {
+                        "bytes": ""
+                      }
+                    },
+                    {
+                      "key": {
+                        "symbol": "raw_topics"
                       },
                       "val": {
                         "vec": []
@@ -138,26 +197,10 @@
                     },
                     {
                       "key": {
-                        "symbol": "name"
+                        "symbol": "seq"
                       },
                       "val": {
-                        "string": "StellarSwap"
-                      }
-                    },
-                    {
-                      "key": {
-                        "symbol": "registered_by"
-                      },
-                      "val": {
-                        "address": "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAFCT4"
-                      }
-                    },
-                    {
-                      "key": {
-                        "symbol": "version"
-                      },
-                      "val": {
-                        "u32": 1
+                        "u64": 0
                       }
                     }
                   ]
@@ -213,7 +256,7 @@
                           ]
                         },
                         "val": {
-                          "u64": 0
+                          "u64": 1
                         }
                       }
                     ]
@@ -248,6 +291,39 @@
                 "key": {
                   "ledger_key_nonce": {
                     "nonce": 801925984706572462
+                  }
+                },
+                "durability": "temporary",
+                "val": "void"
+              }
+            },
+            "ext": "v0"
+          },
+          6311999
+        ]
+      ],
+      [
+        {
+          "contract_data": {
+            "contract": "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAFCT4",
+            "key": {
+              "ledger_key_nonce": {
+                "nonce": 5541220902715666415
+              }
+            },
+            "durability": "temporary"
+          }
+        },
+        [
+          {
+            "last_modified_ledger_seq": 0,
+            "data": {
+              "contract_data": {
+                "ext": "v0",
+                "contract": "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAFCT4",
+                "key": {
+                  "ledger_key_nonce": {
+                    "nonce": 5541220902715666415
                   }
                 },
                 "durability": "temporary",
@@ -345,7 +421,7 @@
                 "bytes": "0000000000000000000000000000000000000000000000000000000000000001"
               },
               {
-                "symbol": "register_contract"
+                "symbol": "transfer_admin"
               }
             ],
             "data": {
@@ -354,51 +430,7 @@
                   "address": "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAFCT4"
                 },
                 {
-                  "bytes": "0101010101010101010101010101010101010101010101010101010101010101"
-                },
-                {
-                  "map": [
-                    {
-                      "key": {
-                        "symbol": "description"
-                      },
-                      "val": {
-                        "string": "DEX on Stellar"
-                      }
-                    },
-                    {
-                      "key": {
-                        "symbol": "functions"
-                      },
-                      "val": {
-                        "vec": []
-                      }
-                    },
-                    {
-                      "key": {
-                        "symbol": "name"
-                      },
-                      "val": {
-                        "string": "StellarSwap"
-                      }
-                    },
-                    {
-                      "key": {
-                        "symbol": "registered_by"
-                      },
-                      "val": {
-                        "address": "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAFCT4"
-                      }
-                    },
-                    {
-                      "key": {
-                        "symbol": "version"
-                      },
-                      "val": {
-                        "u32": 1
-                      }
-                    }
-                  ]
+                  "address": "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAFCT4"
                 }
               ]
             }
@@ -416,14 +448,14 @@
           "v0": {
             "topics": [
               {
-                "symbol": "register"
+                "symbol": "adm_xfer"
               },
               {
-                "bytes": "0101010101010101010101010101010101010101010101010101010101010101"
+                "address": "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAFCT4"
               }
             ],
             "data": {
-              "string": "StellarSwap"
+              "address": "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAFCT4"
             }
           }
         }
@@ -442,7 +474,7 @@
                 "symbol": "fn_return"
               },
               {
-                "symbol": "register_contract"
+                "symbol": "transfer_admin"
               }
             ],
             "data": "void"
@@ -466,11 +498,93 @@
                 "bytes": "0000000000000000000000000000000000000000000000000000000000000001"
               },
               {
-                "symbol": "get_contract"
+                "symbol": "submit_event"
               }
             ],
             "data": {
-              "bytes": "0101010101010101010101010101010101010101010101010101010101010101"
+              "vec": [
+                {
+                  "address": "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAFCT4"
+                },
+                {
+                  "map": [
+                    {
+                      "key": {
+                        "symbol": "contract_id"
+                      },
+                      "val": {
+                        "bytes": "0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b"
+                      }
+                    },
+                    {
+                      "key": {
+                        "symbol": "description"
+                      },
+                      "val": {
+                        "string": "self transfer test"
+                      }
+                    },
+                    {
+                      "key": {
+                        "symbol": "function"
+                      },
+                      "val": {
+                        "symbol": "ping"
+                      }
+                    },
+                    {
+                      "key": {
+                        "symbol": "ledger"
+                      },
+                      "val": {
+                        "u32": 1
+                      }
+                    },
+                    {
+                      "key": {
+                        "symbol": "raw_data"
+                      },
+                      "val": {
+                        "bytes": ""
+                      }
+                    },
+                    {
+                      "key": {
+                        "symbol": "raw_topics"
+                      },
+                      "val": {
+                        "vec": []
+                      }
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        }
+      },
+      "failed_call": false
+    },
+    {
+      "event": {
+        "ext": "v0",
+        "contract_id": "0000000000000000000000000000000000000000000000000000000000000001",
+        "type_": "contract",
+        "body": {
+          "v0": {
+            "topics": [
+              {
+                "symbol": "decoded"
+              },
+              {
+                "bytes": "0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b"
+              },
+              {
+                "symbol": "ping"
+              }
+            ],
+            "data": {
+              "string": "self transfer test"
             }
           }
         }
@@ -489,52 +603,56 @@
                 "symbol": "fn_return"
               },
               {
-                "symbol": "get_contract"
+                "symbol": "submit_event"
+              }
+            ],
+            "data": "void"
+          }
+        }
+      },
+      "failed_call": false
+    },
+    {
+      "event": {
+        "ext": "v0",
+        "contract_id": null,
+        "type_": "diagnostic",
+        "body": {
+          "v0": {
+            "topics": [
+              {
+                "symbol": "fn_call"
+              },
+              {
+                "bytes": "0000000000000000000000000000000000000000000000000000000000000001"
+              },
+              {
+                "symbol": "event_count"
+              }
+            ],
+            "data": "void"
+          }
+        }
+      },
+      "failed_call": false
+    },
+    {
+      "event": {
+        "ext": "v0",
+        "contract_id": "0000000000000000000000000000000000000000000000000000000000000001",
+        "type_": "diagnostic",
+        "body": {
+          "v0": {
+            "topics": [
+              {
+                "symbol": "fn_return"
+              },
+              {
+                "symbol": "event_count"
               }
             ],
             "data": {
-              "map": [
-                {
-                  "key": {
-                    "symbol": "description"
-                  },
-                  "val": {
-                    "string": "DEX on Stellar"
-                  }
-                },
-                {
-                  "key": {
-                    "symbol": "functions"
-                  },
-                  "val": {
-                    "vec": []
-                  }
-                },
-                {
-                  "key": {
-                    "symbol": "name"
-                  },
-                  "val": {
-                    "string": "StellarSwap"
-                  }
-                },
-                {
-                  "key": {
-                    "symbol": "registered_by"
-                  },
-                  "val": {
-                    "address": "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAFCT4"
-                  }
-                },
-                {
-                  "key": {
-                    "symbol": "version"
-                  },
-                  "val": {
-                    "u32": 1
-                  }
-                }
-              ]
+              "u64": 1
             }
           }
         }

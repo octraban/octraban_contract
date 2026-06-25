@@ -95,6 +95,18 @@ impl ExplorerContract {
         env.storage().instance().set(&DataKey::EventSeq, &0u64);
     }
 
+    /// Transfer the admin role to a new address (current admin only).
+    pub fn transfer_admin(env: Env, caller: Address, new_admin: Address) {
+        caller.require_auth();
+        let admin: Address = env.storage().instance().get(&DataKey::Admin).unwrap();
+        if caller != admin {
+            panic_with_error!(&env, Error::Unauthorized);
+        }
+        env.storage().instance().set(&DataKey::Admin, &new_admin);
+        env.events()
+            .publish((symbol_short!("adm_xfer"), caller), new_admin);
+    }
+
     // ── Contract Registry ─────────────────────────────────────────────────────
 
     /// Register ABI-like metadata for a Soroban contract.
@@ -316,5 +328,85 @@ mod tests {
         let admin = Address::generate(&env);
         client.init(&admin);
         client.init(&admin); // should panic
+    }
+
+    #[test]
+    fn test_transfer_admin_success() {
+        let (env, client) = setup();
+        let admin = Address::generate(&env);
+        let new_admin = Address::generate(&env);
+        client.init(&admin);
+
+        client.transfer_admin(&admin, &new_admin);
+
+        // New admin can submit events; if they weren't admin this would panic.
+        let cid: BytesN<32> = BytesN::from_array(&env, &[9u8; 32]);
+        let input = EventInput {
+            contract_id: cid.clone(),
+            function: symbol_short!("ping"),
+            ledger: 1u32,
+            description: String::from_str(&env, "new admin test"),
+            raw_topics: Vec::new(&env),
+            raw_data: Bytes::new(&env),
+        };
+        client.submit_event(&new_admin, &input);
+        assert_eq!(client.event_count(), 1u64);
+    }
+
+    #[test]
+    #[should_panic]
+    fn test_transfer_admin_unauthorized() {
+        let (env, client) = setup();
+        let admin = Address::generate(&env);
+        let attacker = Address::generate(&env);
+        let new_admin = Address::generate(&env);
+        client.init(&admin);
+
+        // Non-admin caller must panic with Unauthorized.
+        client.transfer_admin(&attacker, &new_admin);
+    }
+
+    #[test]
+    #[should_panic]
+    fn test_old_admin_loses_access_after_transfer() {
+        let (env, client) = setup();
+        let admin = Address::generate(&env);
+        let new_admin = Address::generate(&env);
+        client.init(&admin);
+        client.transfer_admin(&admin, &new_admin);
+
+        // Old admin is no longer privileged; submit_event must panic.
+        let cid: BytesN<32> = BytesN::from_array(&env, &[10u8; 32]);
+        let input = EventInput {
+            contract_id: cid.clone(),
+            function: symbol_short!("ping"),
+            ledger: 1u32,
+            description: String::from_str(&env, "stale admin attempt"),
+            raw_topics: Vec::new(&env),
+            raw_data: Bytes::new(&env),
+        };
+        client.submit_event(&admin, &input);
+    }
+
+    #[test]
+    fn test_transfer_admin_to_self_is_noop() {
+        let (env, client) = setup();
+        let admin = Address::generate(&env);
+        client.init(&admin);
+
+        // Admin transferring to themselves keeps them as admin.
+        client.transfer_admin(&admin, &admin);
+
+        let cid: BytesN<32> = BytesN::from_array(&env, &[11u8; 32]);
+        let input = EventInput {
+            contract_id: cid.clone(),
+            function: symbol_short!("ping"),
+            ledger: 1u32,
+            description: String::from_str(&env, "self transfer test"),
+            raw_topics: Vec::new(&env),
+            raw_data: Bytes::new(&env),
+        };
+        client.submit_event(&admin, &input);
+        assert_eq!(client.event_count(), 1u64);
     }
 }
