@@ -179,7 +179,7 @@
                 "bytes": "0000000000000000000000000000000000000000000000000000000000000001"
               },
               {
-                "symbol": "init"
+                "symbol": "set_max_events"
               }
             ],
             "data": {
@@ -188,7 +188,7 @@
                   "address": "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAFCT4"
                 },
                 {
-                  "u32": 0
+                  "u32": 999
                 }
               ]
             }
@@ -210,7 +210,7 @@
               },
               {
                 "error": {
-                  "contract": 3
+                  "contract": 4
                 }
               }
             ],
@@ -220,7 +220,7 @@
                   "string": "failing with contract error"
                 },
                 {
-                  "u32": 3
+                  "u32": 4
                 }
               ]
             }
@@ -242,7 +242,7 @@
               },
               {
                 "error": {
-                  "contract": 3
+                  "contract": 4
                 }
               }
             ],
@@ -267,7 +267,7 @@
               },
               {
                 "error": {
-                  "contract": 3
+                  "contract": 4
                 }
               }
             ],
@@ -292,7 +292,7 @@
               },
               {
                 "error": {
-                  "contract": 3
+                  "contract": 4
                 }
               }
             ],
@@ -302,7 +302,7 @@
                   "string": "contract call failed"
                 },
                 {
-                  "symbol": "init"
+                  "symbol": "set_max_events"
                 },
                 {
                   "vec": [
@@ -310,7 +310,7 @@
                       "address": "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAFCT4"
                     },
                     {
-                      "u32": 0
+                      "u32": 999
                     }
                   ]
                 }
@@ -334,7 +334,7 @@
               },
               {
                 "error": {
-                  "contract": 3
+                  "contract": 4
                 }
               }
             ],

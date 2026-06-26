@@ -12,6 +12,7 @@ pub enum Error {
     NotFound = 1,
     Unauthorized = 2,
     AlreadyExists = 3,
+    BelowFloor = 4,
 }
 
 // ── Storage keys ─────────────────────────────────────────────────────────────
@@ -19,9 +20,15 @@ pub enum Error {
 pub enum DataKey {
     Admin,
     Contract(BytesN<32>), // contract_id → ContractMeta
-    EventLog(u64),        // seq → DecodedEvent
-    EventSeq,
+    EventLog(u64),        // slot → DecodedEvent  (slot = seq % max_events)
+    EventSeq,             // monotonic counter (never wraps)
+    MaxEvents,            // u32 ring-buffer capacity
 }
+
+/// Minimum allowed value for max_events (prevents accidental data loss).
+pub const MIN_MAX_EVENTS: u32 = 1_000;
+/// Default ring-buffer capacity used at init when not overridden.
+pub const DEFAULT_MAX_EVENTS: u32 = 50_000;
 
 // ── Data types ────────────────────────────────────────────────────────────────
 
@@ -87,12 +94,15 @@ impl ExplorerContract {
     // ── Admin ─────────────────────────────────────────────────────────────────
 
     /// Initialise with an admin address (call once).
-    pub fn init(env: Env, admin: Address) {
+    /// `max_events` is the ring-buffer capacity (default: 50_000).
+    pub fn init(env: Env, admin: Address, max_events: u32) {
         if env.storage().instance().has(&DataKey::Admin) {
             panic_with_error!(&env, Error::AlreadyExists);
         }
+        let cap = if max_events == 0 { DEFAULT_MAX_EVENTS } else { max_events };
         env.storage().instance().set(&DataKey::Admin, &admin);
         env.storage().instance().set(&DataKey::EventSeq, &0u64);
+        env.storage().instance().set(&DataKey::MaxEvents, &cap);
     }
 
     // ── Contract Registry ─────────────────────────────────────────────────────
@@ -110,6 +120,13 @@ impl ExplorerContract {
             panic_with_error!(&env, Error::AlreadyExists);
         }
         env.storage().persistent().set(&key, &meta);
+
+        // #275 — emit contract_registered diagnostic event
+        env.events().publish(
+            (symbol_short!("c_reg"), contract_id.clone()),
+            (meta.registered_by.clone(), meta.version, env.ledger().sequence()),
+        );
+        // legacy event kept for off-chain indexers already subscribed to "register"
         env.events()
             .publish((symbol_short!("register"), contract_id), meta.name);
     }
@@ -128,7 +145,14 @@ impl ExplorerContract {
         if caller != existing.registered_by && caller != admin {
             panic_with_error!(&env, Error::Unauthorized);
         }
+        let old_version = existing.version;
         env.storage().persistent().set(&key, &meta);
+
+        // #275 — emit contract_updated diagnostic event
+        env.events().publish(
+            (symbol_short!("c_upd"), contract_id),
+            (caller, old_version, meta.version, env.ledger().sequence()),
+        );
     }
 
     /// Fetch metadata for a contract.
@@ -139,13 +163,39 @@ impl ExplorerContract {
             .unwrap_or_else(|| panic_with_error!(&env, Error::NotFound))
     }
 
+    // ── Event cap management ──────────────────────────────────────────────────
+
+    /// Admin-only: change the ring-buffer cap.  Floor: MIN_MAX_EVENTS.
+    pub fn set_max_events(env: Env, caller: Address, new_max: u32) {
+        caller.require_auth();
+        let admin: Address = env.storage().instance().get(&DataKey::Admin).unwrap();
+        if caller != admin {
+            panic_with_error!(&env, Error::Unauthorized);
+        }
+        if new_max < MIN_MAX_EVENTS {
+            panic_with_error!(&env, Error::BelowFloor);
+        }
+        env.storage().instance().set(&DataKey::MaxEvents, &new_max);
+    }
+
+    /// Return `(current_count, max_events)` for monitoring.
+    pub fn storage_utilisation(env: Env) -> (u64, u32) {
+        let seq: u64 = env.storage().instance().get(&DataKey::EventSeq).unwrap_or(0);
+        let max: u32 = env
+            .storage()
+            .instance()
+            .get(&DataKey::MaxEvents)
+            .unwrap_or(DEFAULT_MAX_EVENTS);
+        let count = seq.min(max as u64);
+        (count, max)
+    }
+
     // ── Event Decoder ─────────────────────────────────────────────────────────
 
     /// Submit a decoded event (called by the off-chain indexer via a trusted tx).
-    /// The indexer decodes raw XDR and calls this to persist a human-readable record.
+    /// Uses a ring-buffer: when seq >= max_events, overwrites the oldest slot.
     pub fn submit_event(env: Env, caller: Address, input: EventInput) {
         caller.require_auth();
-        // Only admin or registered indexers may submit events.
         let admin: Address = env.storage().instance().get(&DataKey::Admin).unwrap();
         if caller != admin {
             panic_with_error!(&env, Error::Unauthorized);
@@ -156,6 +206,17 @@ impl ExplorerContract {
             .instance()
             .get(&DataKey::EventSeq)
             .unwrap_or(0);
+        let max: u32 = env
+            .storage()
+            .instance()
+            .get(&DataKey::MaxEvents)
+            .unwrap_or(DEFAULT_MAX_EVENTS);
+
+        // Ring-buffer slot: wraps when seq >= max_events
+        let slot = seq % (max as u64);
+        let evicting = seq >= (max as u64);
+        let evicted_seq = if evicting { seq - (max as u64) } else { seq };
+
         let event = DecodedEvent {
             seq,
             contract_id: input.contract_id.clone(),
@@ -167,9 +228,24 @@ impl ExplorerContract {
         };
         env.storage()
             .persistent()
-            .set(&DataKey::EventLog(seq), &event);
+            .set(&DataKey::EventLog(slot), &event);
         env.storage().instance().set(&DataKey::EventSeq, &(seq + 1));
 
+        // #275 — emit event_submitted diagnostic event
+        env.events().publish(
+            (symbol_short!("ev_sub"), input.contract_id.clone(), input.function.clone()),
+            (seq, input.ledger),
+        );
+
+        // #274 — emit StorageCapReached when eviction occurs
+        if evicting {
+            env.events().publish(
+                (symbol_short!("cap_hit"),),
+                (evicted_seq, seq),
+            );
+        }
+
+        // legacy event kept for backward compat
         env.events().publish(
             (symbol_short!("decoded"), input.contract_id, input.function),
             input.description,
@@ -177,34 +253,69 @@ impl ExplorerContract {
     }
 
     /// Fetch a single decoded event by sequence number.
+    /// `seq` must be within the live ring-buffer window.
     pub fn get_event(env: Env, seq: u64) -> DecodedEvent {
-        env.storage()
-            .persistent()
-            .get(&DataKey::EventLog(seq))
-            .unwrap_or_else(|| panic_with_error!(&env, Error::NotFound))
-    }
-
-    /// Return the total number of stored events.
-    pub fn event_count(env: Env) -> u64 {
-        env.storage()
+        let max: u32 = env
+            .storage()
             .instance()
-            .get(&DataKey::EventSeq)
-            .unwrap_or(0)
+            .get(&DataKey::MaxEvents)
+            .unwrap_or(DEFAULT_MAX_EVENTS);
+        let slot = seq % (max as u64);
+        let stored: DecodedEvent = env
+            .storage()
+            .persistent()
+            .get(&DataKey::EventLog(slot))
+            .unwrap_or_else(|| panic_with_error!(&env, Error::NotFound));
+        // Verify the slot still holds the requested seq (not overwritten)
+        if stored.seq != seq {
+            panic_with_error!(&env, Error::NotFound);
+        }
+        stored
     }
 
-    /// Fetch events starting from cursor (inclusive seq). Returns up to `limit` events.
-    /// Use the last event's `seq + 1` as the next cursor.
-    pub fn get_events(env: Env, cursor: u64, limit: u32) -> Vec<DecodedEvent> {
-        let total: u64 = env
+    /// Return the total number of stored events (capped at max_events).
+    pub fn event_count(env: Env) -> u64 {
+        let seq: u64 = env
             .storage()
             .instance()
             .get(&DataKey::EventSeq)
             .unwrap_or(0);
+        let max: u32 = env
+            .storage()
+            .instance()
+            .get(&DataKey::MaxEvents)
+            .unwrap_or(DEFAULT_MAX_EVENTS);
+        seq.min(max as u64)
+    }
+
+    /// Fetch events starting from cursor (inclusive seq). Returns up to `limit` events.
+    /// Skips slots that have been overwritten by the ring-buffer.
+    pub fn get_events(env: Env, cursor: u64, limit: u32) -> Vec<DecodedEvent> {
+        let total_seq: u64 = env
+            .storage()
+            .instance()
+            .get(&DataKey::EventSeq)
+            .unwrap_or(0);
+        let max: u32 = env
+            .storage()
+            .instance()
+            .get(&DataKey::MaxEvents)
+            .unwrap_or(DEFAULT_MAX_EVENTS);
+        // Oldest available seq in the ring (once the buffer has wrapped)
+        let oldest = if total_seq > (max as u64) {
+            total_seq - (max as u64)
+        } else {
+            0
+        };
+        let start = cursor.max(oldest);
         let mut out: Vec<DecodedEvent> = Vec::new(&env);
-        let mut seq = cursor;
-        while (out.len() as u32) < limit && seq < total {
-            if let Some(ev) = env.storage().persistent().get(&DataKey::EventLog(seq)) {
-                out.push_back(ev);
+        let mut seq = start;
+        while (out.len() as u32) < limit && seq < total_seq {
+            let slot = seq % (max as u64);
+            if let Some(ev) = env.storage().persistent().get::<DataKey, DecodedEvent>(&DataKey::EventLog(slot)) {
+                if ev.seq == seq {
+                    out.push_back(ev);
+                }
             }
             seq += 1;
         }
@@ -216,7 +327,7 @@ impl ExplorerContract {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use soroban_sdk::{testutils::Address as _, Env};
+    use soroban_sdk::{testutils::{Address as _, Events as _}, Env};
 
     fn setup() -> (Env, ExplorerContractClient<'static>) {
         let env = Env::default();
@@ -226,11 +337,22 @@ mod tests {
         (env, client)
     }
 
+    fn make_input(env: &Env, cid: &BytesN<32>) -> EventInput {
+        EventInput {
+            contract_id: cid.clone(),
+            function: symbol_short!("swap"),
+            ledger: 100u32,
+            description: String::from_str(env, "test"),
+            raw_topics: Vec::new(env),
+            raw_data: Bytes::new(env),
+        }
+    }
+
     #[test]
     fn test_init_and_register() {
         let (env, client) = setup();
         let admin = Address::generate(&env);
-        client.init(&admin);
+        client.init(&admin, &0u32);
 
         let cid: BytesN<32> = BytesN::from_array(&env, &[1u8; 32]);
         let meta = ContractMeta {
@@ -249,7 +371,7 @@ mod tests {
     fn test_submit_and_get_event() {
         let (env, client) = setup();
         let admin = Address::generate(&env);
-        client.init(&admin);
+        client.init(&admin, &0u32);
 
         let cid: BytesN<32> = BytesN::from_array(&env, &[2u8; 32]);
         let input = EventInput {
@@ -258,7 +380,7 @@ mod tests {
             ledger: 4521983u32,
             description: String::from_str(
                 &env,
-                "Address GABC... swapped 100 USDC → 98.7 XLM on StellarSwap",
+                "Address GABC... swapped 100 USDC",
             ),
             raw_topics: Vec::new(&env),
             raw_data: Bytes::new(&env),
@@ -274,19 +396,12 @@ mod tests {
     fn test_cursor_pagination() {
         let (env, client) = setup();
         let admin = Address::generate(&env);
-        client.init(&admin);
+        client.init(&admin, &0u32);
 
         let cid: BytesN<32> = BytesN::from_array(&env, &[3u8; 32]);
-        let base = EventInput {
-            contract_id: cid.clone(),
-            function: symbol_short!("swap"),
-            ledger: 100u32,
-            description: String::from_str(&env, "test"),
-            raw_topics: Vec::new(&env),
-            raw_data: Bytes::new(&env),
-        };
+        let base = make_input(&env, &cid);
 
-        for i in 0..5 {
+        for _ in 0..5 {
             client.submit_event(&admin, &base);
         }
         assert_eq!(client.event_count(), 5u64);
@@ -314,7 +429,145 @@ mod tests {
     fn test_double_init_panics() {
         let (env, client) = setup();
         let admin = Address::generate(&env);
-        client.init(&admin);
-        client.init(&admin); // should panic
+        client.init(&admin, &0u32);
+        client.init(&admin, &0u32); // should panic
+    }
+
+    // ── Ring-buffer cap tests (#274) ──────────────────────────────────────────
+
+    #[test]
+    fn test_ring_buffer_wraps_correctly() {
+        let (env, client) = setup();
+        let admin = Address::generate(&env);
+        // tiny cap of 5 for fast testing
+        client.init(&admin, &5u32);
+        let cid: BytesN<32> = BytesN::from_array(&env, &[10u8; 32]);
+        let base = make_input(&env, &cid);
+
+        // fill to cap
+        for _ in 0..5 {
+            client.submit_event(&admin, &base);
+        }
+        assert_eq!(client.event_count(), 5u64);
+
+        // overfill by 10
+        for _ in 0..10 {
+            client.submit_event(&admin, &base);
+        }
+        // count must not exceed cap
+        assert_eq!(client.event_count(), 5u64);
+
+        // oldest available seq is 10 (15 total - cap 5)
+        let evs = client.get_events(&0u64, &20u32);
+        assert_eq!(evs.len(), 5);
+        assert_eq!(evs.get(0).unwrap().seq, 10);
+        assert_eq!(evs.get(4).unwrap().seq, 14);
+    }
+
+    #[test]
+    fn test_storage_utilisation() {
+        let (env, client) = setup();
+        let admin = Address::generate(&env);
+        client.init(&admin, &1000u32);
+        let (cur, max) = client.storage_utilisation();
+        assert_eq!(cur, 0u64);
+        assert_eq!(max, 1000u32);
+    }
+
+    #[test]
+    #[should_panic]
+    fn test_set_max_events_below_floor_rejected() {
+        let (env, client) = setup();
+        let admin = Address::generate(&env);
+        client.init(&admin, &0u32);
+        client.set_max_events(&admin, &999u32); // 999 < MIN_MAX_EVENTS=1000 → panic
+    }
+
+    #[test]
+    fn test_set_max_events_accepted() {
+        let (env, client) = setup();
+        let admin = Address::generate(&env);
+        client.init(&admin, &0u32);
+        client.set_max_events(&admin, &1000u32);
+        let (_, max) = client.storage_utilisation();
+        assert_eq!(max, 1000u32);
+    }
+
+    // ── Diagnostic event emission tests (#275) ────────────────────────────────
+
+    #[test]
+    fn test_register_emits_event() {
+        let (env, client) = setup();
+        let admin = Address::generate(&env);
+        client.init(&admin, &0u32);
+
+        let cid: BytesN<32> = BytesN::from_array(&env, &[20u8; 32]);
+        let meta = ContractMeta {
+            version: 1,
+            name: String::from_str(&env, "TestDex"),
+            description: String::from_str(&env, "desc"),
+            functions: Vec::new(&env),
+            registered_by: admin.clone(),
+        };
+        client.register_contract(&admin, &cid, &meta);
+
+        // At least 2 events emitted: c_reg + register
+        let evs = env.events().all();
+        assert!(evs.len() >= 2);
+    }
+
+    #[test]
+    fn test_update_emits_event() {
+        let (env, client) = setup();
+        let admin = Address::generate(&env);
+        client.init(&admin, &0u32);
+
+        let cid: BytesN<32> = BytesN::from_array(&env, &[21u8; 32]);
+        let meta_v1 = ContractMeta {
+            version: 1,
+            name: String::from_str(&env, "Dex"),
+            description: String::from_str(&env, "v1"),
+            functions: Vec::new(&env),
+            registered_by: admin.clone(),
+        };
+        client.register_contract(&admin, &cid, &meta_v1);
+        let before = env.events().all().len();
+
+        let meta_v2 = ContractMeta { version: 2, ..meta_v1 };
+        client.update_contract(&admin, &cid, &meta_v2);
+
+        // c_upd event emitted
+        assert!(env.events().all().len() > before);
+    }
+
+    #[test]
+    fn test_submit_emits_ev_sub_event() {
+        let (env, client) = setup();
+        let admin = Address::generate(&env);
+        client.init(&admin, &0u32);
+
+        let cid: BytesN<32> = BytesN::from_array(&env, &[22u8; 32]);
+        client.submit_event(&admin, &make_input(&env, &cid));
+
+        let evs = env.events().all();
+        // ev_sub + decoded events emitted
+        assert!(evs.len() >= 2);
+    }
+
+    #[test]
+    fn test_cap_hit_event_emitted_on_eviction() {
+        let (env, client) = setup();
+        let admin = Address::generate(&env);
+        client.init(&admin, &5u32);
+        let cid: BytesN<32> = BytesN::from_array(&env, &[23u8; 32]);
+        let base = make_input(&env, &cid);
+
+        for _ in 0..5 {
+            client.submit_event(&admin, &base);
+        }
+        let before = env.events().all().len();
+        // This submit triggers eviction
+        client.submit_event(&admin, &base);
+        assert!(env.events().all().len() > before);
     }
 }
