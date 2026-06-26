@@ -13,6 +13,7 @@ pub enum Error {
     Unauthorized = 2,
     AlreadyExists = 3,
     BelowFloor = 4,
+    ContractPaused = 5,
 }
 
 // ── Storage keys ─────────────────────────────────────────────────────────────
@@ -23,6 +24,7 @@ pub enum DataKey {
     EventLog(u64),        // slot → DecodedEvent  (slot = seq % max_events)
     EventSeq,             // monotonic counter (never wraps)
     MaxEvents,            // u32 ring-buffer capacity
+    Paused,               // bool — contract pause flag (#264)
 }
 
 /// Minimum allowed value for max_events (prevents accidental data loss).
@@ -115,6 +117,9 @@ impl ExplorerContract {
         meta: ContractMeta,
     ) {
         caller.require_auth();
+        if env.storage().instance().get(&DataKey::Paused).unwrap_or(false) {
+            panic_with_error!(&env, Error::ContractPaused);
+        }
         let key = DataKey::Contract(contract_id.clone());
         if env.storage().persistent().has(&key) {
             panic_with_error!(&env, Error::AlreadyExists);
@@ -134,6 +139,9 @@ impl ExplorerContract {
     /// Update metadata (admin or original registrant only).
     pub fn update_contract(env: Env, caller: Address, contract_id: BytesN<32>, meta: ContractMeta) {
         caller.require_auth();
+        if env.storage().instance().get(&DataKey::Paused).unwrap_or(false) {
+            panic_with_error!(&env, Error::ContractPaused);
+        }
         let key = DataKey::Contract(contract_id.clone());
         let existing: ContractMeta = env
             .storage()
@@ -163,6 +171,29 @@ impl ExplorerContract {
             .unwrap_or_else(|| panic_with_error!(&env, Error::NotFound))
     }
 
+    /// Remove a contract from the registry. (#258)
+    /// Only the original registrant or admin may deregister.
+    pub fn deregister_contract(env: Env, caller: Address, contract_id: BytesN<32>) {
+        caller.require_auth();
+        if env.storage().instance().get(&DataKey::Paused).unwrap_or(false) {
+            panic_with_error!(&env, Error::ContractPaused);
+        }
+        let key = DataKey::Contract(contract_id.clone());
+        let existing: ContractMeta = env
+            .storage()
+            .persistent()
+            .get(&key)
+            .unwrap_or_else(|| panic_with_error!(&env, Error::NotFound));
+
+        let admin: Address = env.storage().instance().get(&DataKey::Admin).unwrap();
+        if caller != existing.registered_by && caller != admin {
+            panic_with_error!(&env, Error::Unauthorized);
+        }
+        env.storage().persistent().remove(&key);
+        env.events()
+            .publish((symbol_short!("deregist"), contract_id), caller);
+    }
+
     // ── Event cap management ──────────────────────────────────────────────────
 
     /// Admin-only: change the ring-buffer cap.  Floor: MIN_MAX_EVENTS.
@@ -190,6 +221,38 @@ impl ExplorerContract {
         (count, max)
     }
 
+    // ── Pause / unpause (#264) ────────────────────────────────────────────────
+
+    /// Admin-only: freeze all state-mutating operations.
+    pub fn pause(env: Env, caller: Address) {
+        caller.require_auth();
+        let admin: Address = env.storage().instance().get(&DataKey::Admin).unwrap();
+        if caller != admin {
+            panic_with_error!(&env, Error::Unauthorized);
+        }
+        env.storage().instance().set(&DataKey::Paused, &true);
+        env.events().publish((symbol_short!("paused"),), ());
+    }
+
+    /// Admin-only: unfreeze the contract.
+    pub fn unpause(env: Env, caller: Address) {
+        caller.require_auth();
+        let admin: Address = env.storage().instance().get(&DataKey::Admin).unwrap();
+        if caller != admin {
+            panic_with_error!(&env, Error::Unauthorized);
+        }
+        env.storage().instance().set(&DataKey::Paused, &false);
+        env.events().publish((symbol_short!("unpaused"),), ());
+    }
+
+    /// Return whether the contract is currently paused.
+    pub fn is_paused(env: Env) -> bool {
+        env.storage()
+            .instance()
+            .get(&DataKey::Paused)
+            .unwrap_or(false)
+    }
+
     // ── Event Decoder ─────────────────────────────────────────────────────────
 
     /// Submit a decoded event (called by the off-chain indexer via a trusted tx).
@@ -199,6 +262,9 @@ impl ExplorerContract {
         let admin: Address = env.storage().instance().get(&DataKey::Admin).unwrap();
         if caller != admin {
             panic_with_error!(&env, Error::Unauthorized);
+        }
+        if env.storage().instance().get(&DataKey::Paused).unwrap_or(false) {
+            panic_with_error!(&env, Error::ContractPaused);
         }
 
         let seq: u64 = env
