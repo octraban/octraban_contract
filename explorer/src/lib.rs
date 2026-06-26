@@ -1,28 +1,45 @@
 #![no_std]
+
+//! Explorer contract for registering contract metadata and persisting decoded
+//! Soroban events in a compact on-chain ring buffer.
+
 use soroban_sdk::{
     contract, contracterror, contractimpl, contracttype, panic_with_error, symbol_short, Address,
     Bytes, BytesN, Env, String, Symbol, Vec,
 };
 
 // ── Error codes ──────────────────────────────────────────────────────────────
+/// Contract errors emitted by the explorer contract.
+#[allow(missing_docs)]
 #[contracterror]
 #[derive(Copy, Clone, Debug, Eq, PartialEq)]
 #[repr(u32)]
 pub enum Error {
+    /// The requested contract or event could not be found.
     NotFound = 1,
+    /// The caller is not authorized to perform the requested action.
     Unauthorized = 2,
+    /// The requested registry entry already exists.
     AlreadyExists = 3,
+    /// The requested event buffer size is below the minimum allowed value.
     BelowFloor = 4,
 }
 
 // ── Storage keys ─────────────────────────────────────────────────────────────
+/// Storage keys used by the explorer contract.
+#[allow(missing_docs)]
 #[contracttype]
 pub enum DataKey {
+    /// The admin address that can submit decoded events.
     Admin,
+    /// Maps a contract ID to its registered metadata.
     Contract(BytesN<32>), // contract_id → ContractMeta
-    EventLog(u64),        // slot → DecodedEvent  (slot = seq % max_events)
-    EventSeq,             // monotonic counter (never wraps)
-    MaxEvents,            // u32 ring-buffer capacity
+    /// Stores the decoded event for a given event-log slot.
+    EventLog(u64), // slot → DecodedEvent  (slot = seq % max_events)
+    /// Tracks the monotonic event sequence counter.
+    EventSeq, // monotonic counter (never wraps)
+    /// Tracks the configured ring-buffer capacity.
+    MaxEvents, // u32 ring-buffer capacity
 }
 
 /// Minimum allowed value for max_events (prevents accidental data loss).
@@ -33,59 +50,89 @@ pub const DEFAULT_MAX_EVENTS: u32 = 50_000;
 // ── Data types ────────────────────────────────────────────────────────────────
 
 /// ABI-like metadata for a registered contract.
+#[allow(missing_docs)]
 #[contracttype]
 #[derive(Clone)]
 pub struct ContractMeta {
-    pub version: u32, // Metadata schema version for forward compatibility
-    pub name: String, // e.g. "StellarSwap"
+    /// Metadata schema version for forward compatibility.
+    pub version: u32,
+    /// Human-readable contract name, for example `StellarSwap`.
+    pub name: String,
+    /// Human-readable description of the contract.
     pub description: String,
+    /// Callable functions exposed by the registered contract.
     pub functions: Vec<FunctionAbi>,
+    /// The address that originally registered the metadata.
     pub registered_by: Address,
 }
 
 /// Describes one callable function so the explorer can decode calls.
+#[allow(missing_docs)]
 #[contracttype]
 #[derive(Clone)]
 pub struct FunctionAbi {
-    pub name: Symbol,        // e.g. symbol_short!("swap")
-    pub description: String, // "Swap token_in for token_out"
+    /// The function name as a Soroban symbol.
+    pub name: Symbol,
+    /// A human-readable description of the function.
+    pub description: String,
+    /// Parameter definitions for the function.
     pub params: Vec<ParamDef>,
 }
 
 /// One parameter definition.
+#[allow(missing_docs)]
 #[contracttype]
 #[derive(Clone)]
 pub struct ParamDef {
+    /// The parameter name.
     pub name: Symbol,
-    pub kind: Symbol, // "address" | "i128" | "symbol" | "bytes"
+    /// The parameter kind, such as `address`, `i128`, `symbol`, or `bytes`.
+    pub kind: Symbol,
 }
 
 /// A decoded, human-readable event stored on-chain.
+#[allow(missing_docs)]
 #[contracttype]
 #[derive(Clone)]
 pub struct DecodedEvent {
+    /// The monotonic sequence number assigned to the event.
     pub seq: u64,
+    /// The contract ID that emitted the event.
     pub contract_id: BytesN<32>,
+    /// The function name associated with the event.
     pub function: Symbol,
+    /// The ledger sequence where the event was observed.
     pub ledger: u32,
-    pub description: String, // "Address GA… swapped 100 USDC → 98.7 XLM"
+    /// The decoded human-readable description.
+    pub description: String,
+    /// The raw event topics as strings.
     pub raw_topics: Vec<String>,
+    /// The raw event data payload.
     pub raw_data: Bytes,
 }
 
-/// Event submission parameters (reduces function parameter count)
+/// Event submission parameters used to reduce the number of function arguments.
+#[allow(missing_docs)]
 #[contracttype]
 #[derive(Clone)]
 pub struct EventInput {
+    /// The contract ID that emitted the event.
     pub contract_id: BytesN<32>,
+    /// The function name associated with the event.
     pub function: Symbol,
+    /// The ledger sequence where the event was observed.
     pub ledger: u32,
+    /// The decoded human-readable description.
     pub description: String,
+    /// The raw event topics as strings.
     pub raw_topics: Vec<String>,
+    /// The raw event data payload.
     pub raw_data: Bytes,
 }
 
 // ── Contract ──────────────────────────────────────────────────────────────────
+/// The explorer contract used to register contract metadata and persist decoded events.
+#[allow(missing_docs)]
 #[contract]
 pub struct ExplorerContract;
 
@@ -93,13 +140,35 @@ pub struct ExplorerContract;
 impl ExplorerContract {
     // ── Admin ─────────────────────────────────────────────────────────────────
 
-    /// Initialise with an admin address (call once).
-    /// `max_events` is the ring-buffer capacity (default: 50_000).
+    /// Initializes the explorer contract and configures the initial event-ring buffer.
+    ///
+    /// # Arguments
+    /// * `env` - The contract environment.
+    /// * `admin` - The address that is authorized to submit decoded events and manage the ring buffer.
+    /// * `max_events` - The initial maximum number of stored events. Use `0` to fall back to the default capacity.
+    ///
+    /// # Returns
+    /// This function returns nothing.
+    ///
+    /// # Errors
+    /// * `AlreadyExists` - If the contract has already been initialized.
+    ///
+    /// # Authorization
+    /// No prior authorization is required. This function can be invoked once during bootstrap.
+    ///
+    /// # Examples
+    /// ```bash
+    /// stellar contract invoke --network testnet --id <CONTRACT_ID> --source alice -- init --admin GBK...
+    /// ```
     pub fn init(env: Env, admin: Address, max_events: u32) {
         if env.storage().instance().has(&DataKey::Admin) {
             panic_with_error!(&env, Error::AlreadyExists);
         }
-        let cap = if max_events == 0 { DEFAULT_MAX_EVENTS } else { max_events };
+        let cap = if max_events == 0 {
+            DEFAULT_MAX_EVENTS
+        } else {
+            max_events
+        };
         env.storage().instance().set(&DataKey::Admin, &admin);
         env.storage().instance().set(&DataKey::EventSeq, &0u64);
         env.storage().instance().set(&DataKey::MaxEvents, &cap);
@@ -107,7 +176,27 @@ impl ExplorerContract {
 
     // ── Contract Registry ─────────────────────────────────────────────────────
 
-    /// Register ABI-like metadata for a Soroban contract.
+    /// Registers ABI-like metadata for a Soroban contract.
+    ///
+    /// # Arguments
+    /// * `env` - The contract environment.
+    /// * `caller` - The address that must authorize the registration.
+    /// * `contract_id` - The contract identifier for the registered contract.
+    /// * `meta` - The metadata payload that describes the contract ABI.
+    ///
+    /// # Returns
+    /// This function returns nothing.
+    ///
+    /// # Errors
+    /// This function does not return any contract error variants.
+    ///
+    /// # Authorization
+    /// The `caller` address must authorize the invocation.
+    ///
+    /// # Examples
+    /// ```bash
+    /// stellar contract invoke --network testnet --id <CONTRACT_ID> --source alice -- register-contract --caller GBK... --contract-id <CONTRACT_ID> --meta '{"name":"Example"}'
+    /// ```
     pub fn register_contract(
         env: Env,
         caller: Address,
@@ -124,14 +213,39 @@ impl ExplorerContract {
         // #275 — emit contract_registered diagnostic event
         env.events().publish(
             (symbol_short!("c_reg"), contract_id.clone()),
-            (meta.registered_by.clone(), meta.version, env.ledger().sequence()),
+            (
+                meta.registered_by.clone(),
+                meta.version,
+                env.ledger().sequence(),
+            ),
         );
         // legacy event kept for off-chain indexers already subscribed to "register"
         env.events()
             .publish((symbol_short!("register"), contract_id), meta.name);
     }
 
-    /// Update metadata (admin or original registrant only).
+    /// Updates registered metadata when called by the admin or the original registrant.
+    ///
+    /// # Arguments
+    /// * `env` - The contract environment.
+    /// * `caller` - The address attempting to update the metadata.
+    /// * `contract_id` - The target contract identifier.
+    /// * `meta` - The replacement metadata payload.
+    ///
+    /// # Returns
+    /// This function returns nothing.
+    ///
+    /// # Errors
+    /// * `NotFound` - If the target contract is not registered.
+    /// * `Unauthorized` - If the caller is neither the original registrant nor the admin.
+    ///
+    /// # Authorization
+    /// The caller must be the admin or the original registrant that created the metadata entry.
+    ///
+    /// # Examples
+    /// ```bash
+    /// stellar contract invoke --network testnet --id <CONTRACT_ID> --source alice -- update-contract --caller GBK... --contract-id <CONTRACT_ID> --meta '{"name":"Updated"}'
+    /// ```
     pub fn update_contract(env: Env, caller: Address, contract_id: BytesN<32>, meta: ContractMeta) {
         caller.require_auth();
         let key = DataKey::Contract(contract_id.clone());
@@ -155,7 +269,25 @@ impl ExplorerContract {
         );
     }
 
-    /// Fetch metadata for a contract.
+    /// Fetches the registered metadata for a contract.
+    ///
+    /// # Arguments
+    /// * `env` - The contract environment.
+    /// * `contract_id` - The contract identifier to look up.
+    ///
+    /// # Returns
+    /// The registered metadata for the contract on success.
+    ///
+    /// # Errors
+    /// * `NotFound` - If no metadata has been registered for the contract.
+    ///
+    /// # Authorization
+    /// This read-only function does not require authorization.
+    ///
+    /// # Examples
+    /// ```bash
+    /// stellar contract invoke --network testnet --id <CONTRACT_ID> --source alice -- get-contract --contract-id <CONTRACT_ID>
+    /// ```
     pub fn get_contract(env: Env, contract_id: BytesN<32>) -> ContractMeta {
         env.storage()
             .persistent()
@@ -165,7 +297,27 @@ impl ExplorerContract {
 
     // ── Event cap management ──────────────────────────────────────────────────
 
-    /// Admin-only: change the ring-buffer cap.  Floor: MIN_MAX_EVENTS.
+    /// Updates the ring-buffer capacity for persisted events.
+    ///
+    /// # Arguments
+    /// * `env` - The contract environment.
+    /// * `caller` - The address attempting to change the capacity.
+    /// * `new_max` - The new maximum number of retained events.
+    ///
+    /// # Returns
+    /// This function returns nothing.
+    ///
+    /// # Errors
+    /// * `Unauthorized` - If the caller is not the configured admin.
+    /// * `BelowFloor` - If the requested capacity is lower than `MIN_MAX_EVENTS`.
+    ///
+    /// # Authorization
+    /// Only the configured admin may change the ring-buffer capacity.
+    ///
+    /// # Examples
+    /// ```bash
+    /// stellar contract invoke --network testnet --id <CONTRACT_ID> --source alice -- set-max-events --caller GBK... --new-max 100000
+    /// ```
     pub fn set_max_events(env: Env, caller: Address, new_max: u32) {
         caller.require_auth();
         let admin: Address = env.storage().instance().get(&DataKey::Admin).unwrap();
@@ -178,9 +330,30 @@ impl ExplorerContract {
         env.storage().instance().set(&DataKey::MaxEvents, &new_max);
     }
 
-    /// Return `(current_count, max_events)` for monitoring.
+    /// Returns the current storage usage and configured event-buffer capacity.
+    ///
+    /// # Arguments
+    /// * `env` - The contract environment.
+    ///
+    /// # Returns
+    /// A tuple of `(current_count, max_events)` describing the current ring-buffer occupancy and configured capacity.
+    ///
+    /// # Errors
+    /// This function does not return any contract error variants.
+    ///
+    /// # Authorization
+    /// This read-only function does not require authorization.
+    ///
+    /// # Examples
+    /// ```bash
+    /// stellar contract invoke --network testnet --id <CONTRACT_ID> --source alice -- storage-utilisation
+    /// ```
     pub fn storage_utilisation(env: Env) -> (u64, u32) {
-        let seq: u64 = env.storage().instance().get(&DataKey::EventSeq).unwrap_or(0);
+        let seq: u64 = env
+            .storage()
+            .instance()
+            .get(&DataKey::EventSeq)
+            .unwrap_or(0);
         let max: u32 = env
             .storage()
             .instance()
@@ -192,8 +365,26 @@ impl ExplorerContract {
 
     // ── Event Decoder ─────────────────────────────────────────────────────────
 
-    /// Submit a decoded event (called by the off-chain indexer via a trusted tx).
-    /// Uses a ring-buffer: when seq >= max_events, overwrites the oldest slot.
+    /// Submits a decoded event for on-chain storage in the explorer ring buffer.
+    ///
+    /// # Arguments
+    /// * `env` - The contract environment.
+    /// * `caller` - The address attempting to submit the event.
+    /// * `input` - The decoded event payload to store.
+    ///
+    /// # Returns
+    /// This function returns nothing.
+    ///
+    /// # Errors
+    /// * `Unauthorized` - If the caller is not the configured admin.
+    ///
+    /// # Authorization
+    /// Only the configured admin may submit decoded events.
+    ///
+    /// # Examples
+    /// ```bash
+    /// stellar contract invoke --network testnet --id <CONTRACT_ID> --source alice -- submit-event --caller GBK... --input '{"contract_id":"<CONTRACT_ID>","function":"transfer","ledger":123,"description":"Transferred tokens","raw_topics":[],"raw_data":""}'
+    /// ```
     pub fn submit_event(env: Env, caller: Address, input: EventInput) {
         caller.require_auth();
         let admin: Address = env.storage().instance().get(&DataKey::Admin).unwrap();
@@ -233,16 +424,18 @@ impl ExplorerContract {
 
         // #275 — emit event_submitted diagnostic event
         env.events().publish(
-            (symbol_short!("ev_sub"), input.contract_id.clone(), input.function.clone()),
+            (
+                symbol_short!("ev_sub"),
+                input.contract_id.clone(),
+                input.function.clone(),
+            ),
             (seq, input.ledger),
         );
 
         // #274 — emit StorageCapReached when eviction occurs
         if evicting {
-            env.events().publish(
-                (symbol_short!("cap_hit"),),
-                (evicted_seq, seq),
-            );
+            env.events()
+                .publish((symbol_short!("cap_hit"),), (evicted_seq, seq));
         }
 
         // legacy event kept for backward compat
@@ -252,8 +445,25 @@ impl ExplorerContract {
         );
     }
 
-    /// Fetch a single decoded event by sequence number.
-    /// `seq` must be within the live ring-buffer window.
+    /// Fetches a single decoded event by sequence number.
+    ///
+    /// # Arguments
+    /// * `env` - The contract environment.
+    /// * `seq` - The event sequence number to look up.
+    ///
+    /// # Returns
+    /// The requested decoded event on success.
+    ///
+    /// # Errors
+    /// * `NotFound` - If the requested sequence number is outside the live ring-buffer window or no event exists at that slot.
+    ///
+    /// # Authorization
+    /// This read-only function does not require authorization.
+    ///
+    /// # Examples
+    /// ```bash
+    /// stellar contract invoke --network testnet --id <CONTRACT_ID> --source alice -- get-event --seq 42
+    /// ```
     pub fn get_event(env: Env, seq: u64) -> DecodedEvent {
         let max: u32 = env
             .storage()
@@ -273,7 +483,24 @@ impl ExplorerContract {
         stored
     }
 
-    /// Return the total number of stored events (capped at max_events).
+    /// Returns the total number of stored events, capped by the configured maximum.
+    ///
+    /// # Arguments
+    /// * `env` - The contract environment.
+    ///
+    /// # Returns
+    /// The number of retained decoded events.
+    ///
+    /// # Errors
+    /// This function does not return any contract error variants.
+    ///
+    /// # Authorization
+    /// This read-only function does not require authorization.
+    ///
+    /// # Examples
+    /// ```bash
+    /// stellar contract invoke --network testnet --id <CONTRACT_ID> --source alice -- event-count
+    /// ```
     pub fn event_count(env: Env) -> u64 {
         let seq: u64 = env
             .storage()
@@ -288,8 +515,26 @@ impl ExplorerContract {
         seq.min(max as u64)
     }
 
-    /// Fetch events starting from cursor (inclusive seq). Returns up to `limit` events.
-    /// Skips slots that have been overwritten by the ring-buffer.
+    /// Fetches decoded events starting from a cursor sequence number.
+    ///
+    /// # Arguments
+    /// * `env` - The contract environment.
+    /// * `cursor` - The first sequence number to consider.
+    /// * `limit` - The maximum number of events to return.
+    ///
+    /// # Returns
+    /// A vector of decoded events starting at or after the requested cursor, capped by `limit`.
+    ///
+    /// # Errors
+    /// This function does not return any contract error variants.
+    ///
+    /// # Authorization
+    /// This read-only function does not require authorization.
+    ///
+    /// # Examples
+    /// ```bash
+    /// stellar contract invoke --network testnet --id <CONTRACT_ID> --source alice -- get-events --cursor 0 --limit 10
+    /// ```
     pub fn get_events(env: Env, cursor: u64, limit: u32) -> Vec<DecodedEvent> {
         let total_seq: u64 = env
             .storage()
@@ -312,7 +557,11 @@ impl ExplorerContract {
         let mut seq = start;
         while (out.len() as u32) < limit && seq < total_seq {
             let slot = seq % (max as u64);
-            if let Some(ev) = env.storage().persistent().get::<DataKey, DecodedEvent>(&DataKey::EventLog(slot)) {
+            if let Some(ev) = env
+                .storage()
+                .persistent()
+                .get::<DataKey, DecodedEvent>(&DataKey::EventLog(slot))
+            {
                 if ev.seq == seq {
                     out.push_back(ev);
                 }
@@ -327,7 +576,10 @@ impl ExplorerContract {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use soroban_sdk::{testutils::{Address as _, Events as _}, Env};
+    use soroban_sdk::{
+        testutils::{Address as _, Events as _},
+        Env,
+    };
 
     fn setup() -> (Env, ExplorerContractClient<'static>) {
         let env = Env::default();
@@ -378,10 +630,7 @@ mod tests {
             contract_id: cid.clone(),
             function: symbol_short!("swap"),
             ledger: 4521983u32,
-            description: String::from_str(
-                &env,
-                "Address GABC... swapped 100 USDC",
-            ),
+            description: String::from_str(&env, "Address GABC... swapped 100 USDC"),
             raw_topics: Vec::new(&env),
             raw_data: Bytes::new(&env),
         };
@@ -533,7 +782,10 @@ mod tests {
         client.register_contract(&admin, &cid, &meta_v1);
         let before = env.events().all().len();
 
-        let meta_v2 = ContractMeta { version: 2, ..meta_v1 };
+        let meta_v2 = ContractMeta {
+            version: 2,
+            ..meta_v1
+        };
         client.update_contract(&admin, &cid, &meta_v2);
 
         // c_upd event emitted
