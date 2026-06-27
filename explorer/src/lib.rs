@@ -105,6 +105,17 @@ impl ExplorerContract {
         env.storage().instance().set(&DataKey::MaxEvents, &cap);
     }
 
+    /// Transfer admin rights to a new address
+    pub fn transfer_admin(env: Env, caller: Address, new_admin: Address) {
+        caller.require_auth();
+        let admin: Address = env.storage().instance().get(&DataKey::Admin).unwrap();
+        if caller != admin {
+            panic_with_error!(&env, Error::Unauthorized);
+        }
+        env.storage().instance().set(&DataKey::Admin, &new_admin);
+        env.events().publish((symbol_short!("adm_tx"),), (caller, new_admin));
+    }
+
     // ── Contract Registry ─────────────────────────────────────────────────────
 
     /// Register ABI-like metadata for a Soroban contract.
