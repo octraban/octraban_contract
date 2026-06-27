@@ -17,9 +17,17 @@ pub enum Error {
 
 // ── Storage keys ─────────────────────────────────────────────────────────────
 #[contracttype]
+#[derive(Clone)]
+pub struct VersionKey {
+    pub contract_id: BytesN<32>,
+    pub abi_version: u32,
+}
+
+#[contracttype]
 pub enum DataKey {
     Admin,
-    Contract(BytesN<32>), // contract_id → ContractMeta
+    Contract(BytesN<32>), // contract_id → ContractMeta (latest version)
+    ContractVersion(VersionKey), // (contract_id, abi_version) → ContractMeta (version history)
     EventLog(u64),        // slot → DecodedEvent  (slot = seq % max_events)
     EventSeq,             // monotonic counter (never wraps)
     MaxEvents,            // u32 ring-buffer capacity
@@ -37,6 +45,8 @@ pub const DEFAULT_MAX_EVENTS: u32 = 50_000;
 #[derive(Clone)]
 pub struct ContractMeta {
     pub version: u32, // Metadata schema version for forward compatibility
+    pub abi_version: u32, // ABI version, incremented on each update
+    pub min_ledger: u32,  // First ledger at which this ABI version applies
     pub name: String, // e.g. "StellarSwap"
     pub description: String,
     pub functions: Vec<FunctionAbi>,
@@ -119,16 +129,27 @@ impl ExplorerContract {
         if env.storage().persistent().has(&key) {
             panic_with_error!(&env, Error::AlreadyExists);
         }
-        env.storage().persistent().set(&key, &meta);
+        // Set initial ABI version and min ledger, then persist
+        let mut stored = meta;
+        stored.abi_version = 0;
+        stored.min_ledger = env.ledger().sequence();
+        env.storage().persistent().set(&key, &stored);
+
+        // Store version 0 in version history
+        let vkey = DataKey::ContractVersion(VersionKey {
+            contract_id: contract_id.clone(),
+            abi_version: 0,
+        });
+        env.storage().persistent().set(&vkey, &stored);
 
         // #275 — emit contract_registered diagnostic event
         env.events().publish(
             (symbol_short!("c_reg"), contract_id.clone()),
-            (meta.registered_by.clone(), meta.version, env.ledger().sequence()),
+            (stored.registered_by.clone(), stored.version, env.ledger().sequence()),
         );
         // legacy event kept for off-chain indexers already subscribed to "register"
         env.events()
-            .publish((symbol_short!("register"), contract_id), meta.name);
+            .publish((symbol_short!("register"), contract_id), stored.name);
     }
 
     /// Update metadata (admin or original registrant only).
@@ -145,22 +166,86 @@ impl ExplorerContract {
         if caller != existing.registered_by && caller != admin {
             panic_with_error!(&env, Error::Unauthorized);
         }
+
+        // #272 — optimistic concurrency guard: submitted abi_version must be current + 1
+        let expected = existing.abi_version + 1;
+        if meta.abi_version != expected {
+            panic_with_error!(&env, Error::Unauthorized);
+        }
+
+        let old_abi_version = existing.abi_version;
         let old_version = existing.version;
-        env.storage().persistent().set(&key, &meta);
+        let new_abi_version = meta.abi_version;
+        let min_ledger = env.ledger().sequence();
+        let mut updated = meta;
+        updated.min_ledger = min_ledger;
+        env.storage().persistent().set(&key, &updated);
+
+        // #272 — store version in history
+        let vkey = DataKey::ContractVersion(VersionKey {
+            contract_id: contract_id.clone(),
+            abi_version: new_abi_version,
+        });
+        env.storage().persistent().set(&vkey, &updated);
+
+        // #272 — emit ContractAbiUpdated diagnostic event
+        env.events().publish(
+            (symbol_short!("c_abiu"), contract_id.clone()),
+            (old_abi_version, new_abi_version, min_ledger),
+        );
 
         // #275 — emit contract_updated diagnostic event
         env.events().publish(
             (symbol_short!("c_upd"), contract_id),
-            (caller, old_version, meta.version, env.ledger().sequence()),
+            (caller, old_version, updated.version, env.ledger().sequence()),
         );
     }
 
-    /// Fetch metadata for a contract.
-    pub fn get_contract(env: Env, contract_id: BytesN<32>) -> ContractMeta {
+    /// Fetch metadata for a contract (returns None if not found).
+    pub fn get_contract(env: Env, contract_id: BytesN<32>) -> Option<ContractMeta> {
         env.storage()
             .persistent()
             .get(&DataKey::Contract(contract_id))
-            .unwrap_or_else(|| panic_with_error!(&env, Error::NotFound))
+    }
+
+    /// Fetch a specific ABI version's metadata (returns None if not found).
+    pub fn get_contract_version(env: Env, contract_id: BytesN<32>, abi_version: u32) -> Option<ContractMeta> {
+        env.storage()
+            .persistent()
+            .get(&DataKey::ContractVersion(VersionKey { contract_id, abi_version }))
+    }
+
+    /// Fetch the latest metadata for a contract (alias for get_contract).
+    pub fn get_latest_contract(env: Env, contract_id: BytesN<32>) -> Option<ContractMeta> {
+        env.storage()
+            .persistent()
+            .get(&DataKey::Contract(contract_id))
+    }
+
+    /// Deregister a contract (registrant or admin only). Removes the entry from
+    /// persistent storage and emits a ContractDeregistered event.
+    pub fn deregister_contract(env: Env, caller: Address, contract_id: BytesN<32>) {
+        caller.require_auth();
+        let key = DataKey::Contract(contract_id.clone());
+        let existing: ContractMeta = env
+            .storage()
+            .persistent()
+            .get(&key)
+            .unwrap_or_else(|| panic_with_error!(&env, Error::NotFound));
+
+        let admin: Address = env.storage().instance().get(&DataKey::Admin).unwrap();
+        if caller != existing.registered_by && caller != admin {
+            panic_with_error!(&env, Error::Unauthorized);
+        }
+
+        // Remove the latest entry
+        env.storage().persistent().remove(&key);
+
+        // #271 — emit ContractDeregistered diagnostic event
+        env.events().publish(
+            (symbol_short!("c_dereg"), contract_id),
+            (caller, env.ledger().sequence()),
+        );
     }
 
     // ── Event cap management ──────────────────────────────────────────────────
@@ -357,13 +442,15 @@ mod tests {
         let cid: BytesN<32> = BytesN::from_array(&env, &[1u8; 32]);
         let meta = ContractMeta {
             version: 1,
+            abi_version: 0,
+            min_ledger: 0,
             name: String::from_str(&env, "StellarSwap"),
             description: String::from_str(&env, "DEX on Stellar"),
             functions: Vec::new(&env),
             registered_by: admin.clone(),
         };
         client.register_contract(&admin, &cid, &meta);
-        let fetched = client.get_contract(&cid);
+        let fetched = client.get_contract(&cid).unwrap();
         assert_eq!(fetched.name, String::from_str(&env, "StellarSwap"));
     }
 
@@ -504,6 +591,8 @@ mod tests {
         let cid: BytesN<32> = BytesN::from_array(&env, &[20u8; 32]);
         let meta = ContractMeta {
             version: 1,
+            abi_version: 0,
+            min_ledger: 0,
             name: String::from_str(&env, "TestDex"),
             description: String::from_str(&env, "desc"),
             functions: Vec::new(&env),
@@ -525,6 +614,8 @@ mod tests {
         let cid: BytesN<32> = BytesN::from_array(&env, &[21u8; 32]);
         let meta_v1 = ContractMeta {
             version: 1,
+            abi_version: 0,
+            min_ledger: 0,
             name: String::from_str(&env, "Dex"),
             description: String::from_str(&env, "v1"),
             functions: Vec::new(&env),
@@ -533,7 +624,7 @@ mod tests {
         client.register_contract(&admin, &cid, &meta_v1);
         let before = env.events().all().len();
 
-        let meta_v2 = ContractMeta { version: 2, ..meta_v1 };
+        let meta_v2 = ContractMeta { version: 2, abi_version: 1, ..meta_v1 };
         client.update_contract(&admin, &cid, &meta_v2);
 
         // c_upd event emitted
@@ -568,6 +659,235 @@ mod tests {
         let before = env.events().all().len();
         // This submit triggers eviction
         client.submit_event(&admin, &base);
+        assert!(env.events().all().len() > before);
+    }
+
+    // ── ABI versioning tests (#272) ────────────────────────────────────────────
+
+    #[test]
+    fn test_register_sets_version_zero() {
+        let (env, client) = setup();
+        let admin = Address::generate(&env);
+        client.init(&admin, &0u32);
+
+        let cid: BytesN<32> = BytesN::from_array(&env, &[30u8; 32]);
+        let meta = ContractMeta {
+            version: 1,
+            abi_version: 99, // should be overwritten to 0
+            min_ledger: 0,
+            name: String::from_str(&env, "Test"),
+            description: String::from_str(&env, "desc"),
+            functions: Vec::new(&env),
+            registered_by: admin.clone(),
+        };
+        client.register_contract(&admin, &cid, &meta);
+
+        let fetched = client.get_contract(&cid).unwrap();
+        assert_eq!(fetched.abi_version, 0);
+
+        // Version 0 should also be retrievable via get_contract_version
+        let v0 = client.get_contract_version(&cid, &0u32).unwrap();
+        assert_eq!(v0.abi_version, 0);
+        assert_eq!(v0.name, String::from_str(&env, "Test"));
+    }
+
+    #[test]
+    fn test_sequential_updates_increment_abi_version() {
+        let (env, client) = setup();
+        let admin = Address::generate(&env);
+        client.init(&admin, &0u32);
+
+        let cid: BytesN<32> = BytesN::from_array(&env, &[31u8; 32]);
+        let meta_v0 = ContractMeta {
+            version: 1,
+            abi_version: 0,
+            min_ledger: 0,
+            name: String::from_str(&env, "App"),
+            description: String::from_str(&env, "v0"),
+            functions: Vec::new(&env),
+            registered_by: admin.clone(),
+        };
+        client.register_contract(&admin, &cid, &meta_v0);
+
+        // Update to abi_version 1
+        let meta_v1 = ContractMeta {
+            version: 1,
+            abi_version: 1,
+            ..meta_v0.clone()
+        };
+        client.update_contract(&admin, &cid, &meta_v1);
+        let latest = client.get_contract(&cid).unwrap();
+        assert_eq!(latest.abi_version, 1);
+
+        // Update to abi_version 2
+        let meta_v2 = ContractMeta {
+            version: 1,
+            abi_version: 2,
+            ..meta_v0
+        };
+        client.update_contract(&admin, &cid, &meta_v2);
+        let latest = client.get_contract(&cid).unwrap();
+        assert_eq!(latest.abi_version, 2);
+
+        // All versions retrievable via get_contract_version
+        assert!(client.get_contract_version(&cid, &0u32).is_some());
+        assert!(client.get_contract_version(&cid, &1u32).is_some());
+        assert!(client.get_contract_version(&cid, &2u32).is_some());
+        assert!(client.get_contract_version(&cid, &3u32).is_none());
+    }
+
+    #[test]
+    #[should_panic]
+    fn test_stale_write_rejected() {
+        let (env, client) = setup();
+        let admin = Address::generate(&env);
+        client.init(&admin, &0u32);
+
+        let cid: BytesN<32> = BytesN::from_array(&env, &[32u8; 32]);
+        let meta_v0 = ContractMeta {
+            version: 1,
+            abi_version: 0,
+            min_ledger: 0,
+            name: String::from_str(&env, "X"),
+            description: String::from_str(&env, "x"),
+            functions: Vec::new(&env),
+            registered_by: admin.clone(),
+        };
+        client.register_contract(&admin, &cid, &meta_v0);
+
+        // First update to v1
+        let meta_v1 = ContractMeta {
+            version: 1,
+            abi_version: 1,
+            ..meta_v0.clone()
+        };
+        client.update_contract(&admin, &cid, &meta_v1);
+
+        // Stale write: try to write v1 again (should be v2)
+        let meta_stale = ContractMeta {
+            version: 1,
+            abi_version: 1,
+            ..meta_v0
+        };
+        client.update_contract(&admin, &cid, &meta_stale);
+    }
+
+    #[test]
+    fn test_get_contract_returns_none_for_missing() {
+        let (env, client) = setup();
+        let admin = Address::generate(&env);
+        client.init(&admin, &0u32);
+
+        let cid: BytesN<32> = BytesN::from_array(&env, &[33u8; 32]);
+        assert!(client.get_contract(&cid).is_none());
+        assert!(client.get_latest_contract(&cid).is_none());
+        assert!(client.get_contract_version(&cid, &0u32).is_none());
+    }
+
+    // ── Deregistration tests (#271) ────────────────────────────────────────────
+
+    #[test]
+    fn test_admin_deregisters_contract() {
+        let (env, client) = setup();
+        let admin = Address::generate(&env);
+        client.init(&admin, &0u32);
+
+        let cid: BytesN<32> = BytesN::from_array(&env, &[40u8; 32]);
+        let meta = ContractMeta {
+            version: 1,
+            abi_version: 0,
+            min_ledger: 0,
+            name: String::from_str(&env, "ToRemove"),
+            description: String::from_str(&env, "will be removed"),
+            functions: Vec::new(&env),
+            registered_by: admin.clone(),
+        };
+        client.register_contract(&admin, &cid, &meta);
+        assert!(client.get_contract(&cid).is_some());
+
+        // Admin deregisters
+        client.deregister_contract(&admin, &cid);
+        assert!(client.get_contract(&cid).is_none());
+    }
+
+    #[test]
+    fn test_registrant_deregisters_contract() {
+        let (env, client) = setup();
+        let admin = Address::generate(&env);
+        client.init(&admin, &0u32);
+
+        let registrant = Address::generate(&env);
+        let cid: BytesN<32> = BytesN::from_array(&env, &[41u8; 32]);
+        let meta = ContractMeta {
+            version: 1,
+            abi_version: 0,
+            min_ledger: 0,
+            name: String::from_str(&env, "RegOwned"),
+            description: String::from_str(&env, "owned"),
+            functions: Vec::new(&env),
+            registered_by: registrant.clone(),
+        };
+        env.mock_all_auths();
+        client.register_contract(&registrant, &cid, &meta);
+        client.deregister_contract(&registrant, &cid);
+        assert!(client.get_contract(&cid).is_none());
+    }
+
+    #[test]
+    #[should_panic]
+    fn test_stranger_cannot_deregister() {
+        let (env, client) = setup();
+        let admin = Address::generate(&env);
+        client.init(&admin, &0u32);
+
+        let registrant = Address::generate(&env);
+        let stranger = Address::generate(&env);
+        let cid: BytesN<32> = BytesN::from_array(&env, &[42u8; 32]);
+        let meta = ContractMeta {
+            version: 1,
+            abi_version: 0,
+            min_ledger: 0,
+            name: String::from_str(&env, "Secure"),
+            description: String::from_str(&env, "protected"),
+            functions: Vec::new(&env),
+            registered_by: registrant.clone(),
+        };
+        env.mock_all_auths();
+        client.register_contract(&registrant, &cid, &meta);
+        // Stranger tries to deregister — should panic
+        client.deregister_contract(&stranger, &cid);
+    }
+
+    #[test]
+    #[should_panic]
+    fn test_deregister_missing_id_panics() {
+        let (env, client) = setup();
+        let admin = Address::generate(&env);
+        client.init(&admin, &0u32);
+
+        let cid: BytesN<32> = BytesN::from_array(&env, &[99u8; 32]);
+        client.deregister_contract(&admin, &cid);
+    }
+
+    #[test]
+    fn test_deregister_emits_event() {
+        let (env, client) = setup();
+        let admin = Address::generate(&env);
+        client.init(&admin, &0u32);
+
+        let cid: BytesN<32> = BytesN::from_array(&env, &[43u8; 32]);
+        let meta = ContractMeta {
+            version: 1,
+            abi_version: 0,
+            min_ledger: 0,
+            name: String::from_str(&env, "EventTest"),
+            description: String::from_str(&env, "emits event"),
+            functions: Vec::new(&env),
+            registered_by: admin.clone(),
+        };
+        client.register_contract(&admin, &cid, &meta);
+        let before = env.events().all().len();
+        client.deregister_contract(&admin, &cid);
         assert!(env.events().all().len() > before);
     }
 }

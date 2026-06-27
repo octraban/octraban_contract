@@ -18,7 +18,7 @@
                   "address": "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAFCT4"
                 },
                 {
-                  "bytes": "1515151515151515151515151515151515151515151515151515151515151515"
+                  "bytes": "2020202020202020202020202020202020202020202020202020202020202020"
                 },
                 {
                   "map": [
@@ -35,7 +35,7 @@
                         "symbol": "description"
                       },
                       "val": {
-                        "string": "v1"
+                        "string": "x"
                       }
                     },
                     {
@@ -59,7 +59,7 @@
                         "symbol": "name"
                       },
                       "val": {
-                        "string": "Dex"
+                        "string": "X"
                       }
                     },
                     {
@@ -100,7 +100,7 @@
                   "address": "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAFCT4"
                 },
                 {
-                  "bytes": "1515151515151515151515151515151515151515151515151515151515151515"
+                  "bytes": "2020202020202020202020202020202020202020202020202020202020202020"
                 },
                 {
                   "map": [
@@ -117,7 +117,7 @@
                         "symbol": "description"
                       },
                       "val": {
-                        "string": "v1"
+                        "string": "x"
                       }
                     },
                     {
@@ -141,7 +141,7 @@
                         "symbol": "name"
                       },
                       "val": {
-                        "string": "Dex"
+                        "string": "X"
                       }
                     },
                     {
@@ -157,7 +157,7 @@
                         "symbol": "version"
                       },
                       "val": {
-                        "u32": 2
+                        "u32": 1
                       }
                     }
                   ]
@@ -168,7 +168,8 @@
           "sub_invocations": []
         }
       ]
-    ]
+    ],
+    []
   ],
   "ledger": {
     "protocol_version": 21,
@@ -190,7 +191,7 @@
                   "symbol": "Contract"
                 },
                 {
-                  "bytes": "1515151515151515151515151515151515151515151515151515151515151515"
+                  "bytes": "2020202020202020202020202020202020202020202020202020202020202020"
                 }
               ]
             },
@@ -210,7 +211,7 @@
                       "symbol": "Contract"
                     },
                     {
-                      "bytes": "1515151515151515151515151515151515151515151515151515151515151515"
+                      "bytes": "2020202020202020202020202020202020202020202020202020202020202020"
                     }
                   ]
                 },
@@ -230,7 +231,7 @@
                         "symbol": "description"
                       },
                       "val": {
-                        "string": "v1"
+                        "string": "x"
                       }
                     },
                     {
@@ -254,7 +255,7 @@
                         "symbol": "name"
                       },
                       "val": {
-                        "string": "Dex"
+                        "string": "X"
                       }
                     },
                     {
@@ -270,7 +271,7 @@
                         "symbol": "version"
                       },
                       "val": {
-                        "u32": 2
+                        "u32": 1
                       }
                     }
                   ]
@@ -306,7 +307,7 @@
                         "symbol": "contract_id"
                       },
                       "val": {
-                        "bytes": "1515151515151515151515151515151515151515151515151515151515151515"
+                        "bytes": "2020202020202020202020202020202020202020202020202020202020202020"
                       }
                     }
                   ]
@@ -343,7 +344,7 @@
                             "symbol": "contract_id"
                           },
                           "val": {
-                            "bytes": "1515151515151515151515151515151515151515151515151515151515151515"
+                            "bytes": "2020202020202020202020202020202020202020202020202020202020202020"
                           }
                         }
                       ]
@@ -366,7 +367,7 @@
                         "symbol": "description"
                       },
                       "val": {
-                        "string": "v1"
+                        "string": "x"
                       }
                     },
                     {
@@ -390,7 +391,7 @@
                         "symbol": "name"
                       },
                       "val": {
-                        "string": "Dex"
+                        "string": "X"
                       }
                     },
                     {
@@ -442,7 +443,7 @@
                         "symbol": "contract_id"
                       },
                       "val": {
-                        "bytes": "1515151515151515151515151515151515151515151515151515151515151515"
+                        "bytes": "2020202020202020202020202020202020202020202020202020202020202020"
                       }
                     }
                   ]
@@ -479,7 +480,7 @@
                             "symbol": "contract_id"
                           },
                           "val": {
-                            "bytes": "1515151515151515151515151515151515151515151515151515151515151515"
+                            "bytes": "2020202020202020202020202020202020202020202020202020202020202020"
                           }
                         }
                       ]
@@ -502,7 +503,7 @@
                         "symbol": "description"
                       },
                       "val": {
-                        "string": "v1"
+                        "string": "x"
                       }
                     },
                     {
@@ -526,7 +527,7 @@
                         "symbol": "name"
                       },
                       "val": {
-                        "string": "Dex"
+                        "string": "X"
                       }
                     },
                     {
@@ -542,7 +543,7 @@
                         "symbol": "version"
                       },
                       "val": {
-                        "u32": 2
+                        "u32": 1
                       }
                     }
                   ]
@@ -791,7 +792,7 @@
                   "address": "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAFCT4"
                 },
                 {
-                  "bytes": "1515151515151515151515151515151515151515151515151515151515151515"
+                  "bytes": "2020202020202020202020202020202020202020202020202020202020202020"
                 },
                 {
                   "map": [
@@ -808,7 +809,7 @@
                         "symbol": "description"
                       },
                       "val": {
-                        "string": "v1"
+                        "string": "x"
                       }
                     },
                     {
@@ -832,7 +833,7 @@
                         "symbol": "name"
                       },
                       "val": {
-                        "string": "Dex"
+                        "string": "X"
                       }
                     },
                     {
@@ -872,7 +873,7 @@
                 "symbol": "c_reg"
               },
               {
-                "bytes": "1515151515151515151515151515151515151515151515151515151515151515"
+                "bytes": "2020202020202020202020202020202020202020202020202020202020202020"
               }
             ],
             "data": {
@@ -905,11 +906,11 @@
                 "symbol": "register"
               },
               {
-                "bytes": "1515151515151515151515151515151515151515151515151515151515151515"
+                "bytes": "2020202020202020202020202020202020202020202020202020202020202020"
               }
             ],
             "data": {
-              "string": "Dex"
+              "string": "X"
             }
           }
         }
@@ -961,7 +962,7 @@
                   "address": "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAFCT4"
                 },
                 {
-                  "bytes": "1515151515151515151515151515151515151515151515151515151515151515"
+                  "bytes": "2020202020202020202020202020202020202020202020202020202020202020"
                 },
                 {
                   "map": [
@@ -978,7 +979,7 @@
                         "symbol": "description"
                       },
                       "val": {
-                        "string": "v1"
+                        "string": "x"
                       }
                     },
                     {
@@ -1002,7 +1003,7 @@
                         "symbol": "name"
                       },
                       "val": {
-                        "string": "Dex"
+                        "string": "X"
                       }
                     },
                     {
@@ -1018,7 +1019,7 @@
                         "symbol": "version"
                       },
                       "val": {
-                        "u32": 2
+                        "u32": 1
                       }
                     }
                   ]
@@ -1042,7 +1043,7 @@
                 "symbol": "c_abiu"
               },
               {
-                "bytes": "1515151515151515151515151515151515151515151515151515151515151515"
+                "bytes": "2020202020202020202020202020202020202020202020202020202020202020"
               }
             ],
             "data": {
@@ -1075,7 +1076,7 @@
                 "symbol": "c_upd"
               },
               {
-                "bytes": "1515151515151515151515151515151515151515151515151515151515151515"
+                "bytes": "2020202020202020202020202020202020202020202020202020202020202020"
               }
             ],
             "data": {
@@ -1087,7 +1088,7 @@
                   "u32": 1
                 },
                 {
-                  "u32": 2
+                  "u32": 1
                 },
                 {
                   "u32": 0
@@ -1115,6 +1116,308 @@
               }
             ],
             "data": "void"
+          }
+        }
+      },
+      "failed_call": false
+    },
+    {
+      "event": {
+        "ext": "v0",
+        "contract_id": null,
+        "type_": "diagnostic",
+        "body": {
+          "v0": {
+            "topics": [
+              {
+                "symbol": "fn_call"
+              },
+              {
+                "bytes": "0000000000000000000000000000000000000000000000000000000000000001"
+              },
+              {
+                "symbol": "update_contract"
+              }
+            ],
+            "data": {
+              "vec": [
+                {
+                  "address": "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAFCT4"
+                },
+                {
+                  "bytes": "2020202020202020202020202020202020202020202020202020202020202020"
+                },
+                {
+                  "map": [
+                    {
+                      "key": {
+                        "symbol": "abi_version"
+                      },
+                      "val": {
+                        "u32": 1
+                      }
+                    },
+                    {
+                      "key": {
+                        "symbol": "description"
+                      },
+                      "val": {
+                        "string": "x"
+                      }
+                    },
+                    {
+                      "key": {
+                        "symbol": "functions"
+                      },
+                      "val": {
+                        "vec": []
+                      }
+                    },
+                    {
+                      "key": {
+                        "symbol": "min_ledger"
+                      },
+                      "val": {
+                        "u32": 0
+                      }
+                    },
+                    {
+                      "key": {
+                        "symbol": "name"
+                      },
+                      "val": {
+                        "string": "X"
+                      }
+                    },
+                    {
+                      "key": {
+                        "symbol": "registered_by"
+                      },
+                      "val": {
+                        "address": "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAFCT4"
+                      }
+                    },
+                    {
+                      "key": {
+                        "symbol": "version"
+                      },
+                      "val": {
+                        "u32": 1
+                      }
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        }
+      },
+      "failed_call": false
+    },
+    {
+      "event": {
+        "ext": "v0",
+        "contract_id": "0000000000000000000000000000000000000000000000000000000000000001",
+        "type_": "diagnostic",
+        "body": {
+          "v0": {
+            "topics": [
+              {
+                "symbol": "error"
+              },
+              {
+                "error": {
+                  "contract": 2
+                }
+              }
+            ],
+            "data": {
+              "vec": [
+                {
+                  "string": "failing with contract error"
+                },
+                {
+                  "u32": 2
+                }
+              ]
+            }
+          }
+        }
+      },
+      "failed_call": true
+    },
+    {
+      "event": {
+        "ext": "v0",
+        "contract_id": "0000000000000000000000000000000000000000000000000000000000000001",
+        "type_": "diagnostic",
+        "body": {
+          "v0": {
+            "topics": [
+              {
+                "symbol": "error"
+              },
+              {
+                "error": {
+                  "contract": 2
+                }
+              }
+            ],
+            "data": {
+              "string": "escalating error to panic"
+            }
+          }
+        }
+      },
+      "failed_call": true
+    },
+    {
+      "event": {
+        "ext": "v0",
+        "contract_id": "0000000000000000000000000000000000000000000000000000000000000001",
+        "type_": "diagnostic",
+        "body": {
+          "v0": {
+            "topics": [
+              {
+                "symbol": "error"
+              },
+              {
+                "error": {
+                  "contract": 2
+                }
+              }
+            ],
+            "data": {
+              "string": "caught error from function"
+            }
+          }
+        }
+      },
+      "failed_call": true
+    },
+    {
+      "event": {
+        "ext": "v0",
+        "contract_id": null,
+        "type_": "diagnostic",
+        "body": {
+          "v0": {
+            "topics": [
+              {
+                "symbol": "error"
+              },
+              {
+                "error": {
+                  "contract": 2
+                }
+              }
+            ],
+            "data": {
+              "vec": [
+                {
+                  "string": "contract call failed"
+                },
+                {
+                  "symbol": "update_contract"
+                },
+                {
+                  "vec": [
+                    {
+                      "address": "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAFCT4"
+                    },
+                    {
+                      "bytes": "2020202020202020202020202020202020202020202020202020202020202020"
+                    },
+                    {
+                      "map": [
+                        {
+                          "key": {
+                            "symbol": "abi_version"
+                          },
+                          "val": {
+                            "u32": 1
+                          }
+                        },
+                        {
+                          "key": {
+                            "symbol": "description"
+                          },
+                          "val": {
+                            "string": "x"
+                          }
+                        },
+                        {
+                          "key": {
+                            "symbol": "functions"
+                          },
+                          "val": {
+                            "vec": []
+                          }
+                        },
+                        {
+                          "key": {
+                            "symbol": "min_ledger"
+                          },
+                          "val": {
+                            "u32": 0
+                          }
+                        },
+                        {
+                          "key": {
+                            "symbol": "name"
+                          },
+                          "val": {
+                            "string": "X"
+                          }
+                        },
+                        {
+                          "key": {
+                            "symbol": "registered_by"
+                          },
+                          "val": {
+                            "address": "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAFCT4"
+                          }
+                        },
+                        {
+                          "key": {
+                            "symbol": "version"
+                          },
+                          "val": {
+                            "u32": 1
+                          }
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        }
+      },
+      "failed_call": false
+    },
+    {
+      "event": {
+        "ext": "v0",
+        "contract_id": null,
+        "type_": "diagnostic",
+        "body": {
+          "v0": {
+            "topics": [
+              {
+                "symbol": "error"
+              },
+              {
+                "error": {
+                  "contract": 2
+                }
+              }
+            ],
+            "data": {
+              "string": "escalating error to panic"
+            }
           }
         }
       },

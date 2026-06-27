@@ -18,7 +18,7 @@
                   "address": "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAFCT4"
                 },
                 {
-                  "bytes": "1515151515151515151515151515151515151515151515151515151515151515"
+                  "bytes": "2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b"
                 },
                 {
                   "map": [
@@ -35,7 +35,7 @@
                         "symbol": "description"
                       },
                       "val": {
-                        "string": "v1"
+                        "string": "emits event"
                       }
                     },
                     {
@@ -59,7 +59,7 @@
                         "symbol": "name"
                       },
                       "val": {
-                        "string": "Dex"
+                        "string": "EventTest"
                       }
                     },
                     {
@@ -94,73 +94,13 @@
           "function": {
             "contract_fn": {
               "contract_address": "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD2KM",
-              "function_name": "update_contract",
+              "function_name": "deregister_contract",
               "args": [
                 {
                   "address": "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAFCT4"
                 },
                 {
-                  "bytes": "1515151515151515151515151515151515151515151515151515151515151515"
-                },
-                {
-                  "map": [
-                    {
-                      "key": {
-                        "symbol": "abi_version"
-                      },
-                      "val": {
-                        "u32": 1
-                      }
-                    },
-                    {
-                      "key": {
-                        "symbol": "description"
-                      },
-                      "val": {
-                        "string": "v1"
-                      }
-                    },
-                    {
-                      "key": {
-                        "symbol": "functions"
-                      },
-                      "val": {
-                        "vec": []
-                      }
-                    },
-                    {
-                      "key": {
-                        "symbol": "min_ledger"
-                      },
-                      "val": {
-                        "u32": 0
-                      }
-                    },
-                    {
-                      "key": {
-                        "symbol": "name"
-                      },
-                      "val": {
-                        "string": "Dex"
-                      }
-                    },
-                    {
-                      "key": {
-                        "symbol": "registered_by"
-                      },
-                      "val": {
-                        "address": "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAFCT4"
-                      }
-                    },
-                    {
-                      "key": {
-                        "symbol": "version"
-                      },
-                      "val": {
-                        "u32": 2
-                      }
-                    }
-                  ]
+                  "bytes": "2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b"
                 }
               ]
             }
@@ -187,108 +127,6 @@
             "key": {
               "vec": [
                 {
-                  "symbol": "Contract"
-                },
-                {
-                  "bytes": "1515151515151515151515151515151515151515151515151515151515151515"
-                }
-              ]
-            },
-            "durability": "persistent"
-          }
-        },
-        [
-          {
-            "last_modified_ledger_seq": 0,
-            "data": {
-              "contract_data": {
-                "ext": "v0",
-                "contract": "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD2KM",
-                "key": {
-                  "vec": [
-                    {
-                      "symbol": "Contract"
-                    },
-                    {
-                      "bytes": "1515151515151515151515151515151515151515151515151515151515151515"
-                    }
-                  ]
-                },
-                "durability": "persistent",
-                "val": {
-                  "map": [
-                    {
-                      "key": {
-                        "symbol": "abi_version"
-                      },
-                      "val": {
-                        "u32": 1
-                      }
-                    },
-                    {
-                      "key": {
-                        "symbol": "description"
-                      },
-                      "val": {
-                        "string": "v1"
-                      }
-                    },
-                    {
-                      "key": {
-                        "symbol": "functions"
-                      },
-                      "val": {
-                        "vec": []
-                      }
-                    },
-                    {
-                      "key": {
-                        "symbol": "min_ledger"
-                      },
-                      "val": {
-                        "u32": 0
-                      }
-                    },
-                    {
-                      "key": {
-                        "symbol": "name"
-                      },
-                      "val": {
-                        "string": "Dex"
-                      }
-                    },
-                    {
-                      "key": {
-                        "symbol": "registered_by"
-                      },
-                      "val": {
-                        "address": "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAFCT4"
-                      }
-                    },
-                    {
-                      "key": {
-                        "symbol": "version"
-                      },
-                      "val": {
-                        "u32": 2
-                      }
-                    }
-                  ]
-                }
-              }
-            },
-            "ext": "v0"
-          },
-          4095
-        ]
-      ],
-      [
-        {
-          "contract_data": {
-            "contract": "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD2KM",
-            "key": {
-              "vec": [
-                {
                   "symbol": "ContractVersion"
                 },
                 {
@@ -306,7 +144,7 @@
                         "symbol": "contract_id"
                       },
                       "val": {
-                        "bytes": "1515151515151515151515151515151515151515151515151515151515151515"
+                        "bytes": "2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b"
                       }
                     }
                   ]
@@ -343,7 +181,7 @@
                             "symbol": "contract_id"
                           },
                           "val": {
-                            "bytes": "1515151515151515151515151515151515151515151515151515151515151515"
+                            "bytes": "2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b"
                           }
                         }
                       ]
@@ -366,7 +204,7 @@
                         "symbol": "description"
                       },
                       "val": {
-                        "string": "v1"
+                        "string": "emits event"
                       }
                     },
                     {
@@ -390,7 +228,7 @@
                         "symbol": "name"
                       },
                       "val": {
-                        "string": "Dex"
+                        "string": "EventTest"
                       }
                     },
                     {
@@ -407,142 +245,6 @@
                       },
                       "val": {
                         "u32": 1
-                      }
-                    }
-                  ]
-                }
-              }
-            },
-            "ext": "v0"
-          },
-          4095
-        ]
-      ],
-      [
-        {
-          "contract_data": {
-            "contract": "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD2KM",
-            "key": {
-              "vec": [
-                {
-                  "symbol": "ContractVersion"
-                },
-                {
-                  "map": [
-                    {
-                      "key": {
-                        "symbol": "abi_version"
-                      },
-                      "val": {
-                        "u32": 1
-                      }
-                    },
-                    {
-                      "key": {
-                        "symbol": "contract_id"
-                      },
-                      "val": {
-                        "bytes": "1515151515151515151515151515151515151515151515151515151515151515"
-                      }
-                    }
-                  ]
-                }
-              ]
-            },
-            "durability": "persistent"
-          }
-        },
-        [
-          {
-            "last_modified_ledger_seq": 0,
-            "data": {
-              "contract_data": {
-                "ext": "v0",
-                "contract": "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD2KM",
-                "key": {
-                  "vec": [
-                    {
-                      "symbol": "ContractVersion"
-                    },
-                    {
-                      "map": [
-                        {
-                          "key": {
-                            "symbol": "abi_version"
-                          },
-                          "val": {
-                            "u32": 1
-                          }
-                        },
-                        {
-                          "key": {
-                            "symbol": "contract_id"
-                          },
-                          "val": {
-                            "bytes": "1515151515151515151515151515151515151515151515151515151515151515"
-                          }
-                        }
-                      ]
-                    }
-                  ]
-                },
-                "durability": "persistent",
-                "val": {
-                  "map": [
-                    {
-                      "key": {
-                        "symbol": "abi_version"
-                      },
-                      "val": {
-                        "u32": 1
-                      }
-                    },
-                    {
-                      "key": {
-                        "symbol": "description"
-                      },
-                      "val": {
-                        "string": "v1"
-                      }
-                    },
-                    {
-                      "key": {
-                        "symbol": "functions"
-                      },
-                      "val": {
-                        "vec": []
-                      }
-                    },
-                    {
-                      "key": {
-                        "symbol": "min_ledger"
-                      },
-                      "val": {
-                        "u32": 0
-                      }
-                    },
-                    {
-                      "key": {
-                        "symbol": "name"
-                      },
-                      "val": {
-                        "string": "Dex"
-                      }
-                    },
-                    {
-                      "key": {
-                        "symbol": "registered_by"
-                      },
-                      "val": {
-                        "address": "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAFCT4"
-                      }
-                    },
-                    {
-                      "key": {
-                        "symbol": "version"
-                      },
-                      "val": {
-                        "u32": 2
                       }
                     }
                   ]
@@ -791,7 +493,7 @@
                   "address": "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAFCT4"
                 },
                 {
-                  "bytes": "1515151515151515151515151515151515151515151515151515151515151515"
+                  "bytes": "2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b"
                 },
                 {
                   "map": [
@@ -808,7 +510,7 @@
                         "symbol": "description"
                       },
                       "val": {
-                        "string": "v1"
+                        "string": "emits event"
                       }
                     },
                     {
@@ -832,7 +534,7 @@
                         "symbol": "name"
                       },
                       "val": {
-                        "string": "Dex"
+                        "string": "EventTest"
                       }
                     },
                     {
@@ -872,7 +574,7 @@
                 "symbol": "c_reg"
               },
               {
-                "bytes": "1515151515151515151515151515151515151515151515151515151515151515"
+                "bytes": "2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b"
               }
             ],
             "data": {
@@ -905,11 +607,11 @@
                 "symbol": "register"
               },
               {
-                "bytes": "1515151515151515151515151515151515151515151515151515151515151515"
+                "bytes": "2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b"
               }
             ],
             "data": {
-              "string": "Dex"
+              "string": "EventTest"
             }
           }
         }
@@ -952,7 +654,7 @@
                 "bytes": "0000000000000000000000000000000000000000000000000000000000000001"
               },
               {
-                "symbol": "update_contract"
+                "symbol": "deregister_contract"
               }
             ],
             "data": {
@@ -961,67 +663,7 @@
                   "address": "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAFCT4"
                 },
                 {
-                  "bytes": "1515151515151515151515151515151515151515151515151515151515151515"
-                },
-                {
-                  "map": [
-                    {
-                      "key": {
-                        "symbol": "abi_version"
-                      },
-                      "val": {
-                        "u32": 1
-                      }
-                    },
-                    {
-                      "key": {
-                        "symbol": "description"
-                      },
-                      "val": {
-                        "string": "v1"
-                      }
-                    },
-                    {
-                      "key": {
-                        "symbol": "functions"
-                      },
-                      "val": {
-                        "vec": []
-                      }
-                    },
-                    {
-                      "key": {
-                        "symbol": "min_ledger"
-                      },
-                      "val": {
-                        "u32": 0
-                      }
-                    },
-                    {
-                      "key": {
-                        "symbol": "name"
-                      },
-                      "val": {
-                        "string": "Dex"
-                      }
-                    },
-                    {
-                      "key": {
-                        "symbol": "registered_by"
-                      },
-                      "val": {
-                        "address": "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAFCT4"
-                      }
-                    },
-                    {
-                      "key": {
-                        "symbol": "version"
-                      },
-                      "val": {
-                        "u32": 2
-                      }
-                    }
-                  ]
+                  "bytes": "2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b"
                 }
               ]
             }
@@ -1039,55 +681,16 @@
           "v0": {
             "topics": [
               {
-                "symbol": "c_abiu"
+                "symbol": "c_dereg"
               },
               {
-                "bytes": "1515151515151515151515151515151515151515151515151515151515151515"
-              }
-            ],
-            "data": {
-              "vec": [
-                {
-                  "u32": 0
-                },
-                {
-                  "u32": 1
-                },
-                {
-                  "u32": 0
-                }
-              ]
-            }
-          }
-        }
-      },
-      "failed_call": false
-    },
-    {
-      "event": {
-        "ext": "v0",
-        "contract_id": "0000000000000000000000000000000000000000000000000000000000000001",
-        "type_": "contract",
-        "body": {
-          "v0": {
-            "topics": [
-              {
-                "symbol": "c_upd"
-              },
-              {
-                "bytes": "1515151515151515151515151515151515151515151515151515151515151515"
+                "bytes": "2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b"
               }
             ],
             "data": {
               "vec": [
                 {
                   "address": "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAFCT4"
-                },
-                {
-                  "u32": 1
-                },
-                {
-                  "u32": 2
                 },
                 {
                   "u32": 0
@@ -1111,7 +714,7 @@
                 "symbol": "fn_return"
               },
               {
-                "symbol": "update_contract"
+                "symbol": "deregister_contract"
               }
             ],
             "data": "void"

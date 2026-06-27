@@ -1,7 +1,7 @@
 {
   "generators": {
-    "address": 4,
-    "nonce": 1
+    "address": 2,
+    "nonce": 0
   },
   "auth": [
     [],
@@ -77,38 +77,6 @@
                         }
                       }
                     ]
-                  }
-                }
-              }
-            },
-            "ext": "v0"
-          },
-          4095
-        ]
-      ],
-      [
-        {
-          "contract_data": {
-            "contract": "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAITA4",
-            "key": "ledger_key_contract_instance",
-            "durability": "persistent"
-          }
-        },
-        [
-          {
-            "last_modified_ledger_seq": 0,
-            "data": {
-              "contract_data": {
-                "ext": "v0",
-                "contract": "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAITA4",
-                "key": "ledger_key_contract_instance",
-                "durability": "persistent",
-                "val": {
-                  "contract_instance": {
-                    "executable": {
-                      "wasm": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
-                    },
-                    "storage": null
                   }
                 }
               }
@@ -211,76 +179,16 @@
                 "bytes": "0000000000000000000000000000000000000000000000000000000000000001"
               },
               {
-                "symbol": "register_contract"
+                "symbol": "deregister_contract"
               }
             ],
             "data": {
               "vec": [
                 {
-                  "address": "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAHK3M"
+                  "address": "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAFCT4"
                 },
                 {
-                  "bytes": "0101010101010101010101010101010101010101010101010101010101010101"
-                },
-                {
-                  "map": [
-                    {
-                      "key": {
-                        "symbol": "abi_version"
-                      },
-                      "val": {
-                        "u32": 0
-                      }
-                    },
-                    {
-                      "key": {
-                        "symbol": "description"
-                      },
-                      "val": {
-                        "string": "desc"
-                      }
-                    },
-                    {
-                      "key": {
-                        "symbol": "functions"
-                      },
-                      "val": {
-                        "vec": []
-                      }
-                    },
-                    {
-                      "key": {
-                        "symbol": "min_ledger"
-                      },
-                      "val": {
-                        "u32": 0
-                      }
-                    },
-                    {
-                      "key": {
-                        "symbol": "name"
-                      },
-                      "val": {
-                        "string": "Test"
-                      }
-                    },
-                    {
-                      "key": {
-                        "symbol": "registered_by"
-                      },
-                      "val": {
-                        "address": "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAHK3M"
-                      }
-                    },
-                    {
-                      "key": {
-                        "symbol": "version"
-                      },
-                      "val": {
-                        "u32": 1
-                      }
-                    }
-                  ]
+                  "bytes": "6363636363636363636363636363636363636363636363636363636363636363"
                 }
               ]
             }
@@ -302,17 +210,17 @@
               },
               {
                 "error": {
-                  "auth": "invalid_action"
+                  "contract": 1
                 }
               }
             ],
             "data": {
               "vec": [
                 {
-                  "string": "Unauthorized function call for address"
+                  "string": "failing with contract error"
                 },
                 {
-                  "address": "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAHK3M"
+                  "u32": 1
                 }
               ]
             }
@@ -334,7 +242,7 @@
               },
               {
                 "error": {
-                  "auth": "invalid_action"
+                  "contract": 1
                 }
               }
             ],
@@ -359,7 +267,7 @@
               },
               {
                 "error": {
-                  "auth": "invalid_action"
+                  "contract": 1
                 }
               }
             ],
@@ -384,7 +292,7 @@
               },
               {
                 "error": {
-                  "auth": "invalid_action"
+                  "contract": 1
                 }
               }
             ],
@@ -394,75 +302,15 @@
                   "string": "contract call failed"
                 },
                 {
-                  "symbol": "register_contract"
+                  "symbol": "deregister_contract"
                 },
                 {
                   "vec": [
                     {
-                      "address": "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAHK3M"
+                      "address": "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAFCT4"
                     },
                     {
-                      "bytes": "0101010101010101010101010101010101010101010101010101010101010101"
-                    },
-                    {
-                      "map": [
-                        {
-                          "key": {
-                            "symbol": "abi_version"
-                          },
-                          "val": {
-                            "u32": 0
-                          }
-                        },
-                        {
-                          "key": {
-                            "symbol": "description"
-                          },
-                          "val": {
-                            "string": "desc"
-                          }
-                        },
-                        {
-                          "key": {
-                            "symbol": "functions"
-                          },
-                          "val": {
-                            "vec": []
-                          }
-                        },
-                        {
-                          "key": {
-                            "symbol": "min_ledger"
-                          },
-                          "val": {
-                            "u32": 0
-                          }
-                        },
-                        {
-                          "key": {
-                            "symbol": "name"
-                          },
-                          "val": {
-                            "string": "Test"
-                          }
-                        },
-                        {
-                          "key": {
-                            "symbol": "registered_by"
-                          },
-                          "val": {
-                            "address": "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAHK3M"
-                          }
-                        },
-                        {
-                          "key": {
-                            "symbol": "version"
-                          },
-                          "val": {
-                            "u32": 1
-                          }
-                        }
-                      ]
+                      "bytes": "6363636363636363636363636363636363636363636363636363636363636363"
                     }
                   ]
                 }
@@ -486,7 +334,7 @@
               },
               {
                 "error": {
-                  "auth": "invalid_action"
+                  "contract": 1
                 }
               }
             ],

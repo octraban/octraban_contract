@@ -24,6 +24,14 @@
                   "map": [
                     {
                       "key": {
+                        "symbol": "abi_version"
+                      },
+                      "val": {
+                        "u32": 0
+                      }
+                    },
+                    {
+                      "key": {
                         "symbol": "description"
                       },
                       "val": {
@@ -36,6 +44,14 @@
                       },
                       "val": {
                         "vec": []
+                      }
+                    },
+                    {
+                      "key": {
+                        "symbol": "min_ledger"
+                      },
+                      "val": {
+                        "u32": 0
                       }
                     },
                     {
@@ -122,6 +138,14 @@
                   "map": [
                     {
                       "key": {
+                        "symbol": "abi_version"
+                      },
+                      "val": {
+                        "u32": 0
+                      }
+                    },
+                    {
+                      "key": {
                         "symbol": "description"
                       },
                       "val": {
@@ -134,6 +158,150 @@
                       },
                       "val": {
                         "vec": []
+                      }
+                    },
+                    {
+                      "key": {
+                        "symbol": "min_ledger"
+                      },
+                      "val": {
+                        "u32": 0
+                      }
+                    },
+                    {
+                      "key": {
+                        "symbol": "name"
+                      },
+                      "val": {
+                        "string": "StellarSwap"
+                      }
+                    },
+                    {
+                      "key": {
+                        "symbol": "registered_by"
+                      },
+                      "val": {
+                        "address": "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAFCT4"
+                      }
+                    },
+                    {
+                      "key": {
+                        "symbol": "version"
+                      },
+                      "val": {
+                        "u32": 1
+                      }
+                    }
+                  ]
+                }
+              }
+            },
+            "ext": "v0"
+          },
+          4095
+        ]
+      ],
+      [
+        {
+          "contract_data": {
+            "contract": "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD2KM",
+            "key": {
+              "vec": [
+                {
+                  "symbol": "ContractVersion"
+                },
+                {
+                  "map": [
+                    {
+                      "key": {
+                        "symbol": "abi_version"
+                      },
+                      "val": {
+                        "u32": 0
+                      }
+                    },
+                    {
+                      "key": {
+                        "symbol": "contract_id"
+                      },
+                      "val": {
+                        "bytes": "0101010101010101010101010101010101010101010101010101010101010101"
+                      }
+                    }
+                  ]
+                }
+              ]
+            },
+            "durability": "persistent"
+          }
+        },
+        [
+          {
+            "last_modified_ledger_seq": 0,
+            "data": {
+              "contract_data": {
+                "ext": "v0",
+                "contract": "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD2KM",
+                "key": {
+                  "vec": [
+                    {
+                      "symbol": "ContractVersion"
+                    },
+                    {
+                      "map": [
+                        {
+                          "key": {
+                            "symbol": "abi_version"
+                          },
+                          "val": {
+                            "u32": 0
+                          }
+                        },
+                        {
+                          "key": {
+                            "symbol": "contract_id"
+                          },
+                          "val": {
+                            "bytes": "0101010101010101010101010101010101010101010101010101010101010101"
+                          }
+                        }
+                      ]
+                    }
+                  ]
+                },
+                "durability": "persistent",
+                "val": {
+                  "map": [
+                    {
+                      "key": {
+                        "symbol": "abi_version"
+                      },
+                      "val": {
+                        "u32": 0
+                      }
+                    },
+                    {
+                      "key": {
+                        "symbol": "description"
+                      },
+                      "val": {
+                        "string": "DEX on Stellar"
+                      }
+                    },
+                    {
+                      "key": {
+                        "symbol": "functions"
+                      },
+                      "val": {
+                        "vec": []
+                      }
+                    },
+                    {
+                      "key": {
+                        "symbol": "min_ledger"
+                      },
+                      "val": {
+                        "u32": 0
                       }
                     },
                     {
@@ -379,6 +547,14 @@
                   "map": [
                     {
                       "key": {
+                        "symbol": "abi_version"
+                      },
+                      "val": {
+                        "u32": 0
+                      }
+                    },
+                    {
+                      "key": {
                         "symbol": "description"
                       },
                       "val": {
@@ -391,6 +567,14 @@
                       },
                       "val": {
                         "vec": []
+                      }
+                    },
+                    {
+                      "key": {
+                        "symbol": "min_ledger"
+                      },
+                      "val": {
+                        "u32": 0
                       }
                     },
                     {
@@ -548,6 +732,14 @@
               "map": [
                 {
                   "key": {
+                    "symbol": "abi_version"
+                  },
+                  "val": {
+                    "u32": 0
+                  }
+                },
+                {
+                  "key": {
                     "symbol": "description"
                   },
                   "val": {
@@ -560,6 +752,14 @@
                   },
                   "val": {
                     "vec": []
+                  }
+                },
+                {
+                  "key": {
+                    "symbol": "min_ledger"
+                  },
+                  "val": {
+                    "u32": 0
                   }
                 },
                 {

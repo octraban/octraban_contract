@@ -18,7 +18,7 @@
                   "address": "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAFCT4"
                 },
                 {
-                  "bytes": "1515151515151515151515151515151515151515151515151515151515151515"
+                  "bytes": "1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e"
                 },
                 {
                   "map": [
@@ -27,7 +27,7 @@
                         "symbol": "abi_version"
                       },
                       "val": {
-                        "u32": 0
+                        "u32": 99
                       }
                     },
                     {
@@ -35,7 +35,7 @@
                         "symbol": "description"
                       },
                       "val": {
-                        "string": "v1"
+                        "string": "desc"
                       }
                     },
                     {
@@ -59,7 +59,7 @@
                         "symbol": "name"
                       },
                       "val": {
-                        "string": "Dex"
+                        "string": "Test"
                       }
                     },
                     {
@@ -87,88 +87,8 @@
         }
       ]
     ],
-    [
-      [
-        "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAFCT4",
-        {
-          "function": {
-            "contract_fn": {
-              "contract_address": "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD2KM",
-              "function_name": "update_contract",
-              "args": [
-                {
-                  "address": "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAFCT4"
-                },
-                {
-                  "bytes": "1515151515151515151515151515151515151515151515151515151515151515"
-                },
-                {
-                  "map": [
-                    {
-                      "key": {
-                        "symbol": "abi_version"
-                      },
-                      "val": {
-                        "u32": 1
-                      }
-                    },
-                    {
-                      "key": {
-                        "symbol": "description"
-                      },
-                      "val": {
-                        "string": "v1"
-                      }
-                    },
-                    {
-                      "key": {
-                        "symbol": "functions"
-                      },
-                      "val": {
-                        "vec": []
-                      }
-                    },
-                    {
-                      "key": {
-                        "symbol": "min_ledger"
-                      },
-                      "val": {
-                        "u32": 0
-                      }
-                    },
-                    {
-                      "key": {
-                        "symbol": "name"
-                      },
-                      "val": {
-                        "string": "Dex"
-                      }
-                    },
-                    {
-                      "key": {
-                        "symbol": "registered_by"
-                      },
-                      "val": {
-                        "address": "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAFCT4"
-                      }
-                    },
-                    {
-                      "key": {
-                        "symbol": "version"
-                      },
-                      "val": {
-                        "u32": 2
-                      }
-                    }
-                  ]
-                }
-              ]
-            }
-          },
-          "sub_invocations": []
-        }
-      ]
-    ]
+    [],
+    []
   ],
   "ledger": {
     "protocol_version": 21,
@@ -190,7 +110,7 @@
                   "symbol": "Contract"
                 },
                 {
-                  "bytes": "1515151515151515151515151515151515151515151515151515151515151515"
+                  "bytes": "1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e"
                 }
               ]
             },
@@ -210,7 +130,7 @@
                       "symbol": "Contract"
                     },
                     {
-                      "bytes": "1515151515151515151515151515151515151515151515151515151515151515"
+                      "bytes": "1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e"
                     }
                   ]
                 },
@@ -222,7 +142,7 @@
                         "symbol": "abi_version"
                       },
                       "val": {
-                        "u32": 1
+                        "u32": 0
                       }
                     },
                     {
@@ -230,7 +150,7 @@
                         "symbol": "description"
                       },
                       "val": {
-                        "string": "v1"
+                        "string": "desc"
                       }
                     },
                     {
@@ -254,7 +174,7 @@
                         "symbol": "name"
                       },
                       "val": {
-                        "string": "Dex"
+                        "string": "Test"
                       }
                     },
                     {
@@ -270,7 +190,7 @@
                         "symbol": "version"
                       },
                       "val": {
-                        "u32": 2
+                        "u32": 1
                       }
                     }
                   ]
@@ -306,7 +226,7 @@
                         "symbol": "contract_id"
                       },
                       "val": {
-                        "bytes": "1515151515151515151515151515151515151515151515151515151515151515"
+                        "bytes": "1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e"
                       }
                     }
                   ]
@@ -343,7 +263,7 @@
                             "symbol": "contract_id"
                           },
                           "val": {
-                            "bytes": "1515151515151515151515151515151515151515151515151515151515151515"
+                            "bytes": "1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e"
                           }
                         }
                       ]
@@ -366,7 +286,7 @@
                         "symbol": "description"
                       },
                       "val": {
-                        "string": "v1"
+                        "string": "desc"
                       }
                     },
                     {
@@ -390,7 +310,7 @@
                         "symbol": "name"
                       },
                       "val": {
-                        "string": "Dex"
+                        "string": "Test"
                       }
                     },
                     {
@@ -407,142 +327,6 @@
                       },
                       "val": {
                         "u32": 1
-                      }
-                    }
-                  ]
-                }
-              }
-            },
-            "ext": "v0"
-          },
-          4095
-        ]
-      ],
-      [
-        {
-          "contract_data": {
-            "contract": "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD2KM",
-            "key": {
-              "vec": [
-                {
-                  "symbol": "ContractVersion"
-                },
-                {
-                  "map": [
-                    {
-                      "key": {
-                        "symbol": "abi_version"
-                      },
-                      "val": {
-                        "u32": 1
-                      }
-                    },
-                    {
-                      "key": {
-                        "symbol": "contract_id"
-                      },
-                      "val": {
-                        "bytes": "1515151515151515151515151515151515151515151515151515151515151515"
-                      }
-                    }
-                  ]
-                }
-              ]
-            },
-            "durability": "persistent"
-          }
-        },
-        [
-          {
-            "last_modified_ledger_seq": 0,
-            "data": {
-              "contract_data": {
-                "ext": "v0",
-                "contract": "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD2KM",
-                "key": {
-                  "vec": [
-                    {
-                      "symbol": "ContractVersion"
-                    },
-                    {
-                      "map": [
-                        {
-                          "key": {
-                            "symbol": "abi_version"
-                          },
-                          "val": {
-                            "u32": 1
-                          }
-                        },
-                        {
-                          "key": {
-                            "symbol": "contract_id"
-                          },
-                          "val": {
-                            "bytes": "1515151515151515151515151515151515151515151515151515151515151515"
-                          }
-                        }
-                      ]
-                    }
-                  ]
-                },
-                "durability": "persistent",
-                "val": {
-                  "map": [
-                    {
-                      "key": {
-                        "symbol": "abi_version"
-                      },
-                      "val": {
-                        "u32": 1
-                      }
-                    },
-                    {
-                      "key": {
-                        "symbol": "description"
-                      },
-                      "val": {
-                        "string": "v1"
-                      }
-                    },
-                    {
-                      "key": {
-                        "symbol": "functions"
-                      },
-                      "val": {
-                        "vec": []
-                      }
-                    },
-                    {
-                      "key": {
-                        "symbol": "min_ledger"
-                      },
-                      "val": {
-                        "u32": 0
-                      }
-                    },
-                    {
-                      "key": {
-                        "symbol": "name"
-                      },
-                      "val": {
-                        "string": "Dex"
-                      }
-                    },
-                    {
-                      "key": {
-                        "symbol": "registered_by"
-                      },
-                      "val": {
-                        "address": "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAFCT4"
-                      }
-                    },
-                    {
-                      "key": {
-                        "symbol": "version"
-                      },
-                      "val": {
-                        "u32": 2
                       }
                     }
                   ]
@@ -658,39 +442,6 @@
       ],
       [
         {
-          "contract_data": {
-            "contract": "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAFCT4",
-            "key": {
-              "ledger_key_nonce": {
-                "nonce": 5541220902715666415
-              }
-            },
-            "durability": "temporary"
-          }
-        },
-        [
-          {
-            "last_modified_ledger_seq": 0,
-            "data": {
-              "contract_data": {
-                "ext": "v0",
-                "contract": "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAFCT4",
-                "key": {
-                  "ledger_key_nonce": {
-                    "nonce": 5541220902715666415
-                  }
-                },
-                "durability": "temporary",
-                "val": "void"
-              }
-            },
-            "ext": "v0"
-          },
-          6311999
-        ]
-      ],
-      [
-        {
           "contract_code": {
             "hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
           }
@@ -791,7 +542,7 @@
                   "address": "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAFCT4"
                 },
                 {
-                  "bytes": "1515151515151515151515151515151515151515151515151515151515151515"
+                  "bytes": "1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e"
                 },
                 {
                   "map": [
@@ -800,7 +551,7 @@
                         "symbol": "abi_version"
                       },
                       "val": {
-                        "u32": 0
+                        "u32": 99
                       }
                     },
                     {
@@ -808,7 +559,7 @@
                         "symbol": "description"
                       },
                       "val": {
-                        "string": "v1"
+                        "string": "desc"
                       }
                     },
                     {
@@ -832,7 +583,7 @@
                         "symbol": "name"
                       },
                       "val": {
-                        "string": "Dex"
+                        "string": "Test"
                       }
                     },
                     {
@@ -872,7 +623,7 @@
                 "symbol": "c_reg"
               },
               {
-                "bytes": "1515151515151515151515151515151515151515151515151515151515151515"
+                "bytes": "1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e"
               }
             ],
             "data": {
@@ -905,11 +656,11 @@
                 "symbol": "register"
               },
               {
-                "bytes": "1515151515151515151515151515151515151515151515151515151515151515"
+                "bytes": "1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e"
               }
             ],
             "data": {
-              "string": "Dex"
+              "string": "Test"
             }
           }
         }
@@ -952,76 +703,89 @@
                 "bytes": "0000000000000000000000000000000000000000000000000000000000000001"
               },
               {
-                "symbol": "update_contract"
+                "symbol": "get_contract"
               }
             ],
             "data": {
-              "vec": [
+              "bytes": "1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e"
+            }
+          }
+        }
+      },
+      "failed_call": false
+    },
+    {
+      "event": {
+        "ext": "v0",
+        "contract_id": "0000000000000000000000000000000000000000000000000000000000000001",
+        "type_": "diagnostic",
+        "body": {
+          "v0": {
+            "topics": [
+              {
+                "symbol": "fn_return"
+              },
+              {
+                "symbol": "get_contract"
+              }
+            ],
+            "data": {
+              "map": [
                 {
-                  "address": "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAFCT4"
+                  "key": {
+                    "symbol": "abi_version"
+                  },
+                  "val": {
+                    "u32": 0
+                  }
                 },
                 {
-                  "bytes": "1515151515151515151515151515151515151515151515151515151515151515"
+                  "key": {
+                    "symbol": "description"
+                  },
+                  "val": {
+                    "string": "desc"
+                  }
                 },
                 {
-                  "map": [
-                    {
-                      "key": {
-                        "symbol": "abi_version"
-                      },
-                      "val": {
-                        "u32": 1
-                      }
-                    },
-                    {
-                      "key": {
-                        "symbol": "description"
-                      },
-                      "val": {
-                        "string": "v1"
-                      }
-                    },
-                    {
-                      "key": {
-                        "symbol": "functions"
-                      },
-                      "val": {
-                        "vec": []
-                      }
-                    },
-                    {
-                      "key": {
-                        "symbol": "min_ledger"
-                      },
-                      "val": {
-                        "u32": 0
-                      }
-                    },
-                    {
-                      "key": {
-                        "symbol": "name"
-                      },
-                      "val": {
-                        "string": "Dex"
-                      }
-                    },
-                    {
-                      "key": {
-                        "symbol": "registered_by"
-                      },
-                      "val": {
-                        "address": "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAFCT4"
-                      }
-                    },
-                    {
-                      "key": {
-                        "symbol": "version"
-                      },
-                      "val": {
-                        "u32": 2
-                      }
-                    }
-                  ]
+                  "key": {
+                    "symbol": "functions"
+                  },
+                  "val": {
+                    "vec": []
+                  }
+                },
+                {
+                  "key": {
+                    "symbol": "min_ledger"
+                  },
+                  "val": {
+                    "u32": 0
+                  }
+                },
+                {
+                  "key": {
+                    "symbol": "name"
+                  },
+                  "val": {
+                    "string": "Test"
+                  }
+                },
+                {
+                  "key": {
+                    "symbol": "registered_by"
+                  },
+                  "val": {
+                    "address": "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAFCT4"
+                  }
+                },
+                {
+                  "key": {
+                    "symbol": "version"
+                  },
+                  "val": {
+                    "u32": 1
+                  }
                 }
               ]
             }
@@ -1033,61 +797,25 @@
     {
       "event": {
         "ext": "v0",
-        "contract_id": "0000000000000000000000000000000000000000000000000000000000000001",
-        "type_": "contract",
+        "contract_id": null,
+        "type_": "diagnostic",
         "body": {
           "v0": {
             "topics": [
               {
-                "symbol": "c_abiu"
+                "symbol": "fn_call"
               },
               {
-                "bytes": "1515151515151515151515151515151515151515151515151515151515151515"
+                "bytes": "0000000000000000000000000000000000000000000000000000000000000001"
+              },
+              {
+                "symbol": "get_contract_version"
               }
             ],
             "data": {
               "vec": [
                 {
-                  "u32": 0
-                },
-                {
-                  "u32": 1
-                },
-                {
-                  "u32": 0
-                }
-              ]
-            }
-          }
-        }
-      },
-      "failed_call": false
-    },
-    {
-      "event": {
-        "ext": "v0",
-        "contract_id": "0000000000000000000000000000000000000000000000000000000000000001",
-        "type_": "contract",
-        "body": {
-          "v0": {
-            "topics": [
-              {
-                "symbol": "c_upd"
-              },
-              {
-                "bytes": "1515151515151515151515151515151515151515151515151515151515151515"
-              }
-            ],
-            "data": {
-              "vec": [
-                {
-                  "address": "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAFCT4"
-                },
-                {
-                  "u32": 1
-                },
-                {
-                  "u32": 2
+                  "bytes": "1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e"
                 },
                 {
                   "u32": 0
@@ -1111,10 +839,69 @@
                 "symbol": "fn_return"
               },
               {
-                "symbol": "update_contract"
+                "symbol": "get_contract_version"
               }
             ],
-            "data": "void"
+            "data": {
+              "map": [
+                {
+                  "key": {
+                    "symbol": "abi_version"
+                  },
+                  "val": {
+                    "u32": 0
+                  }
+                },
+                {
+                  "key": {
+                    "symbol": "description"
+                  },
+                  "val": {
+                    "string": "desc"
+                  }
+                },
+                {
+                  "key": {
+                    "symbol": "functions"
+                  },
+                  "val": {
+                    "vec": []
+                  }
+                },
+                {
+                  "key": {
+                    "symbol": "min_ledger"
+                  },
+                  "val": {
+                    "u32": 0
+                  }
+                },
+                {
+                  "key": {
+                    "symbol": "name"
+                  },
+                  "val": {
+                    "string": "Test"
+                  }
+                },
+                {
+                  "key": {
+                    "symbol": "registered_by"
+                  },
+                  "val": {
+                    "address": "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAFCT4"
+                  }
+                },
+                {
+                  "key": {
+                    "symbol": "version"
+                  },
+                  "val": {
+                    "u32": 1
+                  }
+                }
+              ]
+            }
           }
         }
       },

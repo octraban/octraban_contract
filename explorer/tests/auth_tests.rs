@@ -20,6 +20,8 @@ fn setup_with_admin() -> (Env, ExplorerContractClient<'static>, Address) {
 fn make_meta(env: &Env, registrant: &Address) -> ContractMeta {
     ContractMeta {
         version: 1,
+        abi_version: 0,
+        min_ledger: 0,
         name: String::from_str(env, "Test"),
         description: String::from_str(env, "desc"),
         functions: Vec::new(env),
@@ -83,7 +85,7 @@ fn test_update_by_stranger() {
     client.register_contract(&registrant, &cid, &meta);
 
     // stranger tries to update
-    let meta2 = ContractMeta { version: 2, ..meta };
+    let meta2 = ContractMeta { version: 2, abi_version: 1, ..meta };
     env.mock_auths(&[MockAuth {
         address: &stranger,
         invoke: &MockAuthInvoke {
@@ -115,7 +117,7 @@ fn test_admin_can_update_any() {
     }]);
     client.register_contract(&registrant, &cid, &meta);
 
-    let meta2 = ContractMeta { version: 2, ..meta };
+    let meta2 = ContractMeta { version: 2, abi_version: 1, ..meta };
     env.mock_auths(&[MockAuth {
         address: &admin,
         invoke: &MockAuthInvoke {
@@ -126,7 +128,7 @@ fn test_admin_can_update_any() {
         },
     }]);
     client.update_contract(&admin, &cid, &meta2);
-    assert_eq!(client.get_contract(&cid).version, 2u32);
+    assert_eq!(client.get_contract(&cid).unwrap().version, 2u32);
 }
 
 // 4. Registrant can update their own contract
@@ -148,7 +150,7 @@ fn test_registrant_can_update_own() {
     }]);
     client.register_contract(&registrant, &cid, &meta);
 
-    let meta2 = ContractMeta { version: 2, ..meta };
+    let meta2 = ContractMeta { version: 2, abi_version: 1, ..meta };
     env.mock_auths(&[MockAuth {
         address: &registrant,
         invoke: &MockAuthInvoke {
@@ -159,7 +161,7 @@ fn test_registrant_can_update_own() {
         },
     }]);
     client.update_contract(&registrant, &cid, &meta2);
-    assert_eq!(client.get_contract(&cid).version, 2u32);
+    assert_eq!(client.get_contract(&cid).unwrap().version, 2u32);
 }
 
 // 5. submit_event called by non-admin → Unauthorized
