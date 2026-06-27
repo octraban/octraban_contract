@@ -13,7 +13,7 @@ mod multi_contract_tests;
 mod test;
 
 use soroban_sdk::{
-    contract, contractimpl, contracttype, symbol_short,
+    contract, contracterror, contractimpl, contracttype, symbol_short,
     Address, Env, String, Symbol,
 };
 
@@ -43,6 +43,13 @@ pub struct Ticket {
     pub status: TicketStatus,
     pub original_price: i128,
     pub max_resale_price: i128,
+}
+
+#[contracterror]
+#[derive(Copy, Clone, Debug, Eq, PartialEq)]
+#[repr(u32)]
+pub enum Error {
+    NotFound = 1,
 }
 
 // ── Contract ──────────────────────────────────────────────────────────────────
@@ -165,11 +172,11 @@ impl TicketContract {
     }
 
     /// Fetch ticket metadata.
-    pub fn get_ticket(env: Env, ticket_id: u64) -> Ticket {
+    pub fn get_ticket(env: Env, ticket_id: u64) -> Result<Ticket, Error> {
         env.storage()
             .persistent()
             .get(&ticket_id)
-            .expect("ticket not found")
+            .ok_or(Error::NotFound)
     }
 
     /// Total tickets minted so far.
