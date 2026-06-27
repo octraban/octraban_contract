@@ -23,6 +23,7 @@ pub enum DataKey {
     EventLog(u64),        // slot → DecodedEvent  (slot = seq % max_events)
     EventSeq,             // monotonic counter (never wraps)
     MaxEvents,            // u32 ring-buffer capacity
+    IsPaused,             // boolean indicating if contract is paused
 }
 
 /// Minimum allowed value for max_events (prevents accidental data loss).
@@ -116,6 +117,17 @@ impl ExplorerContract {
         env.events().publish((symbol_short!("adm_tx"),), (caller, new_admin));
     }
 
+    /// Emergency pause (admin only).
+    pub fn set_paused(env: Env, caller: Address, paused: bool) {
+        caller.require_auth();
+        let admin: Address = env.storage().instance().get(&DataKey::Admin).unwrap();
+        if caller != admin {
+            panic_with_error!(&env, Error::Unauthorized);
+        }
+        env.storage().instance().set(&DataKey::IsPaused, &paused);
+        env.events().publish((symbol_short!("pause"),), (caller, paused));
+    }
+
     // ── Contract Registry ─────────────────────────────────────────────────────
 
     /// Register ABI-like metadata for a Soroban contract.
@@ -126,6 +138,11 @@ impl ExplorerContract {
         meta: ContractMeta,
     ) {
         caller.require_auth();
+        let is_paused: bool = env.storage().instance().get(&DataKey::IsPaused).unwrap_or(false);
+        if is_paused {
+            panic_with_error!(&env, Error::Unauthorized);
+        }
+        
         let key = DataKey::Contract(contract_id.clone());
         if env.storage().persistent().has(&key) {
             panic_with_error!(&env, Error::AlreadyExists);
@@ -145,6 +162,10 @@ impl ExplorerContract {
     /// Update metadata (admin or original registrant only).
     pub fn update_contract(env: Env, caller: Address, contract_id: BytesN<32>, meta: ContractMeta) {
         caller.require_auth();
+        let is_paused: bool = env.storage().instance().get(&DataKey::IsPaused).unwrap_or(false);
+        if is_paused {
+            panic_with_error!(&env, Error::Unauthorized);
+        }
         let key = DataKey::Contract(contract_id.clone());
         let existing: ContractMeta = env
             .storage()
@@ -207,6 +228,11 @@ impl ExplorerContract {
     /// Uses a ring-buffer: when seq >= max_events, overwrites the oldest slot.
     pub fn submit_event(env: Env, caller: Address, input: EventInput) {
         caller.require_auth();
+        let is_paused: bool = env.storage().instance().get(&DataKey::IsPaused).unwrap_or(false);
+        if is_paused {
+            panic_with_error!(&env, Error::Unauthorized);
+        }
+        
         let admin: Address = env.storage().instance().get(&DataKey::Admin).unwrap();
         if caller != admin {
             panic_with_error!(&env, Error::Unauthorized);
