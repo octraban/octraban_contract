@@ -179,7 +179,7 @@
                 "bytes": "0000000000000000000000000000000000000000000000000000000000000001"
               },
               {
-                "symbol": "init"
+                "symbol": "deregister_contract"
               }
             ],
             "data": {
@@ -188,7 +188,7 @@
                   "address": "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAFCT4"
                 },
                 {
-                  "u32": 0
+                  "bytes": "6363636363636363636363636363636363636363636363636363636363636363"
                 }
               ]
             }
@@ -210,7 +210,7 @@
               },
               {
                 "error": {
-                  "contract": 3
+                  "contract": 1
                 }
               }
             ],
@@ -220,7 +220,7 @@
                   "string": "failing with contract error"
                 },
                 {
-                  "u32": 3
+                  "u32": 1
                 }
               ]
             }
@@ -242,7 +242,7 @@
               },
               {
                 "error": {
-                  "contract": 3
+                  "contract": 1
                 }
               }
             ],
@@ -267,7 +267,7 @@
               },
               {
                 "error": {
-                  "contract": 3
+                  "contract": 1
                 }
               }
             ],
@@ -292,7 +292,7 @@
               },
               {
                 "error": {
-                  "contract": 3
+                  "contract": 1
                 }
               }
             ],
@@ -302,7 +302,7 @@
                   "string": "contract call failed"
                 },
                 {
-                  "symbol": "init"
+                  "symbol": "deregister_contract"
                 },
                 {
                   "vec": [
@@ -310,7 +310,7 @@
                       "address": "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAFCT4"
                     },
                     {
-                      "u32": 0
+                      "bytes": "6363636363636363636363636363636363636363636363636363636363636363"
                     }
                   ]
                 }
@@ -334,7 +334,7 @@
               },
               {
                 "error": {
-                  "contract": 3
+                  "contract": 1
                 }
               }
             ],

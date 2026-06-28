@@ -18,7 +18,7 @@
                   "address": "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAFCT4"
                 },
                 {
-                  "bytes": "0101010101010101010101010101010101010101010101010101010101010101"
+                  "bytes": "1515151515151515151515151515151515151515151515151515151515151515"
                 },
                 {
                   "map": [
@@ -35,7 +35,7 @@
                         "symbol": "description"
                       },
                       "val": {
-                        "string": "DEX on Stellar"
+                        "string": "v1"
                       }
                     },
                     {
@@ -59,7 +59,7 @@
                         "symbol": "name"
                       },
                       "val": {
-                        "string": "StellarSwap"
+                        "string": "Dex"
                       }
                     },
                     {
@@ -87,61 +87,29 @@
         }
       ]
     ],
-    []
-  ],
-  "ledger": {
-    "protocol_version": 21,
-    "sequence_number": 0,
-    "timestamp": 0,
-    "network_id": "0000000000000000000000000000000000000000000000000000000000000000",
-    "base_reserve": 0,
-    "min_persistent_entry_ttl": 4096,
-    "min_temp_entry_ttl": 16,
-    "max_entry_ttl": 6312000,
-    "ledger_entries": [
+    [
       [
+        "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAFCT4",
         {
-          "contract_data": {
-            "contract": "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD2KM",
-            "key": {
-              "vec": [
+          "function": {
+            "contract_fn": {
+              "contract_address": "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD2KM",
+              "function_name": "update_contract",
+              "args": [
                 {
-                  "symbol": "Contract"
+                  "address": "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAFCT4"
                 },
                 {
-                  "bytes": "0101010101010101010101010101010101010101010101010101010101010101"
-                }
-              ]
-            },
-            "durability": "persistent"
-          }
-        },
-        [
-          {
-            "last_modified_ledger_seq": 0,
-            "data": {
-              "contract_data": {
-                "ext": "v0",
-                "contract": "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD2KM",
-                "key": {
-                  "vec": [
-                    {
-                      "symbol": "Contract"
-                    },
-                    {
-                      "bytes": "0101010101010101010101010101010101010101010101010101010101010101"
-                    }
-                  ]
+                  "bytes": "1515151515151515151515151515151515151515151515151515151515151515"
                 },
-                "durability": "persistent",
-                "val": {
+                {
                   "map": [
                     {
                       "key": {
                         "symbol": "abi_version"
                       },
                       "val": {
-                        "u32": 0
+                        "u32": 1
                       }
                     },
                     {
@@ -149,7 +117,7 @@
                         "symbol": "description"
                       },
                       "val": {
-                        "string": "DEX on Stellar"
+                        "string": "v1"
                       }
                     },
                     {
@@ -173,7 +141,256 @@
                         "symbol": "name"
                       },
                       "val": {
-                        "string": "StellarSwap"
+                        "string": "Dex"
+                      }
+                    },
+                    {
+                      "key": {
+                        "symbol": "registered_by"
+                      },
+                      "val": {
+                        "address": "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAFCT4"
+                      }
+                    },
+                    {
+                      "key": {
+                        "symbol": "version"
+                      },
+                      "val": {
+                        "u32": 2
+                      }
+                    }
+                  ]
+                }
+              ]
+            }
+          },
+          "sub_invocations": []
+        }
+      ]
+    ]
+  ],
+  "ledger": {
+    "protocol_version": 21,
+    "sequence_number": 0,
+    "timestamp": 0,
+    "network_id": "0000000000000000000000000000000000000000000000000000000000000000",
+    "base_reserve": 0,
+    "min_persistent_entry_ttl": 4096,
+    "min_temp_entry_ttl": 16,
+    "max_entry_ttl": 6312000,
+    "ledger_entries": [
+      [
+        {
+          "contract_data": {
+            "contract": "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD2KM",
+            "key": {
+              "vec": [
+                {
+                  "symbol": "Contract"
+                },
+                {
+                  "bytes": "1515151515151515151515151515151515151515151515151515151515151515"
+                }
+              ]
+            },
+            "durability": "persistent"
+          }
+        },
+        [
+          {
+            "last_modified_ledger_seq": 0,
+            "data": {
+              "contract_data": {
+                "ext": "v0",
+                "contract": "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD2KM",
+                "key": {
+                  "vec": [
+                    {
+                      "symbol": "Contract"
+                    },
+                    {
+                      "bytes": "1515151515151515151515151515151515151515151515151515151515151515"
+                    }
+                  ]
+                },
+                "durability": "persistent",
+                "val": {
+                  "map": [
+                    {
+                      "key": {
+                        "symbol": "abi_version"
+                      },
+                      "val": {
+                        "u32": 1
+                      }
+                    },
+                    {
+                      "key": {
+                        "symbol": "description"
+                      },
+                      "val": {
+                        "string": "v1"
+                      }
+                    },
+                    {
+                      "key": {
+                        "symbol": "functions"
+                      },
+                      "val": {
+                        "vec": []
+                      }
+                    },
+                    {
+                      "key": {
+                        "symbol": "min_ledger"
+                      },
+                      "val": {
+                        "u32": 0
+                      }
+                    },
+                    {
+                      "key": {
+                        "symbol": "name"
+                      },
+                      "val": {
+                        "string": "Dex"
+                      }
+                    },
+                    {
+                      "key": {
+                        "symbol": "registered_by"
+                      },
+                      "val": {
+                        "address": "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAFCT4"
+                      }
+                    },
+                    {
+                      "key": {
+                        "symbol": "version"
+                      },
+                      "val": {
+                        "u32": 2
+                      }
+                    }
+                  ]
+                }
+              }
+            },
+            "ext": "v0"
+          },
+          4095
+        ]
+      ],
+      [
+        {
+          "contract_data": {
+            "contract": "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD2KM",
+            "key": {
+              "vec": [
+                {
+                  "symbol": "ContractVersion"
+                },
+                {
+                  "map": [
+                    {
+                      "key": {
+                        "symbol": "abi_version"
+                      },
+                      "val": {
+                        "u32": 0
+                      }
+                    },
+                    {
+                      "key": {
+                        "symbol": "contract_id"
+                      },
+                      "val": {
+                        "bytes": "1515151515151515151515151515151515151515151515151515151515151515"
+                      }
+                    }
+                  ]
+                }
+              ]
+            },
+            "durability": "persistent"
+          }
+        },
+        [
+          {
+            "last_modified_ledger_seq": 0,
+            "data": {
+              "contract_data": {
+                "ext": "v0",
+                "contract": "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD2KM",
+                "key": {
+                  "vec": [
+                    {
+                      "symbol": "ContractVersion"
+                    },
+                    {
+                      "map": [
+                        {
+                          "key": {
+                            "symbol": "abi_version"
+                          },
+                          "val": {
+                            "u32": 0
+                          }
+                        },
+                        {
+                          "key": {
+                            "symbol": "contract_id"
+                          },
+                          "val": {
+                            "bytes": "1515151515151515151515151515151515151515151515151515151515151515"
+                          }
+                        }
+                      ]
+                    }
+                  ]
+                },
+                "durability": "persistent",
+                "val": {
+                  "map": [
+                    {
+                      "key": {
+                        "symbol": "abi_version"
+                      },
+                      "val": {
+                        "u32": 0
+                      }
+                    },
+                    {
+                      "key": {
+                        "symbol": "description"
+                      },
+                      "val": {
+                        "string": "v1"
+                      }
+                    },
+                    {
+                      "key": {
+                        "symbol": "functions"
+                      },
+                      "val": {
+                        "vec": []
+                      }
+                    },
+                    {
+                      "key": {
+                        "symbol": "min_ledger"
+                      },
+                      "val": {
+                        "u32": 0
+                      }
+                    },
+                    {
+                      "key": {
+                        "symbol": "name"
+                      },
+                      "val": {
+                        "string": "Dex"
                       }
                     },
                     {
@@ -217,7 +434,7 @@
                         "symbol": "abi_version"
                       },
                       "val": {
-                        "u32": 0
+                        "u32": 1
                       }
                     },
                     {
@@ -225,7 +442,7 @@
                         "symbol": "contract_id"
                       },
                       "val": {
-                        "bytes": "0101010101010101010101010101010101010101010101010101010101010101"
+                        "bytes": "1515151515151515151515151515151515151515151515151515151515151515"
                       }
                     }
                   ]
@@ -254,7 +471,7 @@
                             "symbol": "abi_version"
                           },
                           "val": {
-                            "u32": 0
+                            "u32": 1
                           }
                         },
                         {
@@ -262,7 +479,7 @@
                             "symbol": "contract_id"
                           },
                           "val": {
-                            "bytes": "0101010101010101010101010101010101010101010101010101010101010101"
+                            "bytes": "1515151515151515151515151515151515151515151515151515151515151515"
                           }
                         }
                       ]
@@ -277,7 +494,7 @@
                         "symbol": "abi_version"
                       },
                       "val": {
-                        "u32": 0
+                        "u32": 1
                       }
                     },
                     {
@@ -285,7 +502,7 @@
                         "symbol": "description"
                       },
                       "val": {
-                        "string": "DEX on Stellar"
+                        "string": "v1"
                       }
                     },
                     {
@@ -309,7 +526,7 @@
                         "symbol": "name"
                       },
                       "val": {
-                        "string": "StellarSwap"
+                        "string": "Dex"
                       }
                     },
                     {
@@ -325,7 +542,7 @@
                         "symbol": "version"
                       },
                       "val": {
-                        "u32": 1
+                        "u32": 2
                       }
                     }
                   ]
@@ -441,6 +658,39 @@
       ],
       [
         {
+          "contract_data": {
+            "contract": "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAFCT4",
+            "key": {
+              "ledger_key_nonce": {
+                "nonce": 5541220902715666415
+              }
+            },
+            "durability": "temporary"
+          }
+        },
+        [
+          {
+            "last_modified_ledger_seq": 0,
+            "data": {
+              "contract_data": {
+                "ext": "v0",
+                "contract": "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAFCT4",
+                "key": {
+                  "ledger_key_nonce": {
+                    "nonce": 5541220902715666415
+                  }
+                },
+                "durability": "temporary",
+                "val": "void"
+              }
+            },
+            "ext": "v0"
+          },
+          6311999
+        ]
+      ],
+      [
+        {
           "contract_code": {
             "hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
           }
@@ -541,7 +791,7 @@
                   "address": "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAFCT4"
                 },
                 {
-                  "bytes": "0101010101010101010101010101010101010101010101010101010101010101"
+                  "bytes": "1515151515151515151515151515151515151515151515151515151515151515"
                 },
                 {
                   "map": [
@@ -558,7 +808,7 @@
                         "symbol": "description"
                       },
                       "val": {
-                        "string": "DEX on Stellar"
+                        "string": "v1"
                       }
                     },
                     {
@@ -582,7 +832,7 @@
                         "symbol": "name"
                       },
                       "val": {
-                        "string": "StellarSwap"
+                        "string": "Dex"
                       }
                     },
                     {
@@ -622,7 +872,7 @@
                 "symbol": "c_reg"
               },
               {
-                "bytes": "0101010101010101010101010101010101010101010101010101010101010101"
+                "bytes": "1515151515151515151515151515151515151515151515151515151515151515"
               }
             ],
             "data": {
@@ -655,11 +905,11 @@
                 "symbol": "register"
               },
               {
-                "bytes": "0101010101010101010101010101010101010101010101010101010101010101"
+                "bytes": "1515151515151515151515151515151515151515151515151515151515151515"
               }
             ],
             "data": {
-              "string": "StellarSwap"
+              "string": "Dex"
             }
           }
         }
@@ -702,11 +952,147 @@
                 "bytes": "0000000000000000000000000000000000000000000000000000000000000001"
               },
               {
-                "symbol": "get_contract"
+                "symbol": "update_contract"
               }
             ],
             "data": {
-              "bytes": "0101010101010101010101010101010101010101010101010101010101010101"
+              "vec": [
+                {
+                  "address": "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAFCT4"
+                },
+                {
+                  "bytes": "1515151515151515151515151515151515151515151515151515151515151515"
+                },
+                {
+                  "map": [
+                    {
+                      "key": {
+                        "symbol": "abi_version"
+                      },
+                      "val": {
+                        "u32": 1
+                      }
+                    },
+                    {
+                      "key": {
+                        "symbol": "description"
+                      },
+                      "val": {
+                        "string": "v1"
+                      }
+                    },
+                    {
+                      "key": {
+                        "symbol": "functions"
+                      },
+                      "val": {
+                        "vec": []
+                      }
+                    },
+                    {
+                      "key": {
+                        "symbol": "min_ledger"
+                      },
+                      "val": {
+                        "u32": 0
+                      }
+                    },
+                    {
+                      "key": {
+                        "symbol": "name"
+                      },
+                      "val": {
+                        "string": "Dex"
+                      }
+                    },
+                    {
+                      "key": {
+                        "symbol": "registered_by"
+                      },
+                      "val": {
+                        "address": "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAFCT4"
+                      }
+                    },
+                    {
+                      "key": {
+                        "symbol": "version"
+                      },
+                      "val": {
+                        "u32": 2
+                      }
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        }
+      },
+      "failed_call": false
+    },
+    {
+      "event": {
+        "ext": "v0",
+        "contract_id": "0000000000000000000000000000000000000000000000000000000000000001",
+        "type_": "contract",
+        "body": {
+          "v0": {
+            "topics": [
+              {
+                "symbol": "c_abiu"
+              },
+              {
+                "bytes": "1515151515151515151515151515151515151515151515151515151515151515"
+              }
+            ],
+            "data": {
+              "vec": [
+                {
+                  "u32": 0
+                },
+                {
+                  "u32": 1
+                },
+                {
+                  "u32": 0
+                }
+              ]
+            }
+          }
+        }
+      },
+      "failed_call": false
+    },
+    {
+      "event": {
+        "ext": "v0",
+        "contract_id": "0000000000000000000000000000000000000000000000000000000000000001",
+        "type_": "contract",
+        "body": {
+          "v0": {
+            "topics": [
+              {
+                "symbol": "c_upd"
+              },
+              {
+                "bytes": "1515151515151515151515151515151515151515151515151515151515151515"
+              }
+            ],
+            "data": {
+              "vec": [
+                {
+                  "address": "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAFCT4"
+                },
+                {
+                  "u32": 1
+                },
+                {
+                  "u32": 2
+                },
+                {
+                  "u32": 0
+                }
+              ]
             }
           }
         }
@@ -725,69 +1111,10 @@
                 "symbol": "fn_return"
               },
               {
-                "symbol": "get_contract"
+                "symbol": "update_contract"
               }
             ],
-            "data": {
-              "map": [
-                {
-                  "key": {
-                    "symbol": "abi_version"
-                  },
-                  "val": {
-                    "u32": 0
-                  }
-                },
-                {
-                  "key": {
-                    "symbol": "description"
-                  },
-                  "val": {
-                    "string": "DEX on Stellar"
-                  }
-                },
-                {
-                  "key": {
-                    "symbol": "functions"
-                  },
-                  "val": {
-                    "vec": []
-                  }
-                },
-                {
-                  "key": {
-                    "symbol": "min_ledger"
-                  },
-                  "val": {
-                    "u32": 0
-                  }
-                },
-                {
-                  "key": {
-                    "symbol": "name"
-                  },
-                  "val": {
-                    "string": "StellarSwap"
-                  }
-                },
-                {
-                  "key": {
-                    "symbol": "registered_by"
-                  },
-                  "val": {
-                    "address": "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAFCT4"
-                  }
-                },
-                {
-                  "key": {
-                    "symbol": "version"
-                  },
-                  "val": {
-                    "u32": 1
-                  }
-                }
-              ]
-            }
+            "data": "void"
           }
         }
       },

@@ -12,19 +12,22 @@
           "function": {
             "contract_fn": {
               "contract_address": "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD2KM",
-              "function_name": "submit_event",
+              "function_name": "register_contract",
               "args": [
                 {
                   "address": "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAFCT4"
                 },
                 {
+                  "bytes": "2828282828282828282828282828282828282828282828282828282828282828"
+                },
+                {
                   "map": [
                     {
                       "key": {
-                        "symbol": "contract_id"
+                        "symbol": "abi_version"
                       },
                       "val": {
-                        "bytes": "0202020202020202020202020202020202020202020202020202020202020202"
+                        "u32": 0
                       }
                     },
                     {
@@ -32,39 +35,47 @@
                         "symbol": "description"
                       },
                       "val": {
-                        "string": "Address GABC... swapped 100 USDC"
+                        "string": "will be removed"
                       }
                     },
                     {
                       "key": {
-                        "symbol": "function"
-                      },
-                      "val": {
-                        "symbol": "swap"
-                      }
-                    },
-                    {
-                      "key": {
-                        "symbol": "ledger"
-                      },
-                      "val": {
-                        "u32": 4521983
-                      }
-                    },
-                    {
-                      "key": {
-                        "symbol": "raw_data"
-                      },
-                      "val": {
-                        "bytes": ""
-                      }
-                    },
-                    {
-                      "key": {
-                        "symbol": "raw_topics"
+                        "symbol": "functions"
                       },
                       "val": {
                         "vec": []
+                      }
+                    },
+                    {
+                      "key": {
+                        "symbol": "min_ledger"
+                      },
+                      "val": {
+                        "u32": 0
+                      }
+                    },
+                    {
+                      "key": {
+                        "symbol": "name"
+                      },
+                      "val": {
+                        "string": "ToRemove"
+                      }
+                    },
+                    {
+                      "key": {
+                        "symbol": "registered_by"
+                      },
+                      "val": {
+                        "address": "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAFCT4"
+                      }
+                    },
+                    {
+                      "key": {
+                        "symbol": "version"
+                      },
+                      "val": {
+                        "u32": 1
                       }
                     }
                   ]
@@ -77,6 +88,28 @@
       ]
     ],
     [],
+    [
+      [
+        "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAFCT4",
+        {
+          "function": {
+            "contract_fn": {
+              "contract_address": "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD2KM",
+              "function_name": "deregister_contract",
+              "args": [
+                {
+                  "address": "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAFCT4"
+                },
+                {
+                  "bytes": "2828282828282828282828282828282828282828282828282828282828282828"
+                }
+              ]
+            }
+          },
+          "sub_invocations": []
+        }
+      ]
+    ],
     []
   ],
   "ledger": {
@@ -96,10 +129,27 @@
             "key": {
               "vec": [
                 {
-                  "symbol": "EventLog"
+                  "symbol": "ContractVersion"
                 },
                 {
-                  "u64": 0
+                  "map": [
+                    {
+                      "key": {
+                        "symbol": "abi_version"
+                      },
+                      "val": {
+                        "u32": 0
+                      }
+                    },
+                    {
+                      "key": {
+                        "symbol": "contract_id"
+                      },
+                      "val": {
+                        "bytes": "2828282828282828282828282828282828282828282828282828282828282828"
+                      }
+                    }
+                  ]
                 }
               ]
             },
@@ -116,10 +166,27 @@
                 "key": {
                   "vec": [
                     {
-                      "symbol": "EventLog"
+                      "symbol": "ContractVersion"
                     },
                     {
-                      "u64": 0
+                      "map": [
+                        {
+                          "key": {
+                            "symbol": "abi_version"
+                          },
+                          "val": {
+                            "u32": 0
+                          }
+                        },
+                        {
+                          "key": {
+                            "symbol": "contract_id"
+                          },
+                          "val": {
+                            "bytes": "2828282828282828282828282828282828282828282828282828282828282828"
+                          }
+                        }
+                      ]
                     }
                   ]
                 },
@@ -128,10 +195,10 @@
                   "map": [
                     {
                       "key": {
-                        "symbol": "contract_id"
+                        "symbol": "abi_version"
                       },
                       "val": {
-                        "bytes": "0202020202020202020202020202020202020202020202020202020202020202"
+                        "u32": 0
                       }
                     },
                     {
@@ -139,36 +206,12 @@
                         "symbol": "description"
                       },
                       "val": {
-                        "string": "Address GABC... swapped 100 USDC"
+                        "string": "will be removed"
                       }
                     },
                     {
                       "key": {
-                        "symbol": "function"
-                      },
-                      "val": {
-                        "symbol": "swap"
-                      }
-                    },
-                    {
-                      "key": {
-                        "symbol": "ledger"
-                      },
-                      "val": {
-                        "u32": 4521983
-                      }
-                    },
-                    {
-                      "key": {
-                        "symbol": "raw_data"
-                      },
-                      "val": {
-                        "bytes": ""
-                      }
-                    },
-                    {
-                      "key": {
-                        "symbol": "raw_topics"
+                        "symbol": "functions"
                       },
                       "val": {
                         "vec": []
@@ -176,10 +219,34 @@
                     },
                     {
                       "key": {
-                        "symbol": "seq"
+                        "symbol": "min_ledger"
                       },
                       "val": {
-                        "u64": 0
+                        "u32": 0
+                      }
+                    },
+                    {
+                      "key": {
+                        "symbol": "name"
+                      },
+                      "val": {
+                        "string": "ToRemove"
+                      }
+                    },
+                    {
+                      "key": {
+                        "symbol": "registered_by"
+                      },
+                      "val": {
+                        "address": "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAFCT4"
+                      }
+                    },
+                    {
+                      "key": {
+                        "symbol": "version"
+                      },
+                      "val": {
+                        "u32": 1
                       }
                     }
                   ]
@@ -235,7 +302,7 @@
                           ]
                         },
                         "val": {
-                          "u64": 1
+                          "u64": 0
                         }
                       },
                       {
@@ -282,6 +349,39 @@
                 "key": {
                   "ledger_key_nonce": {
                     "nonce": 801925984706572462
+                  }
+                },
+                "durability": "temporary",
+                "val": "void"
+              }
+            },
+            "ext": "v0"
+          },
+          6311999
+        ]
+      ],
+      [
+        {
+          "contract_data": {
+            "contract": "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAFCT4",
+            "key": {
+              "ledger_key_nonce": {
+                "nonce": 5541220902715666415
+              }
+            },
+            "durability": "temporary"
+          }
+        },
+        [
+          {
+            "last_modified_ledger_seq": 0,
+            "data": {
+              "contract_data": {
+                "ext": "v0",
+                "contract": "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAFCT4",
+                "key": {
+                  "ledger_key_nonce": {
+                    "nonce": 5541220902715666415
                   }
                 },
                 "durability": "temporary",
@@ -386,7 +486,7 @@
                 "bytes": "0000000000000000000000000000000000000000000000000000000000000001"
               },
               {
-                "symbol": "submit_event"
+                "symbol": "register_contract"
               }
             ],
             "data": {
@@ -395,13 +495,16 @@
                   "address": "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAFCT4"
                 },
                 {
+                  "bytes": "2828282828282828282828282828282828282828282828282828282828282828"
+                },
+                {
                   "map": [
                     {
                       "key": {
-                        "symbol": "contract_id"
+                        "symbol": "abi_version"
                       },
                       "val": {
-                        "bytes": "0202020202020202020202020202020202020202020202020202020202020202"
+                        "u32": 0
                       }
                     },
                     {
@@ -409,39 +512,47 @@
                         "symbol": "description"
                       },
                       "val": {
-                        "string": "Address GABC... swapped 100 USDC"
+                        "string": "will be removed"
                       }
                     },
                     {
                       "key": {
-                        "symbol": "function"
-                      },
-                      "val": {
-                        "symbol": "swap"
-                      }
-                    },
-                    {
-                      "key": {
-                        "symbol": "ledger"
-                      },
-                      "val": {
-                        "u32": 4521983
-                      }
-                    },
-                    {
-                      "key": {
-                        "symbol": "raw_data"
-                      },
-                      "val": {
-                        "bytes": ""
-                      }
-                    },
-                    {
-                      "key": {
-                        "symbol": "raw_topics"
+                        "symbol": "functions"
                       },
                       "val": {
                         "vec": []
+                      }
+                    },
+                    {
+                      "key": {
+                        "symbol": "min_ledger"
+                      },
+                      "val": {
+                        "u32": 0
+                      }
+                    },
+                    {
+                      "key": {
+                        "symbol": "name"
+                      },
+                      "val": {
+                        "string": "ToRemove"
+                      }
+                    },
+                    {
+                      "key": {
+                        "symbol": "registered_by"
+                      },
+                      "val": {
+                        "address": "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAFCT4"
+                      }
+                    },
+                    {
+                      "key": {
+                        "symbol": "version"
+                      },
+                      "val": {
+                        "u32": 1
                       }
                     }
                   ]
@@ -462,22 +573,22 @@
           "v0": {
             "topics": [
               {
-                "symbol": "ev_sub"
+                "symbol": "c_reg"
               },
               {
-                "bytes": "0202020202020202020202020202020202020202020202020202020202020202"
-              },
-              {
-                "symbol": "swap"
+                "bytes": "2828282828282828282828282828282828282828282828282828282828282828"
               }
             ],
             "data": {
               "vec": [
                 {
-                  "u64": 0
+                  "address": "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAFCT4"
                 },
                 {
-                  "u32": 4521983
+                  "u32": 1
+                },
+                {
+                  "u32": 0
                 }
               ]
             }
@@ -495,17 +606,14 @@
           "v0": {
             "topics": [
               {
-                "symbol": "decoded"
+                "symbol": "register"
               },
               {
-                "bytes": "0202020202020202020202020202020202020202020202020202020202020202"
-              },
-              {
-                "symbol": "swap"
+                "bytes": "2828282828282828282828282828282828282828282828282828282828282828"
               }
             ],
             "data": {
-              "string": "Address GABC... swapped 100 USDC"
+              "string": "ToRemove"
             }
           }
         }
@@ -524,7 +632,7 @@
                 "symbol": "fn_return"
               },
               {
-                "symbol": "submit_event"
+                "symbol": "register_contract"
               }
             ],
             "data": "void"
@@ -548,58 +656,11 @@
                 "bytes": "0000000000000000000000000000000000000000000000000000000000000001"
               },
               {
-                "symbol": "event_count"
-              }
-            ],
-            "data": "void"
-          }
-        }
-      },
-      "failed_call": false
-    },
-    {
-      "event": {
-        "ext": "v0",
-        "contract_id": "0000000000000000000000000000000000000000000000000000000000000001",
-        "type_": "diagnostic",
-        "body": {
-          "v0": {
-            "topics": [
-              {
-                "symbol": "fn_return"
-              },
-              {
-                "symbol": "event_count"
+                "symbol": "get_contract"
               }
             ],
             "data": {
-              "u64": 1
-            }
-          }
-        }
-      },
-      "failed_call": false
-    },
-    {
-      "event": {
-        "ext": "v0",
-        "contract_id": null,
-        "type_": "diagnostic",
-        "body": {
-          "v0": {
-            "topics": [
-              {
-                "symbol": "fn_call"
-              },
-              {
-                "bytes": "0000000000000000000000000000000000000000000000000000000000000001"
-              },
-              {
-                "symbol": "get_event"
-              }
-            ],
-            "data": {
-              "u64": 0
+              "bytes": "2828282828282828282828282828282828282828282828282828282828282828"
             }
           }
         }
@@ -618,17 +679,17 @@
                 "symbol": "fn_return"
               },
               {
-                "symbol": "get_event"
+                "symbol": "get_contract"
               }
             ],
             "data": {
               "map": [
                 {
                   "key": {
-                    "symbol": "contract_id"
+                    "symbol": "abi_version"
                   },
                   "val": {
-                    "bytes": "0202020202020202020202020202020202020202020202020202020202020202"
+                    "u32": 0
                   }
                 },
                 {
@@ -636,36 +697,12 @@
                     "symbol": "description"
                   },
                   "val": {
-                    "string": "Address GABC... swapped 100 USDC"
+                    "string": "will be removed"
                   }
                 },
                 {
                   "key": {
-                    "symbol": "function"
-                  },
-                  "val": {
-                    "symbol": "swap"
-                  }
-                },
-                {
-                  "key": {
-                    "symbol": "ledger"
-                  },
-                  "val": {
-                    "u32": 4521983
-                  }
-                },
-                {
-                  "key": {
-                    "symbol": "raw_data"
-                  },
-                  "val": {
-                    "bytes": ""
-                  }
-                },
-                {
-                  "key": {
-                    "symbol": "raw_topics"
+                    "symbol": "functions"
                   },
                   "val": {
                     "vec": []
@@ -673,14 +710,169 @@
                 },
                 {
                   "key": {
-                    "symbol": "seq"
+                    "symbol": "min_ledger"
                   },
                   "val": {
-                    "u64": 0
+                    "u32": 0
+                  }
+                },
+                {
+                  "key": {
+                    "symbol": "name"
+                  },
+                  "val": {
+                    "string": "ToRemove"
+                  }
+                },
+                {
+                  "key": {
+                    "symbol": "registered_by"
+                  },
+                  "val": {
+                    "address": "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAFCT4"
+                  }
+                },
+                {
+                  "key": {
+                    "symbol": "version"
+                  },
+                  "val": {
+                    "u32": 1
                   }
                 }
               ]
             }
+          }
+        }
+      },
+      "failed_call": false
+    },
+    {
+      "event": {
+        "ext": "v0",
+        "contract_id": null,
+        "type_": "diagnostic",
+        "body": {
+          "v0": {
+            "topics": [
+              {
+                "symbol": "fn_call"
+              },
+              {
+                "bytes": "0000000000000000000000000000000000000000000000000000000000000001"
+              },
+              {
+                "symbol": "deregister_contract"
+              }
+            ],
+            "data": {
+              "vec": [
+                {
+                  "address": "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAFCT4"
+                },
+                {
+                  "bytes": "2828282828282828282828282828282828282828282828282828282828282828"
+                }
+              ]
+            }
+          }
+        }
+      },
+      "failed_call": false
+    },
+    {
+      "event": {
+        "ext": "v0",
+        "contract_id": "0000000000000000000000000000000000000000000000000000000000000001",
+        "type_": "contract",
+        "body": {
+          "v0": {
+            "topics": [
+              {
+                "symbol": "c_dereg"
+              },
+              {
+                "bytes": "2828282828282828282828282828282828282828282828282828282828282828"
+              }
+            ],
+            "data": {
+              "vec": [
+                {
+                  "address": "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAFCT4"
+                },
+                {
+                  "u32": 0
+                }
+              ]
+            }
+          }
+        }
+      },
+      "failed_call": false
+    },
+    {
+      "event": {
+        "ext": "v0",
+        "contract_id": "0000000000000000000000000000000000000000000000000000000000000001",
+        "type_": "diagnostic",
+        "body": {
+          "v0": {
+            "topics": [
+              {
+                "symbol": "fn_return"
+              },
+              {
+                "symbol": "deregister_contract"
+              }
+            ],
+            "data": "void"
+          }
+        }
+      },
+      "failed_call": false
+    },
+    {
+      "event": {
+        "ext": "v0",
+        "contract_id": null,
+        "type_": "diagnostic",
+        "body": {
+          "v0": {
+            "topics": [
+              {
+                "symbol": "fn_call"
+              },
+              {
+                "bytes": "0000000000000000000000000000000000000000000000000000000000000001"
+              },
+              {
+                "symbol": "get_contract"
+              }
+            ],
+            "data": {
+              "bytes": "2828282828282828282828282828282828282828282828282828282828282828"
+            }
+          }
+        }
+      },
+      "failed_call": false
+    },
+    {
+      "event": {
+        "ext": "v0",
+        "contract_id": "0000000000000000000000000000000000000000000000000000000000000001",
+        "type_": "diagnostic",
+        "body": {
+          "v0": {
+            "topics": [
+              {
+                "symbol": "fn_return"
+              },
+              {
+                "symbol": "get_contract"
+              }
+            ],
+            "data": "void"
           }
         }
       },
