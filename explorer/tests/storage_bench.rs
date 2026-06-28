@@ -42,7 +42,9 @@ mod storage_bench {
 
     #[test]
     fn bench_submit_and_get_events() {
-        let levels: &[u32] = &[10, 50, 100];
+        // Issue #263: profile at increasing fill levels.
+        // 10_000 requires separate budget configuration (exceeds default test budget).
+        let levels: &[u32] = &[10, 50, 100, 200];
 
         println!("\n{:<12} {:<20} {:<25} {:<25} {:<20}",
             "Fill", "submit_event(µs)", "get_events(0,50)(µs)",
