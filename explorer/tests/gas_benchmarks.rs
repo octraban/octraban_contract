@@ -1,14 +1,14 @@
 #![cfg(test)]
 
-use soroban_sdk::{testutils::Address as _, Address, Env, BytesN, String, Vec, Bytes};
-use explorer_contract::{ExplorerContractClient, ExplorerContract, EventInput};
+use soroban_explorer_contract::{EventInput, ExplorerContract, ExplorerContractClient};
+use soroban_sdk::{testutils::Address as _, Address, Bytes, BytesN, Env, String, Vec};
 
 // Gas usage regression tests
 #[test]
 fn test_submit_event_gas_benchmark() {
     let env = Env::default();
     env.mock_all_auths();
-    
+
     // Enable gas tracking in the mock environment
     env.budget().reset_unlimited();
 
@@ -28,11 +28,11 @@ fn test_submit_event_gas_benchmark() {
     };
 
     let start_cpu_insns = env.budget().cpu_instruction_cost();
-    
+
     explorer.submit_event(&admin, &input);
-    
+
     let cpu_insns_used = env.budget().cpu_instruction_cost() - start_cpu_insns;
-    
+
     // Fail if gas exceeds our optimized budget threshold (e.g. 50,000 instructions)
     assert!(cpu_insns_used < 1_000_000, "Gas exceeded budget threshold!");
 }

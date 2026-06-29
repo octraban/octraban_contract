@@ -35,7 +35,7 @@
                         "symbol": "description"
                       },
                       "val": {
-                        "string": "emits event"
+                        "string": "desc"
                       }
                     },
                     {
@@ -204,7 +204,7 @@
                         "symbol": "description"
                       },
                       "val": {
-                        "string": "emits event"
+                        "string": "desc"
                       }
                     },
                     {
@@ -510,7 +510,7 @@
                         "symbol": "description"
                       },
                       "val": {
-                        "string": "emits event"
+                        "string": "desc"
                       }
                     },
                     {

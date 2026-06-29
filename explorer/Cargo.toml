@@ -1,8 +1,9 @@
 [package]
-name    = "soroban-explorer-contract"
-version = "0.1.0"
-edition = "2021"
-license = "MIT"
+name      = "soroban-explorer-contract"
+version   = "0.1.0"
+edition   = "2021"
+license   = "MIT"
+autotests = false
 
 [lib]
 crate-type = ["cdylib", "rlib"]
@@ -20,3 +21,15 @@ path = "tests/auth_tests.rs"
 [[test]]
 name = "storage_bench"
 path = "tests/storage_bench.rs"
+
+[[test]]
+name = "gas_benchmarks"
+path = "tests/gas_benchmarks.rs"
+
+[[test]]
+name = "integration"
+path = "tests/integration.rs"
+
+[[test]]
+name = "snapshot"
+path = "tests/snapshot.rs"

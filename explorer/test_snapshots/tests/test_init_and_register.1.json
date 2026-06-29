@@ -35,7 +35,7 @@
                         "symbol": "description"
                       },
                       "val": {
-                        "string": "DEX on Stellar"
+                        "string": "desc"
                       }
                     },
                     {
@@ -149,7 +149,7 @@
                         "symbol": "description"
                       },
                       "val": {
-                        "string": "DEX on Stellar"
+                        "string": "desc"
                       }
                     },
                     {
@@ -285,7 +285,7 @@
                         "symbol": "description"
                       },
                       "val": {
-                        "string": "DEX on Stellar"
+                        "string": "desc"
                       }
                     },
                     {
@@ -558,7 +558,7 @@
                         "symbol": "description"
                       },
                       "val": {
-                        "string": "DEX on Stellar"
+                        "string": "desc"
                       }
                     },
                     {
@@ -743,7 +743,7 @@
                     "symbol": "description"
                   },
                   "val": {
-                    "string": "DEX on Stellar"
+                    "string": "desc"
                   }
                 },
                 {

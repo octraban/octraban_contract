@@ -35,7 +35,7 @@
                         "symbol": "description"
                       },
                       "val": {
-                        "string": "will be removed"
+                        "string": "desc"
                       }
                     },
                     {
@@ -206,7 +206,7 @@
                         "symbol": "description"
                       },
                       "val": {
-                        "string": "will be removed"
+                        "string": "desc"
                       }
                     },
                     {
@@ -512,7 +512,7 @@
                         "symbol": "description"
                       },
                       "val": {
-                        "string": "will be removed"
+                        "string": "desc"
                       }
                     },
                     {
@@ -697,7 +697,7 @@
                     "symbol": "description"
                   },
                   "val": {
-                    "string": "will be removed"
+                    "string": "desc"
                   }
                 },
                 {

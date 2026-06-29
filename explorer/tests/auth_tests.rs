@@ -1,9 +1,11 @@
 #![cfg(test)]
-use soroban_explorer_contract::{ExplorerContract, ExplorerContractClient, ContractMeta, EventInput};
+use soroban_explorer_contract::{
+    ContractMeta, EventInput, ExplorerContract, ExplorerContractClient,
+};
 use soroban_sdk::{
+    symbol_short,
     testutils::{Address as _, MockAuth, MockAuthInvoke},
     Address, Bytes, BytesN, Env, IntoVal, String, Vec,
-    symbol_short,
 };
 
 fn setup_with_admin() -> (Env, ExplorerContractClient<'static>, Address) {
@@ -13,7 +15,7 @@ fn setup_with_admin() -> (Env, ExplorerContractClient<'static>, Address) {
     let admin = Address::generate(&env);
     env.mock_all_auths();
     client.init(&admin, &0u32);
-    env.set_auths(&[]);  // clear mock_all_auths
+    env.set_auths(&[]); // clear mock_all_auths
     (env, client, admin)
 }
 
@@ -85,7 +87,11 @@ fn test_update_by_stranger() {
     client.register_contract(&registrant, &cid, &meta);
 
     // stranger tries to update
-    let meta2 = ContractMeta { version: 2, abi_version: 1, ..meta };
+    let meta2 = ContractMeta {
+        version: 2,
+        abi_version: 1,
+        ..meta
+    };
     env.mock_auths(&[MockAuth {
         address: &stranger,
         invoke: &MockAuthInvoke {
@@ -117,7 +123,11 @@ fn test_admin_can_update_any() {
     }]);
     client.register_contract(&registrant, &cid, &meta);
 
-    let meta2 = ContractMeta { version: 2, abi_version: 1, ..meta };
+    let meta2 = ContractMeta {
+        version: 2,
+        abi_version: 1,
+        ..meta
+    };
     env.mock_auths(&[MockAuth {
         address: &admin,
         invoke: &MockAuthInvoke {
@@ -150,7 +160,11 @@ fn test_registrant_can_update_own() {
     }]);
     client.register_contract(&registrant, &cid, &meta);
 
-    let meta2 = ContractMeta { version: 2, abi_version: 1, ..meta };
+    let meta2 = ContractMeta {
+        version: 2,
+        abi_version: 1,
+        ..meta
+    };
     env.mock_auths(&[MockAuth {
         address: &registrant,
         invoke: &MockAuthInvoke {

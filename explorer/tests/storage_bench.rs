@@ -4,11 +4,9 @@
 
 #[cfg(test)]
 mod storage_bench {
-    use soroban_explorer_contract::{ExplorerContract, ExplorerContractClient, EventInput};
+    use soroban_explorer_contract::{EventInput, ExplorerContract, ExplorerContractClient};
     use soroban_sdk::{
-        testutils::Address as _,
-        Address, Bytes, BytesN, Env, String, Vec,
-        symbol_short,
+        symbol_short, testutils::Address as _, Address, Bytes, BytesN, Env, String, Vec,
     };
     use std::time::Instant;
 
@@ -37,8 +35,12 @@ mod storage_bench {
     /// Estimate instruction count proxy: each storage read/write ≈ 500 instructions.
     /// submit_event does: 3 reads (admin, seq, max) + 1 write (event) + 1 write (seq) = 5 ops
     /// get_events(50) does: 2 reads (seq, max) + 50 reads (events) = 52 ops
-    fn submit_instruction_estimate() -> u64 { 5 * 500 }
-    fn get_events_instruction_estimate(limit: u32) -> u64 { (2 + limit as u64) * 500 }
+    fn submit_instruction_estimate() -> u64 {
+        5 * 500
+    }
+    fn get_events_instruction_estimate(limit: u32) -> u64 {
+        (2 + limit as u64) * 500
+    }
 
     #[test]
     fn bench_submit_and_get_events() {
@@ -46,9 +48,14 @@ mod storage_bench {
         // 10_000 requires separate budget configuration (exceeds default test budget).
         let levels: &[u32] = &[10, 50, 100, 200];
 
-        println!("\n{:<12} {:<20} {:<25} {:<25} {:<20}",
-            "Fill", "submit_event(µs)", "get_events(0,50)(µs)",
-            "get_events(mid,50)(µs)", "instructions(est)");
+        println!(
+            "\n{:<12} {:<20} {:<25} {:<25} {:<20}",
+            "Fill",
+            "submit_event(µs)",
+            "get_events(0,50)(µs)",
+            "get_events(mid,50)(µs)",
+            "instructions(est)"
+        );
         println!("{}", "-".repeat(105));
 
         for &n in levels {
@@ -79,14 +86,18 @@ mod storage_bench {
 
             let est_instructions = get_events_instruction_estimate(50);
 
-            println!("{:<12} {:<20} {:<25} {:<25} {:<20}",
-                n, submit_us, get_start_us, get_mid_us, est_instructions);
+            println!(
+                "{:<12} {:<20} {:<25} {:<25} {:<20}",
+                n, submit_us, get_start_us, get_mid_us, est_instructions
+            );
 
             // CI guard: estimated instruction count must be < 80% of MAX
             assert!(
                 est_instructions < THRESHOLD,
                 "get_events instruction estimate {} exceeds 80% threshold {} at fill level {}",
-                est_instructions, THRESHOLD, n
+                est_instructions,
+                THRESHOLD,
+                n
             );
             assert!(
                 submit_instruction_estimate() < THRESHOLD,

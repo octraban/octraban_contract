@@ -7,27 +7,24 @@
     [],
     [
       [
-        "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAHK3M",
+        "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAFCT4",
         {
           "function": {
             "contract_fn": {
               "contract_address": "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD2KM",
-              "function_name": "register_contract",
+              "function_name": "submit_event",
               "args": [
                 {
-                  "address": "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAHK3M"
-                },
-                {
-                  "bytes": "2929292929292929292929292929292929292929292929292929292929292929"
+                  "address": "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAFCT4"
                 },
                 {
                   "map": [
                     {
                       "key": {
-                        "symbol": "abi_version"
+                        "symbol": "contract_id"
                       },
                       "val": {
-                        "u32": 0
+                        "bytes": "0101010101010101010101010101010101010101010101010101010101010101"
                       }
                     },
                     {
@@ -35,47 +32,39 @@
                         "symbol": "description"
                       },
                       "val": {
-                        "string": "desc"
+                        "string": "Minted from Contract A"
                       }
                     },
                     {
                       "key": {
-                        "symbol": "functions"
+                        "symbol": "function"
+                      },
+                      "val": {
+                        "symbol": "mint"
+                      }
+                    },
+                    {
+                      "key": {
+                        "symbol": "ledger"
+                      },
+                      "val": {
+                        "u32": 1000
+                      }
+                    },
+                    {
+                      "key": {
+                        "symbol": "raw_data"
+                      },
+                      "val": {
+                        "bytes": ""
+                      }
+                    },
+                    {
+                      "key": {
+                        "symbol": "raw_topics"
                       },
                       "val": {
                         "vec": []
-                      }
-                    },
-                    {
-                      "key": {
-                        "symbol": "min_ledger"
-                      },
-                      "val": {
-                        "u32": 0
-                      }
-                    },
-                    {
-                      "key": {
-                        "symbol": "name"
-                      },
-                      "val": {
-                        "string": "RegOwned"
-                      }
-                    },
-                    {
-                      "key": {
-                        "symbol": "registered_by"
-                      },
-                      "val": {
-                        "address": "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAHK3M"
-                      }
-                    },
-                    {
-                      "key": {
-                        "symbol": "version"
-                      },
-                      "val": {
-                        "u32": 1
                       }
                     }
                   ]
@@ -87,28 +76,7 @@
         }
       ]
     ],
-    [
-      [
-        "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAHK3M",
-        {
-          "function": {
-            "contract_fn": {
-              "contract_address": "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD2KM",
-              "function_name": "deregister_contract",
-              "args": [
-                {
-                  "address": "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAHK3M"
-                },
-                {
-                  "bytes": "2929292929292929292929292929292929292929292929292929292929292929"
-                }
-              ]
-            }
-          },
-          "sub_invocations": []
-        }
-      ]
-    ],
+    [],
     []
   ],
   "ledger": {
@@ -128,27 +96,10 @@
             "key": {
               "vec": [
                 {
-                  "symbol": "ContractVersion"
+                  "symbol": "EventLog"
                 },
                 {
-                  "map": [
-                    {
-                      "key": {
-                        "symbol": "abi_version"
-                      },
-                      "val": {
-                        "u32": 0
-                      }
-                    },
-                    {
-                      "key": {
-                        "symbol": "contract_id"
-                      },
-                      "val": {
-                        "bytes": "2929292929292929292929292929292929292929292929292929292929292929"
-                      }
-                    }
-                  ]
+                  "u64": 0
                 }
               ]
             },
@@ -165,27 +116,10 @@
                 "key": {
                   "vec": [
                     {
-                      "symbol": "ContractVersion"
+                      "symbol": "EventLog"
                     },
                     {
-                      "map": [
-                        {
-                          "key": {
-                            "symbol": "abi_version"
-                          },
-                          "val": {
-                            "u32": 0
-                          }
-                        },
-                        {
-                          "key": {
-                            "symbol": "contract_id"
-                          },
-                          "val": {
-                            "bytes": "2929292929292929292929292929292929292929292929292929292929292929"
-                          }
-                        }
-                      ]
+                      "u64": 0
                     }
                   ]
                 },
@@ -194,10 +128,10 @@
                   "map": [
                     {
                       "key": {
-                        "symbol": "abi_version"
+                        "symbol": "contract_id"
                       },
                       "val": {
-                        "u32": 0
+                        "bytes": "0101010101010101010101010101010101010101010101010101010101010101"
                       }
                     },
                     {
@@ -205,12 +139,36 @@
                         "symbol": "description"
                       },
                       "val": {
-                        "string": "desc"
+                        "string": "Minted from Contract A"
                       }
                     },
                     {
                       "key": {
-                        "symbol": "functions"
+                        "symbol": "function"
+                      },
+                      "val": {
+                        "symbol": "mint"
+                      }
+                    },
+                    {
+                      "key": {
+                        "symbol": "ledger"
+                      },
+                      "val": {
+                        "u32": 1000
+                      }
+                    },
+                    {
+                      "key": {
+                        "symbol": "raw_data"
+                      },
+                      "val": {
+                        "bytes": ""
+                      }
+                    },
+                    {
+                      "key": {
+                        "symbol": "raw_topics"
                       },
                       "val": {
                         "vec": []
@@ -218,34 +176,10 @@
                     },
                     {
                       "key": {
-                        "symbol": "min_ledger"
+                        "symbol": "seq"
                       },
                       "val": {
-                        "u32": 0
-                      }
-                    },
-                    {
-                      "key": {
-                        "symbol": "name"
-                      },
-                      "val": {
-                        "string": "RegOwned"
-                      }
-                    },
-                    {
-                      "key": {
-                        "symbol": "registered_by"
-                      },
-                      "val": {
-                        "address": "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAHK3M"
-                      }
-                    },
-                    {
-                      "key": {
-                        "symbol": "version"
-                      },
-                      "val": {
-                        "u32": 1
+                        "u64": 0
                       }
                     }
                   ]
@@ -301,7 +235,7 @@
                           ]
                         },
                         "val": {
-                          "u64": 0
+                          "u64": 1
                         }
                       },
                       {
@@ -329,7 +263,7 @@
       [
         {
           "contract_data": {
-            "contract": "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAHK3M",
+            "contract": "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAFCT4",
             "key": {
               "ledger_key_nonce": {
                 "nonce": 801925984706572462
@@ -344,43 +278,10 @@
             "data": {
               "contract_data": {
                 "ext": "v0",
-                "contract": "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAHK3M",
+                "contract": "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAFCT4",
                 "key": {
                   "ledger_key_nonce": {
                     "nonce": 801925984706572462
-                  }
-                },
-                "durability": "temporary",
-                "val": "void"
-              }
-            },
-            "ext": "v0"
-          },
-          6311999
-        ]
-      ],
-      [
-        {
-          "contract_data": {
-            "contract": "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAHK3M",
-            "key": {
-              "ledger_key_nonce": {
-                "nonce": 5541220902715666415
-              }
-            },
-            "durability": "temporary"
-          }
-        },
-        [
-          {
-            "last_modified_ledger_seq": 0,
-            "data": {
-              "contract_data": {
-                "ext": "v0",
-                "contract": "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAHK3M",
-                "key": {
-                  "ledger_key_nonce": {
-                    "nonce": 5541220902715666415
                   }
                 },
                 "durability": "temporary",
@@ -440,7 +341,7 @@
                   "address": "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAFCT4"
                 },
                 {
-                  "u32": 0
+                  "u32": 50000
                 }
               ]
             }
@@ -485,25 +386,22 @@
                 "bytes": "0000000000000000000000000000000000000000000000000000000000000001"
               },
               {
-                "symbol": "register_contract"
+                "symbol": "submit_event"
               }
             ],
             "data": {
               "vec": [
                 {
-                  "address": "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAHK3M"
-                },
-                {
-                  "bytes": "2929292929292929292929292929292929292929292929292929292929292929"
+                  "address": "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAFCT4"
                 },
                 {
                   "map": [
                     {
                       "key": {
-                        "symbol": "abi_version"
+                        "symbol": "contract_id"
                       },
                       "val": {
-                        "u32": 0
+                        "bytes": "0101010101010101010101010101010101010101010101010101010101010101"
                       }
                     },
                     {
@@ -511,47 +409,39 @@
                         "symbol": "description"
                       },
                       "val": {
-                        "string": "desc"
+                        "string": "Minted from Contract A"
                       }
                     },
                     {
                       "key": {
-                        "symbol": "functions"
+                        "symbol": "function"
+                      },
+                      "val": {
+                        "symbol": "mint"
+                      }
+                    },
+                    {
+                      "key": {
+                        "symbol": "ledger"
+                      },
+                      "val": {
+                        "u32": 1000
+                      }
+                    },
+                    {
+                      "key": {
+                        "symbol": "raw_data"
+                      },
+                      "val": {
+                        "bytes": ""
+                      }
+                    },
+                    {
+                      "key": {
+                        "symbol": "raw_topics"
                       },
                       "val": {
                         "vec": []
-                      }
-                    },
-                    {
-                      "key": {
-                        "symbol": "min_ledger"
-                      },
-                      "val": {
-                        "u32": 0
-                      }
-                    },
-                    {
-                      "key": {
-                        "symbol": "name"
-                      },
-                      "val": {
-                        "string": "RegOwned"
-                      }
-                    },
-                    {
-                      "key": {
-                        "symbol": "registered_by"
-                      },
-                      "val": {
-                        "address": "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAHK3M"
-                      }
-                    },
-                    {
-                      "key": {
-                        "symbol": "version"
-                      },
-                      "val": {
-                        "u32": 1
                       }
                     }
                   ]
@@ -572,22 +462,22 @@
           "v0": {
             "topics": [
               {
-                "symbol": "c_reg"
+                "symbol": "ev_sub"
               },
               {
-                "bytes": "2929292929292929292929292929292929292929292929292929292929292929"
+                "bytes": "0101010101010101010101010101010101010101010101010101010101010101"
+              },
+              {
+                "symbol": "mint"
               }
             ],
             "data": {
               "vec": [
                 {
-                  "address": "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAHK3M"
+                  "u64": 0
                 },
                 {
-                  "u32": 1
-                },
-                {
-                  "u32": 0
+                  "u32": 1000
                 }
               ]
             }
@@ -605,14 +495,17 @@
           "v0": {
             "topics": [
               {
-                "symbol": "register"
+                "symbol": "decoded"
               },
               {
-                "bytes": "2929292929292929292929292929292929292929292929292929292929292929"
+                "bytes": "0101010101010101010101010101010101010101010101010101010101010101"
+              },
+              {
+                "symbol": "mint"
               }
             ],
             "data": {
-              "string": "RegOwned"
+              "string": "Minted from Contract A"
             }
           }
         }
@@ -631,7 +524,7 @@
                 "symbol": "fn_return"
               },
               {
-                "symbol": "register_contract"
+                "symbol": "submit_event"
               }
             ],
             "data": "void"
@@ -655,49 +548,10 @@
                 "bytes": "0000000000000000000000000000000000000000000000000000000000000001"
               },
               {
-                "symbol": "deregister_contract"
+                "symbol": "event_count"
               }
             ],
-            "data": {
-              "vec": [
-                {
-                  "address": "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAHK3M"
-                },
-                {
-                  "bytes": "2929292929292929292929292929292929292929292929292929292929292929"
-                }
-              ]
-            }
-          }
-        }
-      },
-      "failed_call": false
-    },
-    {
-      "event": {
-        "ext": "v0",
-        "contract_id": "0000000000000000000000000000000000000000000000000000000000000001",
-        "type_": "contract",
-        "body": {
-          "v0": {
-            "topics": [
-              {
-                "symbol": "c_dereg"
-              },
-              {
-                "bytes": "2929292929292929292929292929292929292929292929292929292929292929"
-              }
-            ],
-            "data": {
-              "vec": [
-                {
-                  "address": "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAHK3M"
-                },
-                {
-                  "u32": 0
-                }
-              ]
-            }
+            "data": "void"
           }
         }
       },
@@ -715,10 +569,12 @@
                 "symbol": "fn_return"
               },
               {
-                "symbol": "deregister_contract"
+                "symbol": "event_count"
               }
             ],
-            "data": "void"
+            "data": {
+              "u64": 1
+            }
           }
         }
       },
@@ -739,11 +595,11 @@
                 "bytes": "0000000000000000000000000000000000000000000000000000000000000001"
               },
               {
-                "symbol": "get_contract"
+                "symbol": "get_event"
               }
             ],
             "data": {
-              "bytes": "2929292929292929292929292929292929292929292929292929292929292929"
+              "u64": 0
             }
           }
         }
@@ -762,10 +618,69 @@
                 "symbol": "fn_return"
               },
               {
-                "symbol": "get_contract"
+                "symbol": "get_event"
               }
             ],
-            "data": "void"
+            "data": {
+              "map": [
+                {
+                  "key": {
+                    "symbol": "contract_id"
+                  },
+                  "val": {
+                    "bytes": "0101010101010101010101010101010101010101010101010101010101010101"
+                  }
+                },
+                {
+                  "key": {
+                    "symbol": "description"
+                  },
+                  "val": {
+                    "string": "Minted from Contract A"
+                  }
+                },
+                {
+                  "key": {
+                    "symbol": "function"
+                  },
+                  "val": {
+                    "symbol": "mint"
+                  }
+                },
+                {
+                  "key": {
+                    "symbol": "ledger"
+                  },
+                  "val": {
+                    "u32": 1000
+                  }
+                },
+                {
+                  "key": {
+                    "symbol": "raw_data"
+                  },
+                  "val": {
+                    "bytes": ""
+                  }
+                },
+                {
+                  "key": {
+                    "symbol": "raw_topics"
+                  },
+                  "val": {
+                    "vec": []
+                  }
+                },
+                {
+                  "key": {
+                    "symbol": "seq"
+                  },
+                  "val": {
+                    "u64": 0
+                  }
+                }
+              ]
+            }
           }
         }
       },
