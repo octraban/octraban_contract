@@ -38,6 +38,8 @@ pub struct VersionKey {
 pub enum DataKey {
     Admin,
     Contract(BytesN<32>),
+    /// Event log entries use persistent storage to ensure they survive ledger archival.
+    /// Temporary storage would expire when TTL reaches zero, causing silent data loss.
     EventLog(u64),
     EventSeq,
     MaxEvents,
