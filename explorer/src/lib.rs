@@ -20,6 +20,7 @@ pub enum Error {
     AlreadyExists = 3,
     BelowFloor = 4,
     ContractPaused = 5,
+    InvalidInput = 6,
 }
 
 // ── Storage keys ─────────────────────────────────────────────────────────────
@@ -38,6 +39,8 @@ pub struct VersionKey {
 pub enum DataKey {
     Admin,
     Contract(BytesN<32>),
+    /// Event log entries use persistent storage to ensure they survive ledger archival.
+    /// Temporary storage would expire when TTL reaches zero, causing silent data loss.
     EventLog(u64),
     EventSeq,
     MaxEvents,
@@ -394,6 +397,9 @@ impl ExplorerContract {
     /// Only the admin may call this.
     pub fn submit_event(env: Env, caller: Address, input: EventInput) {
         caller.require_auth();
+        if input.function.is_empty() {
+            panic_with_error!(&env, Error::InvalidInput);
+        }
         if env
             .storage()
             .instance()
@@ -747,6 +753,29 @@ mod tests {
     }
 
     #[test]
+    fn test_update_contract_by_owner() {
+        let (env, client) = setup();
+        let admin = Address::generate(&env);
+        client.init(&admin, &0u32);
+
+        let owner = Address::generate(&env);
+        let cid: BytesN<32> = BytesN::from_array(&env, &[25u8; 32]);
+        let meta_v0 = make_meta(&env, "MyContract", &owner);
+        client.register_contract(&owner, &cid, &meta_v0);
+
+        let meta_v1 = ContractMeta {
+            version: 2,
+            abi_version: 1, // must be existing (0) + 1
+            ..meta_v0
+        };
+        client.update_contract(&owner, &cid, &meta_v1);
+
+        let updated = client.get_contract(&cid).unwrap();
+        assert_eq!(updated.version, 2);
+        assert_eq!(updated.abi_version, 1);
+    }
+
+    #[test]
     fn test_submit_emits_ev_sub_event() {
         let (env, client) = setup();
         let admin = Address::generate(&env);
@@ -771,6 +800,19 @@ mod tests {
         let before = env.events().all().len();
         client.submit_event(&admin, &base);
         assert!(env.events().all().len() > before);
+    }
+
+    #[test]
+    #[should_panic]
+    fn test_submit_event_rejects_empty_function_name() {
+        let (env, client) = setup();
+        let admin = Address::generate(&env);
+        client.init(&admin, &0u32);
+
+        let cid: BytesN<32> = BytesN::from_array(&env, &[24u8; 32]);
+        let mut input = make_input(&env, &cid);
+        input.function = Symbol::new(&env, "");
+        client.submit_event(&admin, &input);
     }
 
     // ── ABI versioning (#272) ─────────────────────────────────────────────────
