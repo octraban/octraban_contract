@@ -20,6 +20,7 @@ pub enum Error {
     AlreadyExists = 3,
     BelowFloor = 4,
     ContractPaused = 5,
+    InvalidInput = 6,
 }
 
 // ── Storage keys ─────────────────────────────────────────────────────────────
@@ -392,6 +393,9 @@ impl ExplorerContract {
     /// Only the admin may call this.
     pub fn submit_event(env: Env, caller: Address, input: EventInput) {
         caller.require_auth();
+        if input.function.is_empty() {
+            panic_with_error!(&env, Error::InvalidInput);
+        }
         if env
             .storage()
             .instance()
@@ -753,6 +757,19 @@ mod tests {
         let before = env.events().all().len();
         client.submit_event(&admin, &base);
         assert!(env.events().all().len() > before);
+    }
+
+    #[test]
+    #[should_panic]
+    fn test_submit_event_rejects_empty_function_name() {
+        let (env, client) = setup();
+        let admin = Address::generate(&env);
+        client.init(&admin, &0u32);
+
+        let cid: BytesN<32> = BytesN::from_array(&env, &[24u8; 32]);
+        let mut input = make_input(&env, &cid);
+        input.function = Symbol::new(&env, "");
+        client.submit_event(&admin, &input);
     }
 
     // ── ABI versioning (#272) ─────────────────────────────────────────────────
