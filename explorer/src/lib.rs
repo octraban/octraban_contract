@@ -235,6 +235,10 @@ impl ExplorerContract {
         {
             panic_with_error!(&env, Error::ContractPaused);
         }
+        let admin: Address = env.storage().instance().get(&DataKey::Admin).unwrap();
+        if caller != admin {
+            panic_with_error!(&env, Error::Unauthorized);
+        }
         let key = DataKey::Contract(contract_id.clone());
         if env.storage().persistent().has(&key) {
             panic_with_error!(&env, Error::AlreadyExists);
@@ -575,6 +579,22 @@ mod tests {
     }
 
     #[test]
+    #[should_panic]
+    fn test_register_unauthorized() {
+        let (env, client) = setup();
+        let admin = Address::generate(&env);
+        let stranger = Address::generate(&env);
+        client.init(&admin, &0u32);
+
+        let cid: BytesN<32> = BytesN::from_array(&env, &[50u8; 32]);
+        client.register_contract(
+            &stranger,
+            &cid,
+            &make_meta(&env, "UnauthorizedReg", &stranger),
+        );
+    }
+
+    #[test]
     fn test_submit_and_get_event() {
         let (env, client) = setup();
         let admin = Address::generate(&env);
@@ -867,7 +887,7 @@ mod tests {
 
         let registrant = Address::generate(&env);
         let cid: BytesN<32> = BytesN::from_array(&env, &[41u8; 32]);
-        client.register_contract(&registrant, &cid, &make_meta(&env, "RegOwned", &registrant));
+        client.register_contract(&admin, &cid, &make_meta(&env, "RegOwned", &registrant));
         client.deregister_contract(&registrant, &cid);
         assert!(client.get_contract(&cid).is_none());
     }
@@ -882,7 +902,7 @@ mod tests {
         let registrant = Address::generate(&env);
         let stranger = Address::generate(&env);
         let cid: BytesN<32> = BytesN::from_array(&env, &[42u8; 32]);
-        client.register_contract(&registrant, &cid, &make_meta(&env, "Secure", &registrant));
+        client.register_contract(&admin, &cid, &make_meta(&env, "Secure", &registrant));
         client.deregister_contract(&stranger, &cid);
     }
 
