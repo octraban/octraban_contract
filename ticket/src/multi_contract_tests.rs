@@ -23,13 +23,13 @@ use soroban_sdk::{testutils::Address as _, Address, Env, String};
 
 /// Deploy and initialise a ticket contract into an existing `Env`,
 /// returning (client, organizer).  The client borrows the env for its lifetime.
-fn deploy_event(
-    env: &Env,
+fn deploy_event<'a>(
+    env: &'a Env,
     name: &str,
     max: u64,
     price: i128,
     max_resale: i128,
-) -> (TicketContractClient<'_>, Address) {
+) -> (TicketContractClient<'a>, Address) {
     let contract_id = env.register_contract(None, TicketContract);
     let client = TicketContractClient::new(env, &contract_id);
     let organizer = Address::generate(env);
@@ -63,7 +63,11 @@ fn multi_organizer_runs_two_events() {
     let buyer = Address::generate(&env);
     let id_a = event_a.mint_ticket(&organizer, &buyer);
     assert_eq!(id_a, 0);
-    assert_eq!(event_b.tickets_sold(), 0, "event_b counter must be unaffected");
+    assert_eq!(
+        event_b.tickets_sold(),
+        0,
+        "event_b counter must be unaffected"
+    );
 }
 
 // ─── Scenario 2: Organizer of A cannot mint on B ─────────────────────────────
@@ -111,7 +115,10 @@ fn multi_sold_out_isolation() {
     // event_b is completely independent — must still mint successfully.
     let buyer_b = Address::generate(&env);
     let id = event_b.mint_ticket(&org_b, &buyer_b);
-    assert_eq!(id, 0, "event_b must mint independently after event_a sold out");
+    assert_eq!(
+        id, 0,
+        "event_b must mint independently after event_a sold out"
+    );
 }
 
 // ─── Scenario 4: Ticket from A cannot be verified by organizer of B ──────────

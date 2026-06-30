@@ -1,3 +1,5 @@
+[workspace]
+
 [package]
 name = "ticket"
 version = "0.1.0"
@@ -16,6 +18,9 @@ soroban-sdk = { version = "21.0.0", features = ["alloc"] }
 soroban-sdk      = { version = "21.0.0", features = ["testutils"] }
 proptest         = { version = "1.4",  default-features = false, features = ["alloc"] }
 proptest-derive  = "0.4"
+
+[lints.rust]
+unexpected_cfgs = { level = "warn", check-cfg = ['cfg(kani)'] }
 
 [profile.release]
 opt-level        = "z"
