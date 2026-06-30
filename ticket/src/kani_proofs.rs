@@ -99,7 +99,7 @@ fn kani_ticket_status_fsm_verify() {
 
     // Contract: returns true and sets Used when status is 0 or 1.
     let verify_succeeds = status == 0 || status == 1;
-    let verify_fails    = status == 2;
+    let verify_fails = status == 2;
 
     assert!(verify_succeeds != verify_fails); // exactly one branch
 
@@ -139,7 +139,7 @@ fn kani_not_sold_out_boundary() {
 #[kani::proof]
 fn kani_verify_idempotence() {
     let status: u8 = 2; // Used — fixed input, not symbolic
-    let would_return_true  = status == 0 || status == 1;
+    let would_return_true = status == 0 || status == 1;
     let would_return_false = status == 2;
     assert!(!would_return_true);
     assert!(would_return_false);
@@ -149,7 +149,7 @@ fn kani_verify_idempotence() {
 #[kani::proof]
 fn kani_fee_bps_bounds() {
     let fee: i128 = kani::any();
-    let in_range    = fee >= 0 && fee <= 10_000;
+    let in_range = fee >= 0 && fee <= 10_000;
     let out_of_range = fee < 0 || fee > 10_000;
     assert!(in_range != out_of_range);
 }
