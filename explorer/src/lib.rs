@@ -330,12 +330,11 @@ impl ExplorerContract {
         );
     }
 
-    /// Fetch the latest registered metadata for a contract.
-    /// Returns `None` if the contract has never been registered.
-    pub fn get_contract(env: Env, contract_id: BytesN<32>) -> Option<ContractMeta> {
+    pub fn get_contract(env: Env, contract_id: BytesN<32>) -> Result<ContractMeta, Error> {
         env.storage()
             .persistent()
             .get(&DataKey::Contract(contract_id))
+            .ok_or(Error::NotFound)
     }
 
     /// Fetch a specific historical ABI version.
@@ -894,13 +893,25 @@ mod tests {
     }
 
     #[test]
-    fn test_get_contract_returns_none_for_missing() {
+    fn test_get_contract_not_found() {
         let (env, client) = setup();
         let admin = Address::generate(&env);
         client.init(&admin, &0u32);
 
         let cid: BytesN<32> = BytesN::from_array(&env, &[33u8; 32]);
-        assert!(client.get_contract(&cid).is_none());
+        assert_eq!(
+            client.try_get_contract(&cid),
+            Err(Ok(crate::Error::NotFound))
+        );
+    }
+
+    #[test]
+    fn test_get_latest_contract_returns_none_for_missing() {
+        let (env, client) = setup();
+        let admin = Address::generate(&env);
+        client.init(&admin, &0u32);
+
+        let cid: BytesN<32> = BytesN::from_array(&env, &[33u8; 32]);
         assert!(client.get_latest_contract(&cid).is_none());
         assert!(client.get_contract_version(&cid, &0u32).is_none());
     }
