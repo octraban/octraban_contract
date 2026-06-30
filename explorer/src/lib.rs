@@ -733,6 +733,29 @@ mod tests {
     }
 
     #[test]
+    fn test_update_contract_by_owner() {
+        let (env, client) = setup();
+        let admin = Address::generate(&env);
+        client.init(&admin, &0u32);
+
+        let owner = Address::generate(&env);
+        let cid: BytesN<32> = BytesN::from_array(&env, &[25u8; 32]);
+        let meta_v0 = make_meta(&env, "MyContract", &owner);
+        client.register_contract(&owner, &cid, &meta_v0);
+
+        let meta_v1 = ContractMeta {
+            version: 2,
+            abi_version: 1, // must be existing (0) + 1
+            ..meta_v0
+        };
+        client.update_contract(&owner, &cid, &meta_v1);
+
+        let updated = client.get_contract(&cid).unwrap();
+        assert_eq!(updated.version, 2);
+        assert_eq!(updated.abi_version, 1);
+    }
+
+    #[test]
     fn test_submit_emits_ev_sub_event() {
         let (env, client) = setup();
         let admin = Address::generate(&env);
