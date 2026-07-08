@@ -396,7 +396,7 @@ impl ExplorerContract {
     /// Only the admin may call this.
     pub fn submit_event(env: Env, caller: Address, input: EventInput) {
         caller.require_auth();
-        if input.function.is_empty() {
+        if input.function == Symbol::new(&env, "") {
             panic_with_error!(&env, Error::InvalidInput);
         }
         if env
