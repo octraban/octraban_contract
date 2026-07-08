@@ -8,7 +8,7 @@ echo ""
 # Configuration
 NETWORK="${1:-testnet}"
 IDENTITY="${2:-deployer}"
-CONTRACT="${3:-soroban-explorer-contract}"
+CONTRACT="${3:-octraban-contract}"
 WASM_PATH="../target/wasm32-unknown-unknown/release/${CONTRACT}.wasm"
 
 echo "Network: ${NETWORK}"
@@ -80,7 +80,7 @@ soroban contract invoke \
     -- \
     register_contract \
     --contract_id "${CONTRACT_ID}" \
-    --meta '{"version":1,"abi_version":0,"min_ledger":0,"name":"'${CONTRACT}'","description":"Soroban Explorer Contract","registered_by":"'${IDENTITY}'","functions":[]}'
+    --meta '{"version":1,"abi_version":0,"min_ledger":0,"name":"'${CONTRACT}'","description":"Octraban Contract","registered_by":"'${IDENTITY}'","functions":[]}'
 
 echo "   ✅ Contract registered"
 
