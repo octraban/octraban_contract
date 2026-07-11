@@ -1,0 +1,160 @@
+<div align="center">
+
+# Octraban — Contracts
+
+**Soroban smart contracts powering the Octraban explorer on Stellar.**
+
+An on-chain contract registry & event ledger, plus a standalone event-ticketing contract — written in Rust for the Soroban VM.
+
+[![Rust](https://img.shields.io/badge/Rust-1.8x-000000?logo=rust&logoColor=white)](https://www.rust-lang.org/)
+[![Soroban SDK](https://img.shields.io/badge/soroban--sdk-21-7D00FF?logo=stellar&logoColor=white)](https://soroban.stellar.org/)
+[![Network](https://img.shields.io/badge/Testnet-live-brightgreen)](https://stellar.expert/explorer/testnet/contract/CBKPNRQ4D3KTAAE7MMJ4HL6JNF2J2EBG2PSSRW4YHOMHTRHUU734CFWJ)
+[![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](./LICENSE)
+
+</div>
+
+---
+
+## 🟢 Live on Testnet
+
+Both contracts are **deployed and verifiable on the Stellar test network**:
+
+| Contract | Crate | Contract ID | Stellar Explorer |
+|----------|-------|-------------|------------------|
+| **Explorer / registry** | `explorer` (`octraban-contract`) | `CBKPNRQ4D3KTAAE7MMJ4HL6JNF2J2EBG2PSSRW4YHOMHTRHUU734CFWJ` | [View ↗](https://stellar.expert/explorer/testnet/contract/CBKPNRQ4D3KTAAE7MMJ4HL6JNF2J2EBG2PSSRW4YHOMHTRHUU734CFWJ) |
+| **Ticket** | `ticket` | `CDX3V6OE72KUIEEJTBLFCQZFXZCAKOYWYXK2KPRM57M6FLZFAVUSVL42` | [View ↗](https://stellar.expert/explorer/testnet/contract/CDX3V6OE72KUIEEJTBLFCQZFXZCAKOYWYXK2KPRM57M6FLZFAVUSVL42) |
+
+> **Network:** `Test SDF Network ; September 2015` · **RPC:** `https://soroban-testnet.stellar.org`
+> **Deployer:** `GDKQB6LSSCL6HPYTRG7HDQWNWWYMLJRI3F3R2EINFGULH2OUVV3E3GOG`
+
+Full deployment details and a one-command redeploy live in [`DEPLOYMENTS.md`](./DEPLOYMENTS.md).
+
+---
+
+## 📋 Overview
+
+This workspace contains two independent Soroban contracts:
+
+- **`explorer/` — the Octraban registry & event ledger.** The on-chain backbone of the explorer: an admin-governed **contract metadata registry** (with versioning) and an append-only **decoded-event ring buffer** that the indexer and UI read from.
+- **`ticket/` — an event-ticketing contract.** A self-contained example/utility contract for minting, transferring (with sale price), and verifying tickets on-chain.
+
+Both are `no_std`, built against **`soroban-sdk 21`**.
+
+---
+
+## 🧩 `explorer` — Registry & Event Ledger
+
+### Administration & lifecycle
+| Function | Description |
+|---|---|
+| `init(admin, max_events)` | Initialise the contract with an admin and the event-buffer capacity |
+| `transfer_admin(caller, new_admin)` | Hand admin rights to a new address |
+| `set_max_events(caller, new_max)` | Resize the event ring buffer |
+| `pause(caller)` / `unpause(caller)` | Emergency freeze / resume of state-changing calls |
+| `is_paused() -> bool` | Query pause state |
+| `storage_utilisation() -> (u64, u32)` | Current event count and configured capacity |
+
+### Contract registry (versioned)
+| Function | Description |
+|---|---|
+| `register_contract(…)` | Register a contract's metadata/ABI |
+| `update_contract(caller, contract_id, meta)` | Publish a new metadata version |
+| `get_contract(contract_id) -> ContractMeta` | Fetch current metadata (errors if absent) |
+| `get_contract_version(…)` | Fetch a specific historical version |
+| `get_latest_contract(contract_id) -> Option<ContractMeta>` | Fetch latest metadata, if any |
+| `deregister_contract(caller, contract_id)` | Remove a contract from the registry |
+
+### Event ledger
+| Function | Description |
+|---|---|
+| `submit_event(caller, input)` | Admin-only: append a decoded event to the ring buffer |
+| `get_event(seq) -> DecodedEvent` | Read a single event by sequence number |
+| `get_events(cursor, limit) -> Vec<DecodedEvent>` | Paginated event read |
+| `event_count() -> u64` | Total events submitted |
+
+**Safety properties:** admin-gated writes (`require_auth`), typed errors, pausability, input validation on submitted events, and a bounded ring buffer so storage never grows unbounded.
+
+---
+
+## 🎟️ `ticket` — Event Ticketing
+
+| Function | Description |
+|---|---|
+| `initialize(…)` | Set up organizer, supply, and ticketing parameters |
+| `mint_ticket(organizer, recipient) -> u64` | Mint a ticket to a recipient; returns the ticket id |
+| `transfer_ticket(from, to, ticket_id, sale_price)` | Transfer ownership, recording sale price |
+| `verify_ticket(verifier, ticket_id) -> bool` | Verify a ticket's validity at the gate |
+| `get_ticket(ticket_id) -> Ticket` | Fetch ticket details (errors if absent) |
+| `tickets_sold() -> u64` | Total tickets minted |
+
+Includes a property-based test suite (`test.rs`).
+
+---
+
+## 📁 Layout
+
+```
+.
+├── explorer/            # octraban-contract — registry & event ledger
+│   └── src/lib.rs
+├── ticket/              # ticket — event ticketing
+│   ├── src/lib.rs
+│   └── src/test.rs
+├── build-and-deploy.sh  # build → MVP-lower (wasm-opt) → deploy
+├── DEPLOYMENTS.md        # live contract IDs + reproduction steps
+├── LICENSE / NOTICE
+```
+
+---
+
+## 🛠️ Building & Deploying
+
+### Prerequisites
+- **Rust** with a wasm target: `rustup target add wasm32-unknown-unknown`
+- **[Stellar CLI](https://github.com/stellar/stellar-cli)**
+- **[Binaryen](https://github.com/WebAssembly/binaryen/releases)** (`wasm-opt`)
+- A funded testnet identity: `stellar keys generate octraban-deployer --network testnet --fund`
+
+### One command
+```bash
+./build-and-deploy.sh            # builds, lowers to MVP wasm, deploys to testnet
+```
+
+### ⚠️ Important build note
+These contracts pin **`soroban-sdk 21`**, whose on-chain VM rejects the WebAssembly `reference-types` and `multivalue` features. Modern Rust (≥ 1.82) emits those features into **every** wasm it builds — including the standard library — and `-C target-feature=-reference-types` does **not** reliably strip them.
+
+The working pipeline is therefore **build normally, then lower with `wasm-opt`**:
+
+```bash
+cargo build --release --target wasm32-unknown-unknown
+
+wasm-opt <in.wasm> -o <out.wasm> \
+  --disable-reference-types --disable-multivalue \
+  --enable-bulk-memory --enable-bulk-memory-opt \
+  --enable-sign-ext --enable-mutable-globals -Oz
+
+stellar contract deploy --wasm <out.wasm> --source octraban-deployer --network testnet
+```
+
+The retained features (`bulk-memory`, `sign-ext`, `mutable-globals`) are required because the contracts use `memory.copy`; only `reference-types` and `multivalue` are stripped. `build-and-deploy.sh` encapsulates all of this.
+
+### Testing
+```bash
+cd ticket && cargo test          # property-based tests for the ticket contract
+```
+
+---
+
+## 🗺️ How it fits together
+
+Octraban is split across three repositories:
+
+- **octraban_contract** *(this repo)* — the Soroban contracts, deployed to testnet.
+- **[octraban_backend](https://github.com/octraban/octraban_backend)** — API + indexer that reads on-chain data and serves it.
+- **[octraban_frontend](https://github.com/octraban/octraban_frontend)** — the explorer & developer workspace UI.
+
+---
+
+## 📄 License
+
+Released under the [MIT License](./LICENSE). "Soroban" refers to Stellar's smart-contract platform and is used here in that technical sense.
