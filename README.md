@@ -24,6 +24,13 @@ Both contracts are **deployed and verifiable on the Stellar test network**:
 | **Explorer / registry** | `explorer` (`octraban-contract`) | `CBKPNRQ4D3KTAAE7MMJ4HL6JNF2J2EBG2PSSRW4YHOMHTRHUU734CFWJ` | [View ↗](https://stellar.expert/explorer/testnet/contract/CBKPNRQ4D3KTAAE7MMJ4HL6JNF2J2EBG2PSSRW4YHOMHTRHUU734CFWJ) |
 | **Ticket** | `ticket` | `CDX3V6OE72KUIEEJTBLFCQZFXZCAKOYWYXK2KPRM57M6FLZFAVUSVL42` | [View ↗](https://stellar.expert/explorer/testnet/contract/CDX3V6OE72KUIEEJTBLFCQZFXZCAKOYWYXK2KPRM57M6FLZFAVUSVL42) |
 
+> **Decision (Issue #8):** these contracts are **treated as upgradeable**.
+> Onchain upgradeability is needed to avoid forced migrations from peer-deployed
+> address changes fixed earlier, and from bugs or storage/tuning issues. Each
+> contract exposes an admin-gated `upgrade` entry point that calls
+> `update_current_contract_wasm`. Referrer/integrators should **pin** the
+> deployed address and monitor its registry/support channels before upgrades.
+
 > **Network:** `Test SDF Network ; September 2015` · **RPC:** `https://soroban-testnet.stellar.org`
 > **Deployer:** `GDKQB6LSSCL6HPYTRG7HDQWNWWYMLJRI3F3R2EINFGULH2OUVV3E3GOG`
 
@@ -53,6 +60,7 @@ Both are `no_std`, built against **`soroban-sdk 21`**.
 | `pause(caller)` / `unpause(caller)` | Emergency freeze / resume of state-changing calls |
 | `is_paused() -> bool` | Query pause state |
 | `storage_utilisation() -> (u64, u32)` | Current event count and configured capacity |
+| `upgrade(caller, new_wasm_hash)` | Admin-gated WASM upgrade |
 
 ### Contract registry (versioned)
 | Function | Description |
@@ -86,6 +94,7 @@ Both are `no_std`, built against **`soroban-sdk 21`**.
 | `verify_ticket(verifier, ticket_id) -> bool` | Verify a ticket's validity at the gate |
 | `get_ticket(ticket_id) -> Ticket` | Fetch ticket details (errors if absent) |
 | `tickets_sold() -> u64` | Total tickets minted |
+| `upgrade(caller, new_wasm_hash)` | Admin-gated WASM upgrade |
 
 Includes a property-based test suite (`test.rs`).
 

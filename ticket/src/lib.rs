@@ -178,4 +178,14 @@ impl TicketContract {
     pub fn tickets_sold(env: Env) -> u64 {
         env.storage().instance().get(&NEXT_ID).unwrap_or(0)
     }
+
+    /// Upgrade the running contract WASM (admin/organizer only).
+    pub fn upgrade(env: Env, caller: Address, new_wasm_hash: BytesN<32>) {
+        caller.require_auth();
+        let admin: Address = env.storage().instance().get(&ADMIN).unwrap();
+        assert!(caller == admin, "only organizer can upgrade");
+        env.deployer().update_current_contract_wasm(&new_wasm_hash);
+        env.events()
+            .publish((symbol_short!("upgrade"),), new_wasm_hash);
+    }
 }
