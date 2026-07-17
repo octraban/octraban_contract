@@ -40,3 +40,24 @@ are stripped.
 ## Mainnet
 
 Not yet deployed.
+
+## Upgrade procedure
+
+Both contracts are **upgradeable on chain**. Treat the deployed testnet address as
+the stable reference; patch releases are applied by WASM replacement rather than by
+deploying a new contract and migrating client state.
+
+Explorer upgrade entrypoint: `upgrade(caller, new_wasm_hash)`
+Ticket upgrade entrypoint: `upgrade(caller, new_wasm_hash)`
+
+Authorisation model
+- The caller must be the current admin / organizer recorded in instance storage.
+- The contract must not be paused.
+- The call must authenticate with `require_auth` for the stored admin.
+- Successful upgrades emit an `upgrade` event with the applied WASM hash.
+
+Recommended steps
+1. Prepare the WASM release and record its hash.
+2. Notify referrers/integrators that pin the deployed address.
+3. Only after the agreed-on upgrade window, the admin calls `upgrade(new_wasm_hash)`.
+4. Inspect the emitted upgrade event and verify peer behavior.

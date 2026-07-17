@@ -21,6 +21,7 @@ pub enum Error {
     BelowFloor = 4,
     ContractPaused = 5,
     InvalidInput = 6,
+    Unsupported = 7,
 }
 
 // ── Storage keys ─────────────────────────────────────────────────────────────
@@ -208,6 +209,29 @@ impl ExplorerContract {
         }
         env.storage().instance().set(&DataKey::Paused, &false);
         env.events().publish((symbol_short!("unpaused"),), ());
+    }
+
+    /// Upgrade the running contract WASM (admin only).
+    ///
+    /// Caller must be the current admin and the contract must not be paused,
+    /// mirroring the existing lifecycle/safety contract for admin-gated operations.
+    pub fn upgrade(env: Env, caller: Address, new_wasm_hash: BytesN<32>) {
+        caller.require_auth();
+        if env
+            .storage()
+            .instance()
+            .get(&DataKey::Paused)
+            .unwrap_or(false)
+        {
+            panic_with_error!(&env, Error::ContractPaused);
+        }
+        let admin: Address = env.storage().instance().get(&DataKey::Admin).unwrap();
+        if caller != admin {
+            panic_with_error!(&env, Error::Unauthorized);
+        }
+        env.deployer().update_current_contract_wasm(&new_wasm_hash.clone());
+        env.events()
+            .publish((symbol_short!("upgrade"),), new_wasm_hash.clone());
     }
 
     /// Returns whether the contract is currently paused.
@@ -529,7 +553,7 @@ impl ExplorerContract {
     }
 }
 
-// ── Tests ─────────────────────────────────────────────────────────────────────
+// ── Tests ─────────────────────────────────────────────────────────────────////
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -1062,5 +1086,78 @@ mod tests {
             },
         );
         assert_eq!(client.event_count(), 1u64);
+    }
+
+    // ── upgrade ├──────────────────────────────────────────────────────────────
+
+    #[test]
+    fn test_admin_can_upgrade() {
+        let (env, client) = setup();
+        let admin = Address::generate(&env);
+        client.init(&admin, &0u32);
+
+        let hash = BytesN::from_array(&env, &[7u8; 32]);
+        client.upgrade(&admin, &hash);
+    }
+
+    #[test]
+    #[should_panic]
+    fn test_non_admin_cannot_upgrade() {
+        let (env, client) = setup();
+        let admin = Address::generate(&env);
+        let stranger = Address::generate(&env);
+        client.init(&admin, &0u32);
+
+        let hash = BytesN::from_array(&env, &[7u8; 32]);
+        client.upgrade(&stranger, &hash);
+    }
+
+    #[test]
+    fn test_upgrade_emits_event() {
+        let (env, client) = setup();
+        let admin = Address::generate(&env);
+        client.init(&admin, &0u32);
+
+        let hash = BytesN::from_array(&env, &[9u8; 32]);
+        let before = env.events().all().len();
+        client.upgrade(&admin, &hash);
+        assert!(env.events().all().len() > before);
+    }
+
+    #[test]
+    fn test_admin_can_upgrade_after_transfer() {
+        let (env, client) = setup();
+        let admin = Address::generate(&env);
+        let new_admin = Address::generate(&env);
+        client.init(&admin, &0u32);
+        client.transfer_admin(&admin, &new_admin);
+
+        let hash = BytesN::from_array(&env, &[11u8; 32]);
+        client.upgrade(&new_admin, &hash);
+    }
+
+    #[test]
+    #[should_panic]
+    fn test_old_admin_cannot_upgrade_after_transfer() {
+        let (env, client) = setup();
+        let admin = Address::generate(&env);
+        let new_admin = Address::generate(&env);
+        client.init(&admin, &0u32);
+        client.transfer_admin(&admin, &new_admin);
+
+        let hash = BytesN::from_array(&env, &[12u8; 32]);
+        client.upgrade(&admin, &hash);
+    }
+
+    #[test]
+    #[should_panic]
+    fn test_upgrade_while_paused() {
+        let (env, client) = setup();
+        let admin = Address::generate(&env);
+        client.init(&admin, &0u32);
+        client.pause(&admin);
+
+        let hash = BytesN::from_array(&env, &[13u8; 32]);
+        client.upgrade(&admin, &hash);
     }
 }
