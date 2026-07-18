@@ -54,12 +54,18 @@ pub const MIN_MAX_EVENTS: u32 = 1_000;
 /// Default ring-buffer capacity used at init when caller passes `0`.
 pub const DEFAULT_MAX_EVENTS: u32 = 50_000;
 
+/// Version marker included as the first data field of every published event.
+/// Consumers (e.g. the indexer) should switch on this to handle payload
+/// changes across contract upgrades. Bump it whenever a topic or payload
+/// shape below changes. See `docs/EVENTS.md` for the full reference.
+pub const EVENT_VERSION: u32 = 1;
+
 // ── Data types ────────────────────────────────────────────────────────────────
 
 /// ABI-like metadata for a registered contract.
 #[allow(missing_docs)]
 #[contracttype]
-#[derive(Clone)]
+#[derive(Clone, Debug, PartialEq)]
 pub struct ContractMeta {
     /// Schema version for forward compatibility.
     pub version: u32,
@@ -76,7 +82,7 @@ pub struct ContractMeta {
 /// Describes one callable function so the explorer can decode calls.
 #[allow(missing_docs)]
 #[contracttype]
-#[derive(Clone)]
+#[derive(Clone, Debug, PartialEq)]
 pub struct FunctionAbi {
     pub name: Symbol,
     pub description: String,
@@ -86,7 +92,7 @@ pub struct FunctionAbi {
 /// One parameter definition.
 #[allow(missing_docs)]
 #[contracttype]
-#[derive(Clone)]
+#[derive(Clone, Debug, PartialEq)]
 pub struct ParamDef {
     pub name: Symbol,
     pub kind: Symbol,
@@ -154,8 +160,11 @@ impl ExplorerContract {
             panic_with_error!(&env, Error::Unauthorized);
         }
         env.storage().instance().set(&DataKey::Admin, &new_admin);
-        env.events()
-            .publish((symbol_short!("adm_xfer"), caller), new_admin);
+        // Topics: (adm_xfer, caller). Data: (version, new_admin). See docs/EVENTS.md.
+        env.events().publish(
+            (symbol_short!("adm_xfer"), caller),
+            (EVENT_VERSION, new_admin),
+        );
     }
 
     /// Update the ring-buffer capacity (admin only).
@@ -197,7 +206,9 @@ impl ExplorerContract {
             panic_with_error!(&env, Error::Unauthorized);
         }
         env.storage().instance().set(&DataKey::Paused, &true);
-        env.events().publish((symbol_short!("paused"),), ());
+        // Topics: (paused,). Data: (version,). See docs/EVENTS.md.
+        env.events()
+            .publish((symbol_short!("paused"),), (EVENT_VERSION,));
     }
 
     /// Unfreeze the contract (admin only).
@@ -208,7 +219,9 @@ impl ExplorerContract {
             panic_with_error!(&env, Error::Unauthorized);
         }
         env.storage().instance().set(&DataKey::Paused, &false);
-        env.events().publish((symbol_short!("unpaused"),), ());
+        // Topics: (unpaused,). Data: (version,). See docs/EVENTS.md.
+        env.events()
+            .publish((symbol_short!("unpaused"),), (EVENT_VERSION,));
     }
 
     /// Upgrade the running contract WASM (admin only).
@@ -229,9 +242,12 @@ impl ExplorerContract {
         if caller != admin {
             panic_with_error!(&env, Error::Unauthorized);
         }
-        env.deployer().update_current_contract_wasm(&new_wasm_hash.clone());
-        env.events()
-            .publish((symbol_short!("upgrade"),), new_wasm_hash.clone());
+        env.deployer().update_current_contract_wasm(new_wasm_hash.clone());
+        // Topics: (upgrade,). Data: (version, new_wasm_hash). See docs/EVENTS.md.
+        env.events().publish(
+            (symbol_short!("upgrade"),),
+            (EVENT_VERSION, new_wasm_hash.clone()),
+        );
     }
 
     /// Returns whether the contract is currently paused.
@@ -282,16 +298,18 @@ impl ExplorerContract {
         });
         env.storage().persistent().set(&vkey, &stored);
 
+        // Topics: (c_reg, contract_id).
+        // Data: (version, registered_by, contract_version, ledger, name). See docs/EVENTS.md.
         env.events().publish(
-            (symbol_short!("c_reg"), contract_id.clone()),
+            (symbol_short!("c_reg"), contract_id),
             (
+                EVENT_VERSION,
                 stored.registered_by.clone(),
                 stored.version,
                 env.ledger().sequence(),
+                stored.name.clone(),
             ),
         );
-        env.events()
-            .publish((symbol_short!("register"), contract_id), stored.name);
     }
 
     /// Update registered metadata.
@@ -339,13 +357,18 @@ impl ExplorerContract {
         });
         env.storage().persistent().set(&vkey, &updated);
 
+        // Topics: (c_abiu, contract_id). Data: (version, old_abi_version, new_abi_version,
+        // ledger). See docs/EVENTS.md.
         env.events().publish(
             (symbol_short!("c_abiu"), contract_id.clone()),
-            (old_abi_version, new_abi_version, min_ledger),
+            (EVENT_VERSION, old_abi_version, new_abi_version, min_ledger),
         );
+        // Topics: (c_upd, contract_id). Data: (version, caller, old_version, new_version,
+        // ledger). See docs/EVENTS.md.
         env.events().publish(
             (symbol_short!("c_upd"), contract_id),
             (
+                EVENT_VERSION,
                 caller,
                 old_version,
                 updated.version,
@@ -408,9 +431,10 @@ impl ExplorerContract {
         }
 
         env.storage().persistent().remove(&key);
+        // Topics: (c_dereg, contract_id). Data: (version, caller, ledger). See docs/EVENTS.md.
         env.events().publish(
             (symbol_short!("c_dereg"), contract_id),
-            (caller, env.ledger().sequence()),
+            (EVENT_VERSION, caller, env.ledger().sequence()),
         );
     }
 
@@ -465,21 +489,28 @@ impl ExplorerContract {
             .set(&DataKey::EventLog(slot), &event);
         env.storage().instance().set(&DataKey::EventSeq, &(seq + 1));
 
+        // Topics: (ev_sub, contract_id, function). Data: (version, seq, ledger).
+        // See docs/EVENTS.md.
         env.events().publish(
             (
                 symbol_short!("ev_sub"),
                 input.contract_id.clone(),
                 input.function.clone(),
             ),
-            (seq, input.ledger),
+            (EVENT_VERSION, seq, input.ledger),
         );
         if evicting {
-            env.events()
-                .publish((symbol_short!("cap_hit"),), (evicted_seq, seq));
+            // Topics: (cap_hit,). Data: (version, evicted_seq, seq). See docs/EVENTS.md.
+            env.events().publish(
+                (symbol_short!("cap_hit"),),
+                (EVENT_VERSION, evicted_seq, seq),
+            );
         }
+        // Topics: (decoded, contract_id, function). Data: (version, description).
+        // See docs/EVENTS.md.
         env.events().publish(
             (symbol_short!("decoded"), input.contract_id, input.function),
-            input.description,
+            (EVENT_VERSION, input.description),
         );
     }
 
@@ -559,8 +590,30 @@ mod tests {
     use super::*;
     use soroban_sdk::{
         testutils::{Address as _, Events as _},
-        Env,
+        Env, IntoVal,
     };
+
+    /// Returns the `(topics, data)` of every event published by `contract_id`, in order.
+    fn events_for(
+        env: &Env,
+        contract_id: &Address,
+    ) -> Vec<(Vec<soroban_sdk::Val>, soroban_sdk::Val)> {
+        let mut out = Vec::new(env);
+        for (id, topics, data) in env.events().all().iter() {
+            if &id == contract_id {
+                out.push_back((topics, data));
+            }
+        }
+        out
+    }
+
+    /// Returns the `(topics, data)` of the last event published by `contract_id`.
+    fn last_event(env: &Env, contract_id: &Address) -> (Vec<soroban_sdk::Val>, soroban_sdk::Val) {
+        let events = events_for(env, contract_id);
+        events
+            .get(events.len() - 1)
+            .expect("no event published by contract")
+    }
 
     fn setup() -> (Env, ExplorerContractClient<'static>) {
         let env = Env::default();
@@ -603,7 +656,7 @@ mod tests {
 
         let cid: BytesN<32> = BytesN::from_array(&env, &[1u8; 32]);
         client.register_contract(&admin, &cid, &make_meta(&env, "StellarSwap", &admin));
-        let fetched = client.get_contract(&cid).unwrap();
+        let fetched = client.get_contract(&cid);
         assert_eq!(fetched.name, String::from_str(&env, "StellarSwap"));
     }
 
@@ -745,18 +798,35 @@ mod tests {
     // ── Diagnostic events (#275) ──────────────────────────────────────────────
 
     #[test]
-    fn test_register_emits_event() {
+    fn test_register_emits_c_reg_event() {
         let (env, client) = setup();
         let admin = Address::generate(&env);
         client.init(&admin, &0u32);
 
         let cid: BytesN<32> = BytesN::from_array(&env, &[20u8; 32]);
-        client.register_contract(&admin, &cid, &make_meta(&env, "TestDex", &admin));
-        assert!(env.events().all().len() >= 2);
+        let meta = make_meta(&env, "TestDex", &admin);
+        client.register_contract(&admin, &cid, &meta);
+
+        let (topics, data) = last_event(&env, &client.address);
+        assert_eq!(
+            topics,
+            (symbol_short!("c_reg"), cid.clone()).into_val(&env)
+        );
+        let decoded: (u32, Address, u32, u32, String) = data.into_val(&env);
+        assert_eq!(
+            decoded,
+            (
+                EVENT_VERSION,
+                admin.clone(),
+                meta.version,
+                env.ledger().sequence(),
+                meta.name.clone(),
+            )
+        );
     }
 
     #[test]
-    fn test_update_emits_event() {
+    fn test_update_emits_c_abiu_and_c_upd_events() {
         let (env, client) = setup();
         let admin = Address::generate(&env);
         client.init(&admin, &0u32);
@@ -764,7 +834,6 @@ mod tests {
         let cid: BytesN<32> = BytesN::from_array(&env, &[21u8; 32]);
         let meta_v0 = make_meta(&env, "Dex", &admin);
         client.register_contract(&admin, &cid, &meta_v0);
-        let before = env.events().all().len();
 
         let meta_v1 = ContractMeta {
             version: 2,
@@ -772,7 +841,26 @@ mod tests {
             ..meta_v0
         };
         client.update_contract(&admin, &cid, &meta_v1);
-        assert!(env.events().all().len() > before);
+
+        let events = events_for(&env, &client.address);
+        let (abiu_topics, abiu_data) = events.get(events.len() - 2).unwrap();
+        assert_eq!(
+            abiu_topics,
+            (symbol_short!("c_abiu"), cid.clone()).into_val(&env)
+        );
+        let abiu_decoded: (u32, u32, u32, u32) = abiu_data.into_val(&env);
+        assert_eq!(abiu_decoded, (EVENT_VERSION, 0u32, 1u32, env.ledger().sequence()));
+
+        let (upd_topics, upd_data) = events.get(events.len() - 1).unwrap();
+        assert_eq!(
+            upd_topics,
+            (symbol_short!("c_upd"), cid).into_val(&env)
+        );
+        let upd_decoded: (u32, Address, u32, u32, u32) = upd_data.into_val(&env);
+        assert_eq!(
+            upd_decoded,
+            (EVENT_VERSION, admin, 1u32, 2u32, env.ledger().sequence())
+        );
     }
 
     #[test]
@@ -793,20 +881,39 @@ mod tests {
         };
         client.update_contract(&owner, &cid, &meta_v1);
 
-        let updated = client.get_contract(&cid).unwrap();
+        let updated = client.get_contract(&cid);
         assert_eq!(updated.version, 2);
         assert_eq!(updated.abi_version, 1);
     }
 
     #[test]
-    fn test_submit_emits_ev_sub_event() {
+    fn test_submit_emits_ev_sub_and_decoded_events() {
         let (env, client) = setup();
         let admin = Address::generate(&env);
         client.init(&admin, &0u32);
 
         let cid: BytesN<32> = BytesN::from_array(&env, &[22u8; 32]);
-        client.submit_event(&admin, &make_input(&env, &cid));
-        assert!(env.events().all().len() >= 2);
+        let input = make_input(&env, &cid);
+        client.submit_event(&admin, &input);
+
+        let events = events_for(&env, &client.address);
+        assert_eq!(events.len(), 2);
+
+        let (ev_sub_topics, ev_sub_data) = events.get(0).unwrap();
+        assert_eq!(
+            ev_sub_topics,
+            (symbol_short!("ev_sub"), cid.clone(), input.function.clone()).into_val(&env)
+        );
+        let ev_sub_decoded: (u32, u64, u32) = ev_sub_data.into_val(&env);
+        assert_eq!(ev_sub_decoded, (EVENT_VERSION, 0u64, input.ledger));
+
+        let (decoded_topics, decoded_data) = events.get(1).unwrap();
+        assert_eq!(
+            decoded_topics,
+            (symbol_short!("decoded"), cid, input.function).into_val(&env)
+        );
+        let decoded_decoded: (u32, String) = decoded_data.into_val(&env);
+        assert_eq!(decoded_decoded, (EVENT_VERSION, input.description));
     }
 
     #[test]
@@ -820,9 +927,13 @@ mod tests {
         for _ in 0..5 {
             client.submit_event(&admin, &base);
         }
-        let before = env.events().all().len();
         client.submit_event(&admin, &base);
-        assert!(env.events().all().len() > before);
+
+        let events = events_for(&env, &client.address);
+        let (cap_hit_topics, cap_hit_data) = events.get(events.len() - 2).unwrap();
+        assert_eq!(cap_hit_topics, (symbol_short!("cap_hit"),).into_val(&env));
+        let cap_hit_decoded: (u32, u64, u64) = cap_hit_data.into_val(&env);
+        assert_eq!(cap_hit_decoded, (EVENT_VERSION, 0u64, 5u64));
     }
 
     #[test]
@@ -853,7 +964,7 @@ mod tests {
         };
         client.register_contract(&admin, &cid, &meta);
 
-        let fetched = client.get_contract(&cid).unwrap();
+        let fetched = client.get_contract(&cid);
         assert_eq!(fetched.abi_version, 0);
 
         let v0 = client.get_contract_version(&cid, &0u32).unwrap();
@@ -876,14 +987,14 @@ mod tests {
             ..meta_v0.clone()
         };
         client.update_contract(&admin, &cid, &meta_v1);
-        assert_eq!(client.get_contract(&cid).unwrap().abi_version, 1);
+        assert_eq!(client.get_contract(&cid).abi_version, 1);
 
         let meta_v2 = ContractMeta {
             abi_version: 2,
             ..meta_v0
         };
         client.update_contract(&admin, &cid, &meta_v2);
-        assert_eq!(client.get_contract(&cid).unwrap().abi_version, 2);
+        assert_eq!(client.get_contract(&cid).abi_version, 2);
 
         assert!(client.get_contract_version(&cid, &0u32).is_some());
         assert!(client.get_contract_version(&cid, &1u32).is_some());
@@ -950,10 +1061,10 @@ mod tests {
 
         let cid: BytesN<32> = BytesN::from_array(&env, &[40u8; 32]);
         client.register_contract(&admin, &cid, &make_meta(&env, "ToRemove", &admin));
-        assert!(client.get_contract(&cid).is_some());
+        assert!(client.get_latest_contract(&cid).is_some());
 
         client.deregister_contract(&admin, &cid);
-        assert!(client.get_contract(&cid).is_none());
+        assert!(client.get_latest_contract(&cid).is_none());
     }
 
     #[test]
@@ -966,7 +1077,7 @@ mod tests {
         let cid: BytesN<32> = BytesN::from_array(&env, &[41u8; 32]);
         client.register_contract(&admin, &cid, &make_meta(&env, "RegOwned", &registrant));
         client.deregister_contract(&registrant, &cid);
-        assert!(client.get_contract(&cid).is_none());
+        assert!(client.get_latest_contract(&cid).is_none());
     }
 
     #[test]
@@ -995,19 +1106,61 @@ mod tests {
     }
 
     #[test]
-    fn test_deregister_emits_event() {
+    fn test_deregister_emits_c_dereg_event() {
         let (env, client) = setup();
         let admin = Address::generate(&env);
         client.init(&admin, &0u32);
 
         let cid: BytesN<32> = BytesN::from_array(&env, &[43u8; 32]);
         client.register_contract(&admin, &cid, &make_meta(&env, "EventTest", &admin));
-        let before = env.events().all().len();
         client.deregister_contract(&admin, &cid);
-        assert!(env.events().all().len() > before);
+
+        let (topics, data) = last_event(&env, &client.address);
+        assert_eq!(
+            topics,
+            (symbol_short!("c_dereg"), cid).into_val(&env)
+        );
+        let decoded: (u32, Address, u32) = data.into_val(&env);
+        assert_eq!(decoded, (EVENT_VERSION, admin, env.ledger().sequence()));
     }
 
     // ── transfer_admin ────────────────────────────────────────────────────────
+
+    #[test]
+    fn test_transfer_admin_emits_adm_xfer_event() {
+        let (env, client) = setup();
+        let admin = Address::generate(&env);
+        let new_admin = Address::generate(&env);
+        client.init(&admin, &0u32);
+        client.transfer_admin(&admin, &new_admin);
+
+        let (topics, data) = last_event(&env, &client.address);
+        assert_eq!(
+            topics,
+            (symbol_short!("adm_xfer"), admin).into_val(&env)
+        );
+        let decoded: (u32, Address) = data.into_val(&env);
+        assert_eq!(decoded, (EVENT_VERSION, new_admin));
+    }
+
+    #[test]
+    fn test_pause_and_unpause_emit_events() {
+        let (env, client) = setup();
+        let admin = Address::generate(&env);
+        client.init(&admin, &0u32);
+
+        client.pause(&admin);
+        let (paused_topics, paused_data) = last_event(&env, &client.address);
+        assert_eq!(paused_topics, (symbol_short!("paused"),).into_val(&env));
+        let paused_decoded: (u32,) = paused_data.into_val(&env);
+        assert_eq!(paused_decoded, (EVENT_VERSION,));
+
+        client.unpause(&admin);
+        let (unpaused_topics, unpaused_data) = last_event(&env, &client.address);
+        assert_eq!(unpaused_topics, (symbol_short!("unpaused"),).into_val(&env));
+        let unpaused_decoded: (u32,) = unpaused_data.into_val(&env);
+        assert_eq!(unpaused_decoded, (EVENT_VERSION,));
+    }
 
     #[test]
     fn test_transfer_admin_success() {
