@@ -152,6 +152,13 @@ The retained features (`bulk-memory`, `sign-ext`, `mutable-globals`) are require
 cd ticket && cargo test          # property-based tests for the ticket contract
 ```
 
+### Fuzzing
+```bash
+cargo install cargo-fuzz
+cd ticket/fuzz && cargo +nightly fuzz run <target> -- -max_total_time=60
+```
+`cargo-fuzz` requires a **nightly** toolchain (`rustup toolchain install nightly`) because it builds with `-Z sanitizer=address`, a nightly-only flag. See [`ticket/fuzz/README.md`](./ticket/fuzz/README.md) for the list of targets, the invariant each one checks, and how regression seeds are organised.
+
 ---
 
 ## 🗺️ How it fits together
