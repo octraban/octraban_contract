@@ -82,6 +82,10 @@ Both are `no_std`, built against **`soroban-sdk 21`**.
 
 **Safety properties:** admin-gated writes (`require_auth`), typed errors, pausability, input validation on submitted events, and a bounded ring buffer so storage never grows unbounded.
 
+### Events
+
+Every event `explorer` publishes — topics, payload shape, and version — is documented in [`docs/EVENTS.md`](./docs/EVENTS.md). Cross-reference it against the indexer's `decodedEvent.schema.json` / `contractRegistry.schema.json` in `octraban_backend` before changing either side.
+
 ---
 
 ## 🎟️ `ticket` — Event Ticketing
@@ -109,6 +113,8 @@ Includes a property-based test suite (`test.rs`).
 ├── ticket/              # ticket — event ticketing
 │   ├── src/lib.rs
 │   └── src/test.rs
+├── docs/
+│   └── EVENTS.md        # explorer event topics, payloads, and versioning
 ├── build-and-deploy.sh  # build → MVP-lower (wasm-opt) → deploy
 ├── DEPLOYMENTS.md        # live contract IDs + reproduction steps
 ├── LICENSE / NOTICE
