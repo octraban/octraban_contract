@@ -1,3 +1,9 @@
 
 target/
 dist/
+
+# cargo-fuzz working state: exploration corpus and raw crash dumps are huge
+# and reproducible from a run. Regression seeds we intentionally keep are
+# force-added individually (see ticket/fuzz/README.md).
+ticket/fuzz/corpus/
+ticket/fuzz/artifacts/

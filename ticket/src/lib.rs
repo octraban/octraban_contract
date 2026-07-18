@@ -6,7 +6,8 @@
 mod test;
 
 use soroban_sdk::{
-    contract, contracterror, contractimpl, contracttype, symbol_short, Address, Env, String, Symbol,
+    contract, contracterror, contractimpl, contracttype, symbol_short, Address, BytesN, Env,
+    String, Symbol,
 };
 
 // ── Storage keys ──────────────────────────────────────────────────────────────
@@ -184,7 +185,8 @@ impl TicketContract {
         caller.require_auth();
         let admin: Address = env.storage().instance().get(&ADMIN).unwrap();
         assert!(caller == admin, "only organizer can upgrade");
-        env.deployer().update_current_contract_wasm(&new_wasm_hash);
+        env.deployer()
+            .update_current_contract_wasm(new_wasm_hash.clone());
         env.events()
             .publish((symbol_short!("upgrade"),), new_wasm_hash);
     }

@@ -1,0 +1,51 @@
+name: Fuzz
+
+on:
+  schedule:
+    # Weekly, Sunday 03:00 UTC — kept off the PR path since each target needs
+    # minutes, not seconds, to be useful.
+    - cron: "0 3 * * 0"
+  workflow_dispatch:
+    inputs:
+      seconds:
+        description: "Seconds to run each target"
+        required: false
+        default: "300"
+
+jobs:
+  fuzz:
+    name: fuzz (${{ matrix.target }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        target:
+          - fuzz_mint
+          - fuzz_transfer
+          - fuzz_verify
+          - fuzz_full_lifecycle
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: dtolnay/rust-toolchain@nightly
+
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: ticket/fuzz
+
+      - name: Install cargo-fuzz
+        run: cargo install cargo-fuzz --locked
+
+      - name: Run ${{ matrix.target }}
+        working-directory: ticket/fuzz
+        run: |
+          cargo +nightly fuzz run ${{ matrix.target }} -- \
+            -max_total_time=${{ github.event.inputs.seconds || 300 }}
+
+      - name: Upload crash artifacts
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: fuzz-crash-${{ matrix.target }}
+          path: ticket/fuzz/artifacts/${{ matrix.target }}/
+          if-no-files-found: ignore
