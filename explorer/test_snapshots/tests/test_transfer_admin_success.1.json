@@ -209,7 +209,7 @@
             },
             "ext": "v0"
           },
-          4095
+          120960
         ]
       ],
       [
@@ -278,7 +278,7 @@
             },
             "ext": "v0"
           },
-          4095
+          518400
         ]
       ],
       [
@@ -365,7 +365,7 @@
             },
             "ext": "v0"
           },
-          4095
+          518400
         ]
       ]
     ]
@@ -474,7 +474,14 @@
               }
             ],
             "data": {
-              "address": "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAHK3M"
+              "vec": [
+                {
+                  "u32": 1
+                },
+                {
+                  "address": "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAHK3M"
+                }
+              ]
             }
           }
         }
@@ -605,6 +612,9 @@
             "data": {
               "vec": [
                 {
+                  "u32": 1
+                },
+                {
                   "u64": 0
                 },
                 {
@@ -636,7 +646,14 @@
               }
             ],
             "data": {
-              "string": "new admin test"
+              "vec": [
+                {
+                  "u32": 1
+                },
+                {
+                  "string": "new admin test"
+                }
+              ]
             }
           }
         }

@@ -188,7 +188,7 @@
                   "address": "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAHK3M"
                 },
                 {
-                  "bytes": "3232323232323232323232323232323232323232323232323232323232323232"
+                  "bytes": "1919191919191919191919191919191919191919191919191919191919191919"
                 },
                 {
                   "map": [
@@ -229,7 +229,7 @@
                         "symbol": "name"
                       },
                       "val": {
-                        "string": "UnauthorizedReg"
+                        "string": "MyContract"
                       }
                     },
                     {
@@ -370,7 +370,7 @@
                       "address": "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAHK3M"
                     },
                     {
-                      "bytes": "3232323232323232323232323232323232323232323232323232323232323232"
+                      "bytes": "1919191919191919191919191919191919191919191919191919191919191919"
                     },
                     {
                       "map": [
@@ -411,7 +411,7 @@
                             "symbol": "name"
                           },
                           "val": {
-                            "string": "UnauthorizedReg"
+                            "string": "MyContract"
                           }
                         },
                         {

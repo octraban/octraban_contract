@@ -255,7 +255,7 @@
             },
             "ext": "v0"
           },
-          4095
+          1555200
         ]
       ],
       [
@@ -324,7 +324,7 @@
             },
             "ext": "v0"
           },
-          4095
+          518400
         ]
       ],
       [
@@ -411,7 +411,7 @@
             },
             "ext": "v0"
           },
-          4095
+          518400
         ]
       ]
     ]
@@ -582,6 +582,9 @@
             "data": {
               "vec": [
                 {
+                  "u32": 1
+                },
+                {
                   "address": "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAFCT4"
                 },
                 {
@@ -589,31 +592,11 @@
                 },
                 {
                   "u32": 0
+                },
+                {
+                  "string": "ToRemove"
                 }
               ]
-            }
-          }
-        }
-      },
-      "failed_call": false
-    },
-    {
-      "event": {
-        "ext": "v0",
-        "contract_id": "0000000000000000000000000000000000000000000000000000000000000001",
-        "type_": "contract",
-        "body": {
-          "v0": {
-            "topics": [
-              {
-                "symbol": "register"
-              },
-              {
-                "bytes": "2828282828282828282828282828282828282828282828282828282828282828"
-              }
-            ],
-            "data": {
-              "string": "ToRemove"
             }
           }
         }
@@ -656,7 +639,7 @@
                 "bytes": "0000000000000000000000000000000000000000000000000000000000000001"
               },
               {
-                "symbol": "get_contract"
+                "symbol": "get_latest_contract"
               }
             ],
             "data": {
@@ -679,7 +662,7 @@
                 "symbol": "fn_return"
               },
               {
-                "symbol": "get_contract"
+                "symbol": "get_latest_contract"
               }
             ],
             "data": {
@@ -798,6 +781,9 @@
             "data": {
               "vec": [
                 {
+                  "u32": 1
+                },
+                {
                   "address": "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAFCT4"
                 },
                 {
@@ -846,7 +832,7 @@
                 "bytes": "0000000000000000000000000000000000000000000000000000000000000001"
               },
               {
-                "symbol": "get_contract"
+                "symbol": "get_latest_contract"
               }
             ],
             "data": {
@@ -869,7 +855,7 @@
                 "symbol": "fn_return"
               },
               {
-                "symbol": "get_contract"
+                "symbol": "get_latest_contract"
               }
             ],
             "data": "void"

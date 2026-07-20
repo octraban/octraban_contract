@@ -86,6 +86,34 @@ Both are `no_std`, built against **`soroban-sdk 21`**.
 
 Every event `explorer` publishes — topics, payload shape, and version — is documented in [`docs/EVENTS.md`](./docs/EVENTS.md). Cross-reference it against the indexer's `decodedEvent.schema.json` / `contractRegistry.schema.json` in `octraban_backend` before changing either side.
 
+### Storage TTL & retention (Issue #6)
+
+Soroban archives an instance or persistent entry once its TTL (time-to-live, in ledgers) lapses; an archived entry is unreadable until it is explicitly restored. `explorer` calls `extend_ttl` on every write path (and on a handful of hot read paths) so its state stays live under normal traffic. Ledger close time is ~5s, so 1 day ≈ 17,280 ledgers (`LEDGERS_PER_DAY` in `explorer/src/lib.rs`).
+
+| Storage | Entries | Bump horizon | Bumped on |
+|---|---|---|---|
+| Instance | admin, pause flag, `MaxEvents`, `EventSeq` | 30 days (`INSTANCE_BUMP_AMOUNT`) | Every state-changing call: `init`, `transfer_admin`, `set_max_events`, `pause`, `unpause`, `upgrade`, `register_contract`, `update_contract`, `deregister_contract`, `submit_event` |
+| Persistent — registry | `Contract`, `ContractVersion` | 90 days (`REGISTRY_BUMP_AMOUNT`) | Write (`register_contract`, `update_contract`) **and** read (`get_contract`, `get_contract_version`, `get_latest_contract`) |
+| Persistent — event ring buffer | `EventLog` slots | 7 days (`EVENT_BUMP_AMOUNT`) | Write (`submit_event`) **and** single-item read (`get_event`) |
+
+Each bump extends the TTL back out to the full horizon once the remaining TTL drops below `horizon - 1 day` (the `*_LIFETIME_THRESHOLD` constants) — this avoids paying to re-extend on every single call while still keeping a full day of margin.
+
+**Why registry entries get a longer horizon than events:** registry metadata is written rarely and is meant to be queried indefinitely, so it's bumped generously on every read. Event-log slots are the ring buffer — bounded, and each slot is overwritten as soon as `seq` wraps back around to it (`submit_event`) — so they only need to survive long enough for the indexer to consume them before either being read or naturally evicted by wraparound; a shorter horizon is both sufficient and cheaper.
+
+**Why the event ring buffer stays on persistent storage instead of `temporary`:** temporary entries are hard-deleted the instant their TTL hits zero, with no restoration path — that would silently drop event history the indexer hasn't caught up on yet if a bump is ever missed (e.g. no writes for an extended period). Persistent entries, by contrast, can be restored (see below) if `explorer`'s own `extend_ttl` calls ever lapse. `get_events` (the paginated read) intentionally does **not** bump every slot it touches, to avoid the per-call cost scaling with `limit`; `get_event` (single-item read) does.
+
+**Restoring an archived entry:** if an entry is ever allowed to lapse (e.g. the contract goes untouched for longer than its bump horizon), Soroban requires an explicit on-chain restore before it can be read or written again — the contract's own transactions cannot "un-archive" it implicitly. Use the Stellar CLI against the relevant ledger key(s):
+
+```bash
+stellar contract restore \
+  --id <EXPLORER_CONTRACT_ID> \
+  --source <funded-identity> \
+  --network testnet \
+  --durability persistent   # or `instance` for the contract's instance entry
+```
+
+This submits a restoration op that pays the current archival-recovery fee and brings the entry back to a fresh (short) TTL — the next admin-gated call against it will then re-extend it via the paths above. See the [Stellar CLI docs](https://developers.stellar.org/docs/tools/cli/stellar-cli) for the full `contract restore` reference.
+
 ---
 
 ## 🎟️ `ticket` — Event Ticketing
