@@ -1,4 +1,3 @@
-
 target/
 dist/
 
@@ -7,3 +6,7 @@ dist/
 # force-added individually (see ticket/fuzz/README.md).
 ticket/fuzz/corpus/
 ticket/fuzz/artifacts/
+
+# somzilla issues tracking file
+somzilla.md
+

@@ -45,6 +45,9 @@ pub enum Error {
     NotFound = 1,
     NotInitialized = 2,
     AlreadyInitialized = 3,
+    NegativePrice = 4,
+    PriceOverflow = 5,
+    PriceExceedsCeiling = 6,
 }
 
 // ── Contract ──────────────────────────────────────────────────────────────────
@@ -67,6 +70,9 @@ impl TicketContract {
         admin.require_auth();
         if env.storage().instance().has(&ADMIN) {
             return Err(Error::AlreadyInitialized);
+        }
+        if price < 0 || max_resale_price < 0 {
+            return Err(Error::NegativePrice);
         }
 
         env.storage().instance().set(&ADMIN, &admin);
@@ -128,24 +134,34 @@ impl TicketContract {
     }
 
     /// Transfer a ticket from one user to another, enforcing resale price cap.
-    pub fn transfer_ticket(env: Env, from: Address, to: Address, ticket_id: u64, sale_price: i128) {
+    pub fn transfer_ticket(
+        env: Env,
+        from: Address,
+        to: Address,
+        ticket_id: u64,
+        sale_price: i128,
+    ) -> Result<(), Error> {
         from.require_auth();
+
+        if sale_price < 0 {
+            return Err(Error::NegativePrice);
+        }
 
         let mut ticket: Ticket = env
             .storage()
             .persistent()
             .get(&ticket_id)
-            .expect("ticket not found");
+            .ok_or(Error::NotFound)?;
 
-        assert!(ticket.owner == from, "not the ticket owner");
-        assert!(
-            ticket.status == TicketStatus::Valid,
-            "ticket not transferable"
-        );
-        assert!(
-            sale_price <= ticket.max_resale_price,
-            "price exceeds resale cap"
-        );
+        if ticket.owner != from {
+            panic!("not the ticket owner");
+        }
+        if ticket.status != TicketStatus::Valid {
+            panic!("ticket not transferable");
+        }
+        if sale_price > ticket.max_resale_price {
+            return Err(Error::PriceExceedsCeiling);
+        }
 
         ticket.owner = to.clone();
         ticket.status = TicketStatus::Transferred;
@@ -153,6 +169,7 @@ impl TicketContract {
 
         env.events()
             .publish((symbol_short!("TRANSFER"), from, to), ticket_id);
+        Ok(())
     }
 
     /// Verify and mark a ticket as used at entry.

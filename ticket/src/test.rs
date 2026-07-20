@@ -75,7 +75,8 @@ fn test_transfer() {
     client.mint_ticket(&organizer, &buyer);
 
     let new_owner = Address::generate(&env);
-    client.transfer_ticket(&buyer, &new_owner, &0u64, &60_000_000i128);
+    let result = client.try_transfer_ticket(&buyer, &new_owner, &0u64, &60_000_000i128);
+    assert_eq!(result, Ok(Ok(())));
 
     let ticket = client.get_ticket(&0u64);
     assert_eq!(ticket.owner, new_owner);
@@ -83,13 +84,13 @@ fn test_transfer() {
 }
 
 #[test]
-#[should_panic(expected = "price exceeds resale cap")]
 fn test_resale_cap_enforced() {
     let (env, client, organizer, buyer) = setup();
     client.mint_ticket(&organizer, &buyer);
 
     let new_owner = Address::generate(&env);
-    client.transfer_ticket(&buyer, &new_owner, &0u64, &100_000_000i128);
+    let result = client.try_transfer_ticket(&buyer, &new_owner, &0u64, &100_000_000i128);
+    assert_eq!(result, Err(Ok(Error::PriceExceedsCeiling)));
 }
 
 #[test]
@@ -170,4 +171,54 @@ fn test_double_initialize_returns_already_initialized() {
         ),
         Err(Ok(Error::AlreadyInitialized))
     );
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// 3. PRICE VALIDATION TESTS (somzilla issues)
+// ═══════════════════════════════════════════════════════════════════════════
+
+#[test]
+fn test_negative_sale_price_returns_typed_error() {
+    let (env, client, organizer, buyer) = setup();
+    client.mint_ticket(&organizer, &buyer);
+
+    let new_owner = Address::generate(&env);
+    let result = client.try_transfer_ticket(&buyer, &new_owner, &0u64, &-1i128);
+    assert_eq!(result, Err(Ok(Error::NegativePrice)));
+}
+
+#[test]
+fn test_transfer_sale_price_above_max_resale_price_is_rejected() {
+    let (env, client, organizer, buyer) = setup();
+    client.mint_ticket(&organizer, &buyer);
+
+    let new_owner = Address::generate(&env);
+    let result = client.try_transfer_ticket(&buyer, &new_owner, &0u64, &76_000_000i128);
+    assert_eq!(result, Err(Ok(Error::PriceExceedsCeiling)));
+}
+
+#[test]
+fn test_extreme_i128_values_return_typed_error() {
+    let (env, client, organizer, buyer) = setup();
+    client.mint_ticket(&organizer, &buyer);
+
+    let new_owner = Address::generate(&env);
+
+    // i128::MIN — should be caught as NegativePrice
+    let result = client.try_transfer_ticket(
+        &buyer,
+        &new_owner,
+        &0u64,
+        &i128::MIN,
+    );
+    assert_eq!(result, Err(Ok(Error::NegativePrice)));
+
+    // i128::MAX — above max_resale_price ceiling, so PriceExceedsCeiling
+    let result = client.try_transfer_ticket(
+        &buyer,
+        &new_owner,
+        &0u64,
+        &i128::MAX,
+    );
+    assert_eq!(result, Err(Ok(Error::PriceExceedsCeiling)));
 }
