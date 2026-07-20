@@ -43,6 +43,8 @@ pub struct Ticket {
 #[repr(u32)]
 pub enum Error {
     NotFound = 1,
+    NotInitialized = 2,
+    AlreadyInitialized = 3,
 }
 
 // ── Contract ──────────────────────────────────────────────────────────────────
@@ -53,6 +55,7 @@ pub struct TicketContract;
 #[contractimpl]
 impl TicketContract {
     /// Initialize the event. Must be called once by the organizer.
+    /// Returns `Error::AlreadyInitialized` if called more than once.
     pub fn initialize(
         env: Env,
         admin: Address,
@@ -60,9 +63,11 @@ impl TicketContract {
         max_tickets: u64,
         price: i128,
         max_resale_price: i128,
-    ) {
+    ) -> Result<(), Error> {
         admin.require_auth();
-        assert!(!env.storage().instance().has(&ADMIN), "already initialized");
+        if env.storage().instance().has(&ADMIN) {
+            return Err(Error::AlreadyInitialized);
+        }
 
         env.storage().instance().set(&ADMIN, &admin);
         env.storage().instance().set(&MAX_TIX, &max_tickets);
@@ -74,12 +79,18 @@ impl TicketContract {
             .instance()
             .set(&symbol_short!("MAXRESALE"), &max_resale_price);
         env.storage().instance().set(&NEXT_ID, &0u64);
+        Ok(())
     }
 
     /// Mint a ticket to a recipient. Only admin (organizer) can call this.
-    pub fn mint_ticket(env: Env, organizer: Address, recipient: Address) -> u64 {
+    /// Returns `Error::NotInitialized` if called before `initialize`.
+    pub fn mint_ticket(env: Env, organizer: Address, recipient: Address) -> Result<u64, Error> {
         organizer.require_auth();
-        let admin: Address = env.storage().instance().get(&ADMIN).unwrap();
+        let admin: Address = env
+            .storage()
+            .instance()
+            .get(&ADMIN)
+            .ok_or(Error::NotInitialized)?;
         assert!(organizer == admin, "only organizer can mint");
 
         let max: u64 = env.storage().instance().get(&MAX_TIX).unwrap();
@@ -113,7 +124,7 @@ impl TicketContract {
         env.events()
             .publish((symbol_short!("MINTED"), recipient), next_id);
 
-        next_id
+        Ok(next_id)
     }
 
     /// Transfer a ticket from one user to another, enforcing resale price cap.
@@ -145,9 +156,14 @@ impl TicketContract {
     }
 
     /// Verify and mark a ticket as used at entry.
-    pub fn verify_ticket(env: Env, verifier: Address, ticket_id: u64) -> bool {
+    /// Returns `Error::NotInitialized` if called before `initialize`.
+    pub fn verify_ticket(env: Env, verifier: Address, ticket_id: u64) -> Result<bool, Error> {
         verifier.require_auth();
-        let admin: Address = env.storage().instance().get(&ADMIN).unwrap();
+        let admin: Address = env
+            .storage()
+            .instance()
+            .get(&ADMIN)
+            .ok_or(Error::NotInitialized)?;
         assert!(verifier == admin, "only organizer can verify");
 
         let mut ticket: Ticket = env
@@ -161,9 +177,9 @@ impl TicketContract {
             env.storage().persistent().set(&ticket_id, &ticket);
             env.events()
                 .publish((symbol_short!("VERIFIED"),), ticket_id);
-            true
+            Ok(true)
         } else {
-            false
+            Ok(false)
         }
     }
 
@@ -181,13 +197,19 @@ impl TicketContract {
     }
 
     /// Upgrade the running contract WASM (admin/organizer only).
-    pub fn upgrade(env: Env, caller: Address, new_wasm_hash: BytesN<32>) {
+    /// Returns `Error::NotInitialized` if called before `initialize`.
+    pub fn upgrade(env: Env, caller: Address, new_wasm_hash: BytesN<32>) -> Result<(), Error> {
         caller.require_auth();
-        let admin: Address = env.storage().instance().get(&ADMIN).unwrap();
+        let admin: Address = env
+            .storage()
+            .instance()
+            .get(&ADMIN)
+            .ok_or(Error::NotInitialized)?;
         assert!(caller == admin, "only organizer can upgrade");
         env.deployer()
             .update_current_contract_wasm(new_wasm_hash.clone());
         env.events()
             .publish((symbol_short!("upgrade"),), new_wasm_hash);
+        Ok(())
     }
 }
