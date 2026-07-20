@@ -1,6 +1,6 @@
 target/
 dist/
-somzilla.md
+[sS]omzilla.md
 
 # cargo-fuzz working state: exploration corpus and raw crash dumps are huge
 # and reproducible from a run. Regression seeds we intentionally keep are
