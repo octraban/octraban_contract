@@ -105,3 +105,69 @@ fn test_verify_ticket() {
     assert!(!double_scan);
 }
 
+// ═══════════════════════════════════════════════════════════════════════════
+// 2. UNINITIALISED-STATE ERROR PATHS (#9)
+// ═══════════════════════════════════════════════════════════════════════════
+
+#[test]
+fn test_mint_before_initialize_returns_not_initialized() {
+    let env = Env::default();
+    env.mock_all_auths();
+    let contract_id = env.register_contract(None, TicketContract);
+    let client = TicketContractClient::new(&env, &contract_id);
+
+    let organizer = Address::generate(&env);
+    let buyer = Address::generate(&env);
+
+    assert_eq!(
+        client.try_mint_ticket(&organizer, &buyer),
+        Err(Ok(Error::NotInitialized))
+    );
+}
+
+#[test]
+fn test_verify_before_initialize_returns_not_initialized() {
+    let env = Env::default();
+    env.mock_all_auths();
+    let contract_id = env.register_contract(None, TicketContract);
+    let client = TicketContractClient::new(&env, &contract_id);
+
+    let organizer = Address::generate(&env);
+
+    assert_eq!(
+        client.try_verify_ticket(&organizer, &0u64),
+        Err(Ok(Error::NotInitialized))
+    );
+}
+
+#[test]
+fn test_upgrade_before_initialize_returns_not_initialized() {
+    let env = Env::default();
+    env.mock_all_auths();
+    let contract_id = env.register_contract(None, TicketContract);
+    let client = TicketContractClient::new(&env, &contract_id);
+
+    let caller = Address::generate(&env);
+    let hash = soroban_sdk::BytesN::from_array(&env, &[0u8; 32]);
+
+    assert_eq!(
+        client.try_upgrade(&caller, &hash),
+        Err(Ok(Error::NotInitialized))
+    );
+}
+
+#[test]
+fn test_double_initialize_returns_already_initialized() {
+    let (_env, client, organizer, _buyer) = setup();
+
+    assert_eq!(
+        client.try_initialize(
+            &organizer,
+            &String::from_str(&_env, "Harvesta Live 2025"),
+            &100u64,
+            &50_000_000i128,
+            &75_000_000i128,
+        ),
+        Err(Ok(Error::AlreadyInitialized))
+    );
+}
