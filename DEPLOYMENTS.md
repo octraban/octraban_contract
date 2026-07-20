@@ -39,7 +39,38 @@ are stripped.
 
 ## Mainnet
 
-Not yet deployed.
+**Not yet deployed.** When ready, follow the procedure below.
+
+### Prerequisites
+
+Before any mainnet deployment, ensure the following are in place:
+
+| Prerequisite | Description |
+|---|---|
+| **Funded identity** | A Stellar CLI identity with a funded mainnet account holding sufficient XLM (≥ 50 XLM recommended to cover deployment fees). Create with: `stellar keys generate <name> --network mainnet` |
+| **RPC configuration** | The Stellar CLI must be configured for the mainnet RPC endpoint. The default mainnet RPC is `https://soroban-rpc.stellar.org`. Verify with: `stellar network list` |
+| **Passphrase configuration** | Mainnet network passphrase: `Public Global Stellar Network ; September 2015` |
+| **Review / Audit gate** | All contract code must pass internal review. If applicable, a third-party audit must be completed and any findings resolved before deployment. |
+| **Deployer account funded** | Send XLM to the deployer address from an exchange or wallet. Record the deployer address: |
+| **Confirmation flag** | The script requires `--yes-i-mean-mainnet` as the third argument (see below). |
+
+### Procedure
+
+1. Complete all prerequisites above.
+2. Run the deployment script with the confirmation flag:
+   ```bash
+   ./build-and-deploy.sh <identity> mainnet --yes-i-mean-mainnet
+   ```
+3. After successful deployment, update the table below with the returned contract IDs.
+
+### Deployed Contracts
+
+| Contract | Crate | Contract ID | Explorer |
+|----------|-------|-------------|----------|
+| Explorer | `explorer` (`octraban-contract`) | — | — |
+| Ticket   | `ticket` | — | — |
+
+> **Note:** Testnet entries are kept above. Mainnet entries will be filled after the first successful mainnet deployment.
 
 ## Upgrade procedure
 
