@@ -54,6 +54,47 @@ pub const MIN_MAX_EVENTS: u32 = 1_000;
 /// Default ring-buffer capacity used at init when caller passes `0`.
 pub const DEFAULT_MAX_EVENTS: u32 = 50_000;
 
+// ── Storage TTL policy ───────────────────────────────────────────────────────
+//
+// Soroban archives an instance/persistent entry once its TTL lapses, after
+// which it is unreadable until explicitly restored. Every entry point that
+// writes state below also calls `extend_ttl` so the entries it touches keep
+// living well past the point they're next expected to be written or read.
+// Ledger close time is ~5s, so one day is ~17,280 ledgers.
+//
+// - Instance storage (admin, pause flag, `MaxEvents`, `EventSeq`) backs every
+//   admin-gated call, so it is bumped to a 30-day horizon on every
+//   state-changing entry point.
+// - Registry entries (`Contract`, `ContractVersion`) are the durable record
+//   this contract exists to serve — they are written rarely and read
+//   indefinitely, so they get a 90-day horizon on both write and read.
+// - Event-log slots are the ring buffer: bounded, and each slot is
+//   overwritten as soon as `seq` wraps back around to it (see
+//   `submit_event`), so they only need to survive long enough to be
+//   consumed by the indexer before either being read or evicted by wraparound
+//   — a 7-day horizon. Persistent (not temporary) storage is used
+//   deliberately: temporary entries are hard-deleted the instant their TTL
+//   hits zero, with no restoration path, which would silently drop event
+//   history the indexer hasn't caught up on yet. Persistent entries can be
+//   restored (see the README) if this contract's own `extend_ttl` calls ever
+//   lapse, e.g. after an extended period with no writes.
+pub const LEDGERS_PER_DAY: u32 = 17_280;
+
+/// Instance storage: bumped to this many ledgers ahead on every state-changing call.
+pub const INSTANCE_BUMP_AMOUNT: u32 = 30 * LEDGERS_PER_DAY;
+/// Instance storage: bump triggers once the remaining TTL drops below this.
+pub const INSTANCE_LIFETIME_THRESHOLD: u32 = INSTANCE_BUMP_AMOUNT - LEDGERS_PER_DAY;
+
+/// Registry entries (`Contract` / `ContractVersion`): bump horizon.
+pub const REGISTRY_BUMP_AMOUNT: u32 = 90 * LEDGERS_PER_DAY;
+/// Registry entries: bump triggers once the remaining TTL drops below this.
+pub const REGISTRY_LIFETIME_THRESHOLD: u32 = REGISTRY_BUMP_AMOUNT - LEDGERS_PER_DAY;
+
+/// Event-log ring-buffer slots: bump horizon.
+pub const EVENT_BUMP_AMOUNT: u32 = 7 * LEDGERS_PER_DAY;
+/// Event-log ring-buffer slots: bump triggers once the remaining TTL drops below this.
+pub const EVENT_LIFETIME_THRESHOLD: u32 = EVENT_BUMP_AMOUNT - LEDGERS_PER_DAY;
+
 /// Version marker included as the first data field of every published event.
 /// Consumers (e.g. the indexer) should switch on this to handle payload
 /// changes across contract upgrades. Bump it whenever a topic or payload
@@ -150,6 +191,9 @@ impl ExplorerContract {
         env.storage().instance().set(&DataKey::Admin, &admin);
         env.storage().instance().set(&DataKey::EventSeq, &0u64);
         env.storage().instance().set(&DataKey::MaxEvents, &cap);
+        env.storage()
+            .instance()
+            .extend_ttl(INSTANCE_LIFETIME_THRESHOLD, INSTANCE_BUMP_AMOUNT);
     }
 
     /// Transfer admin rights to a new address (current admin only).
@@ -160,6 +204,9 @@ impl ExplorerContract {
             panic_with_error!(&env, Error::Unauthorized);
         }
         env.storage().instance().set(&DataKey::Admin, &new_admin);
+        env.storage()
+            .instance()
+            .extend_ttl(INSTANCE_LIFETIME_THRESHOLD, INSTANCE_BUMP_AMOUNT);
         // Topics: (adm_xfer, caller). Data: (version, new_admin). See docs/EVENTS.md.
         env.events().publish(
             (symbol_short!("adm_xfer"), caller),
@@ -179,6 +226,9 @@ impl ExplorerContract {
             panic_with_error!(&env, Error::BelowFloor);
         }
         env.storage().instance().set(&DataKey::MaxEvents, &new_max);
+        env.storage()
+            .instance()
+            .extend_ttl(INSTANCE_LIFETIME_THRESHOLD, INSTANCE_BUMP_AMOUNT);
     }
 
     /// Returns `(current_event_count, max_events)`.
@@ -206,6 +256,9 @@ impl ExplorerContract {
             panic_with_error!(&env, Error::Unauthorized);
         }
         env.storage().instance().set(&DataKey::Paused, &true);
+        env.storage()
+            .instance()
+            .extend_ttl(INSTANCE_LIFETIME_THRESHOLD, INSTANCE_BUMP_AMOUNT);
         // Topics: (paused,). Data: (version,). See docs/EVENTS.md.
         env.events()
             .publish((symbol_short!("paused"),), (EVENT_VERSION,));
@@ -219,6 +272,9 @@ impl ExplorerContract {
             panic_with_error!(&env, Error::Unauthorized);
         }
         env.storage().instance().set(&DataKey::Paused, &false);
+        env.storage()
+            .instance()
+            .extend_ttl(INSTANCE_LIFETIME_THRESHOLD, INSTANCE_BUMP_AMOUNT);
         // Topics: (unpaused,). Data: (version,). See docs/EVENTS.md.
         env.events()
             .publish((symbol_short!("unpaused"),), (EVENT_VERSION,));
@@ -242,6 +298,9 @@ impl ExplorerContract {
         if caller != admin {
             panic_with_error!(&env, Error::Unauthorized);
         }
+        env.storage()
+            .instance()
+            .extend_ttl(INSTANCE_LIFETIME_THRESHOLD, INSTANCE_BUMP_AMOUNT);
         env.deployer().update_current_contract_wasm(new_wasm_hash.clone());
         // Topics: (upgrade,). Data: (version, new_wasm_hash). See docs/EVENTS.md.
         env.events().publish(
@@ -290,6 +349,11 @@ impl ExplorerContract {
         stored.abi_version = 0;
         stored.min_ledger = env.ledger().sequence();
         env.storage().persistent().set(&key, &stored);
+        env.storage().persistent().extend_ttl(
+            &key,
+            REGISTRY_LIFETIME_THRESHOLD,
+            REGISTRY_BUMP_AMOUNT,
+        );
 
         // Version history entry for abi_version 0.
         let vkey = DataKey::ContractVersion(VersionKey {
@@ -297,6 +361,14 @@ impl ExplorerContract {
             abi_version: 0,
         });
         env.storage().persistent().set(&vkey, &stored);
+        env.storage().persistent().extend_ttl(
+            &vkey,
+            REGISTRY_LIFETIME_THRESHOLD,
+            REGISTRY_BUMP_AMOUNT,
+        );
+        env.storage()
+            .instance()
+            .extend_ttl(INSTANCE_LIFETIME_THRESHOLD, INSTANCE_BUMP_AMOUNT);
 
         // Topics: (c_reg, contract_id).
         // Data: (version, registered_by, contract_version, ledger, name). See docs/EVENTS.md.
@@ -350,12 +422,25 @@ impl ExplorerContract {
         let mut updated = meta;
         updated.min_ledger = min_ledger;
         env.storage().persistent().set(&key, &updated);
+        env.storage().persistent().extend_ttl(
+            &key,
+            REGISTRY_LIFETIME_THRESHOLD,
+            REGISTRY_BUMP_AMOUNT,
+        );
 
         let vkey = DataKey::ContractVersion(VersionKey {
             contract_id: contract_id.clone(),
             abi_version: new_abi_version,
         });
         env.storage().persistent().set(&vkey, &updated);
+        env.storage().persistent().extend_ttl(
+            &vkey,
+            REGISTRY_LIFETIME_THRESHOLD,
+            REGISTRY_BUMP_AMOUNT,
+        );
+        env.storage()
+            .instance()
+            .extend_ttl(INSTANCE_LIFETIME_THRESHOLD, INSTANCE_BUMP_AMOUNT);
 
         // Topics: (c_abiu, contract_id). Data: (version, old_abi_version, new_abi_version,
         // ledger). See docs/EVENTS.md.
@@ -377,33 +462,55 @@ impl ExplorerContract {
         );
     }
 
+    /// Extends this registry entry's TTL to `REGISTRY_BUMP_AMOUNT` on read, so
+    /// contracts under active query traffic never lapse between writes.
     pub fn get_contract(env: Env, contract_id: BytesN<32>) -> Result<ContractMeta, Error> {
-        env.storage()
+        let key = DataKey::Contract(contract_id);
+        let meta: ContractMeta = env
+            .storage()
             .persistent()
-            .get(&DataKey::Contract(contract_id))
-            .ok_or(Error::NotFound)
+            .get(&key)
+            .ok_or(Error::NotFound)?;
+        env.storage().persistent().extend_ttl(
+            &key,
+            REGISTRY_LIFETIME_THRESHOLD,
+            REGISTRY_BUMP_AMOUNT,
+        );
+        Ok(meta)
     }
 
     /// Fetch a specific historical ABI version.
     /// Returns `None` if that version does not exist.
+    /// Extends this entry's TTL to `REGISTRY_BUMP_AMOUNT` on read (see `get_contract`).
     pub fn get_contract_version(
         env: Env,
         contract_id: BytesN<32>,
         abi_version: u32,
     ) -> Option<ContractMeta> {
-        env.storage()
-            .persistent()
-            .get(&DataKey::ContractVersion(VersionKey {
-                contract_id,
-                abi_version,
-            }))
+        let key = DataKey::ContractVersion(VersionKey {
+            contract_id,
+            abi_version,
+        });
+        let meta: ContractMeta = env.storage().persistent().get(&key)?;
+        env.storage().persistent().extend_ttl(
+            &key,
+            REGISTRY_LIFETIME_THRESHOLD,
+            REGISTRY_BUMP_AMOUNT,
+        );
+        Some(meta)
     }
 
     /// Alias for `get_contract` — returns the latest metadata.
+    /// Extends this entry's TTL to `REGISTRY_BUMP_AMOUNT` on read (see `get_contract`).
     pub fn get_latest_contract(env: Env, contract_id: BytesN<32>) -> Option<ContractMeta> {
-        env.storage()
-            .persistent()
-            .get(&DataKey::Contract(contract_id))
+        let key = DataKey::Contract(contract_id);
+        let meta: ContractMeta = env.storage().persistent().get(&key)?;
+        env.storage().persistent().extend_ttl(
+            &key,
+            REGISTRY_LIFETIME_THRESHOLD,
+            REGISTRY_BUMP_AMOUNT,
+        );
+        Some(meta)
     }
 
     /// Deregister a contract.
@@ -431,6 +538,9 @@ impl ExplorerContract {
         }
 
         env.storage().persistent().remove(&key);
+        env.storage()
+            .instance()
+            .extend_ttl(INSTANCE_LIFETIME_THRESHOLD, INSTANCE_BUMP_AMOUNT);
         // Topics: (c_dereg, contract_id). Data: (version, caller, ledger). See docs/EVENTS.md.
         env.events().publish(
             (symbol_short!("c_dereg"), contract_id),
@@ -484,10 +594,17 @@ impl ExplorerContract {
             raw_topics: input.raw_topics,
             raw_data: input.raw_data,
         };
-        env.storage()
-            .persistent()
-            .set(&DataKey::EventLog(slot), &event);
+        let event_key = DataKey::EventLog(slot);
+        env.storage().persistent().set(&event_key, &event);
+        env.storage().persistent().extend_ttl(
+            &event_key,
+            EVENT_LIFETIME_THRESHOLD,
+            EVENT_BUMP_AMOUNT,
+        );
         env.storage().instance().set(&DataKey::EventSeq, &(seq + 1));
+        env.storage()
+            .instance()
+            .extend_ttl(INSTANCE_LIFETIME_THRESHOLD, INSTANCE_BUMP_AMOUNT);
 
         // Topics: (ev_sub, contract_id, function). Data: (version, seq, ledger).
         // See docs/EVENTS.md.
@@ -516,6 +633,8 @@ impl ExplorerContract {
 
     /// Fetch a single decoded event by sequence number.
     /// Panics with `NotFound` if the sequence is outside the live ring window.
+    /// Extends this slot's TTL to `EVENT_BUMP_AMOUNT` on read, so events under
+    /// active indexer traffic don't lapse while still inside the ring window.
     pub fn get_event(env: Env, seq: u64) -> DecodedEvent {
         let max: u32 = env
             .storage()
@@ -523,15 +642,21 @@ impl ExplorerContract {
             .get(&DataKey::MaxEvents)
             .unwrap_or(DEFAULT_MAX_EVENTS);
         let slot = seq % (max as u64);
+        let event_key = DataKey::EventLog(slot);
         let stored: DecodedEvent = env
             .storage()
             .persistent()
-            .get(&DataKey::EventLog(slot))
+            .get(&event_key)
             .unwrap_or_else(|| panic_with_error!(&env, Error::NotFound));
         // Verify the slot still holds the requested seq (not overwritten by ring wrap).
         if stored.seq != seq {
             panic_with_error!(&env, Error::NotFound);
         }
+        env.storage().persistent().extend_ttl(
+            &event_key,
+            EVENT_LIFETIME_THRESHOLD,
+            EVENT_BUMP_AMOUNT,
+        );
         stored
     }
 
@@ -589,7 +714,10 @@ impl ExplorerContract {
 mod tests {
     use super::*;
     use soroban_sdk::{
-        testutils::{Address as _, Events as _},
+        testutils::{
+            storage::{Instance as _, Persistent as _},
+            Address as _, Events as _, Ledger as _,
+        },
         Env, IntoVal,
     };
 
@@ -1312,5 +1440,108 @@ mod tests {
 
         let hash = BytesN::from_array(&env, &[13u8; 32]);
         client.upgrade(&admin, &hash);
+    }
+
+    // ── Storage TTL (#6) ──────────────────────────────────────────────────────
+
+    #[test]
+    fn test_init_extends_instance_ttl_to_bump_amount() {
+        let (env, client) = setup();
+        let admin = Address::generate(&env);
+        client.init(&admin, &0u32);
+
+        let ttl = env.as_contract(&client.address, || env.storage().instance().get_ttl());
+        assert_eq!(ttl, INSTANCE_BUMP_AMOUNT);
+    }
+
+    #[test]
+    fn test_instance_data_survives_past_min_floor_after_state_changing_call() {
+        let (env, client) = setup();
+        let admin = Address::generate(&env);
+        client.init(&admin, &0u32);
+
+        // Advance past the network's minimum persistent-entry floor (4096
+        // ledgers). Without `extend_ttl` in `init`, admin/pause/config would
+        // already be archived here and every call below would panic.
+        env.ledger().with_mut(|li| li.sequence_number += 20_000);
+
+        client.pause(&admin);
+        assert!(client.is_paused());
+
+        // The state-changing call re-extends the TTL for the next window.
+        let ttl = env.as_contract(&client.address, || env.storage().instance().get_ttl());
+        assert_eq!(ttl, INSTANCE_BUMP_AMOUNT);
+    }
+
+    #[test]
+    fn test_register_contract_extends_registry_entry_ttl() {
+        let (env, client) = setup();
+        let admin = Address::generate(&env);
+        client.init(&admin, &0u32);
+
+        let cid: BytesN<32> = BytesN::from_array(&env, &[60u8; 32]);
+        client.register_contract(&admin, &cid, &make_meta(&env, "TTLTest", &admin));
+
+        let key = DataKey::Contract(cid);
+        let ttl = env.as_contract(&client.address, || env.storage().persistent().get_ttl(&key));
+        assert_eq!(ttl, REGISTRY_BUMP_AMOUNT);
+    }
+
+    #[test]
+    fn test_registry_entry_survives_past_min_floor_and_read_extends_it() {
+        let (env, client) = setup();
+        let admin = Address::generate(&env);
+        client.init(&admin, &0u32);
+
+        let cid: BytesN<32> = BytesN::from_array(&env, &[61u8; 32]);
+        client.register_contract(&admin, &cid, &make_meta(&env, "TTLTest2", &admin));
+
+        // Past the minimum persistent floor, still well inside the 90-day
+        // registry horizon. Without the write-time `extend_ttl` in
+        // `register_contract`, this entry would already be archived and
+        // unreadable at this point.
+        env.ledger().with_mut(|li| li.sequence_number += 20_000);
+
+        let fetched = client.get_contract(&cid);
+        assert_eq!(fetched.name, String::from_str(&env, "TTLTest2"));
+
+        // The read path in `get_contract` re-extends the TTL back to the full horizon.
+        let key = DataKey::Contract(cid);
+        let ttl = env.as_contract(&client.address, || env.storage().persistent().get_ttl(&key));
+        assert_eq!(ttl, REGISTRY_BUMP_AMOUNT);
+    }
+
+    #[test]
+    fn test_submit_event_extends_event_slot_ttl() {
+        let (env, client) = setup();
+        let admin = Address::generate(&env);
+        client.init(&admin, &0u32);
+
+        let cid: BytesN<32> = BytesN::from_array(&env, &[62u8; 32]);
+        client.submit_event(&admin, &make_input(&env, &cid));
+
+        let key = DataKey::EventLog(0);
+        let ttl = env.as_contract(&client.address, || env.storage().persistent().get_ttl(&key));
+        assert_eq!(ttl, EVENT_BUMP_AMOUNT);
+    }
+
+    #[test]
+    fn test_event_survives_past_min_floor_and_get_event_extends_it() {
+        let (env, client) = setup();
+        let admin = Address::generate(&env);
+        client.init(&admin, &0u32);
+
+        let cid: BytesN<32> = BytesN::from_array(&env, &[63u8; 32]);
+        client.submit_event(&admin, &make_input(&env, &cid));
+
+        // Past the minimum persistent floor, still inside the 7-day event horizon.
+        env.ledger().with_mut(|li| li.sequence_number += 20_000);
+
+        let ev = client.get_event(&0u64);
+        assert_eq!(ev.contract_id, cid);
+
+        let key = DataKey::EventLog(0);
+        let ttl = env.as_contract(&client.address, || env.storage().persistent().get_ttl(&key));
+        assert_eq!(ttl, EVENT_BUMP_AMOUNT);
     }
 }

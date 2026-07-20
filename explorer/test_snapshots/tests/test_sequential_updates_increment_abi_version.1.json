@@ -367,7 +367,7 @@
             },
             "ext": "v0"
           },
-          4095
+          1555200
         ]
       ],
       [
@@ -503,7 +503,7 @@
             },
             "ext": "v0"
           },
-          4095
+          1555200
         ]
       ],
       [
@@ -639,7 +639,7 @@
             },
             "ext": "v0"
           },
-          4095
+          1555200
         ]
       ],
       [
@@ -775,7 +775,7 @@
             },
             "ext": "v0"
           },
-          4095
+          1555200
         ]
       ],
       [
@@ -844,7 +844,7 @@
             },
             "ext": "v0"
           },
-          4095
+          518400
         ]
       ],
       [
@@ -964,7 +964,7 @@
             },
             "ext": "v0"
           },
-          4095
+          518400
         ]
       ]
     ]
@@ -1135,6 +1135,9 @@
             "data": {
               "vec": [
                 {
+                  "u32": 1
+                },
+                {
                   "address": "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAFCT4"
                 },
                 {
@@ -1142,31 +1145,11 @@
                 },
                 {
                   "u32": 0
+                },
+                {
+                  "string": "App"
                 }
               ]
-            }
-          }
-        }
-      },
-      "failed_call": false
-    },
-    {
-      "event": {
-        "ext": "v0",
-        "contract_id": "0000000000000000000000000000000000000000000000000000000000000001",
-        "type_": "contract",
-        "body": {
-          "v0": {
-            "topics": [
-              {
-                "symbol": "register"
-              },
-              {
-                "bytes": "1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f"
-              }
-            ],
-            "data": {
-              "string": "App"
             }
           }
         }
@@ -1305,6 +1288,9 @@
             "data": {
               "vec": [
                 {
+                  "u32": 1
+                },
+                {
                   "u32": 0
                 },
                 {
@@ -1337,6 +1323,9 @@
             ],
             "data": {
               "vec": [
+                {
+                  "u32": 1
+                },
                 {
                   "address": "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAFCT4"
                 },
@@ -1597,6 +1586,9 @@
                   "u32": 1
                 },
                 {
+                  "u32": 1
+                },
+                {
                   "u32": 2
                 },
                 {
@@ -1626,6 +1618,9 @@
             ],
             "data": {
               "vec": [
+                {
+                  "u32": 1
+                },
                 {
                   "address": "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAFCT4"
                 },

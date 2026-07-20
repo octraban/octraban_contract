@@ -1,6 +1,6 @@
 {
   "generators": {
-    "address": 3,
+    "address": 2,
     "nonce": 0
   },
   "auth": [
@@ -179,76 +179,16 @@
                 "bytes": "0000000000000000000000000000000000000000000000000000000000000001"
               },
               {
-                "symbol": "register_contract"
+                "symbol": "upgrade"
               }
             ],
             "data": {
               "vec": [
                 {
-                  "address": "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAHK3M"
+                  "address": "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAFCT4"
                 },
                 {
-                  "bytes": "3232323232323232323232323232323232323232323232323232323232323232"
-                },
-                {
-                  "map": [
-                    {
-                      "key": {
-                        "symbol": "abi_version"
-                      },
-                      "val": {
-                        "u32": 0
-                      }
-                    },
-                    {
-                      "key": {
-                        "symbol": "description"
-                      },
-                      "val": {
-                        "string": "desc"
-                      }
-                    },
-                    {
-                      "key": {
-                        "symbol": "functions"
-                      },
-                      "val": {
-                        "vec": []
-                      }
-                    },
-                    {
-                      "key": {
-                        "symbol": "min_ledger"
-                      },
-                      "val": {
-                        "u32": 0
-                      }
-                    },
-                    {
-                      "key": {
-                        "symbol": "name"
-                      },
-                      "val": {
-                        "string": "UnauthorizedReg"
-                      }
-                    },
-                    {
-                      "key": {
-                        "symbol": "registered_by"
-                      },
-                      "val": {
-                        "address": "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAHK3M"
-                      }
-                    },
-                    {
-                      "key": {
-                        "symbol": "version"
-                      },
-                      "val": {
-                        "u32": 1
-                      }
-                    }
-                  ]
+                  "bytes": "0707070707070707070707070707070707070707070707070707070707070707"
                 }
               ]
             }
@@ -270,17 +210,17 @@
               },
               {
                 "error": {
-                  "contract": 2
+                  "storage": "missing_value"
                 }
               }
             ],
             "data": {
               "vec": [
                 {
-                  "string": "failing with contract error"
+                  "string": "Wasm does not exist"
                 },
                 {
-                  "u32": 2
+                  "bytes": "0707070707070707070707070707070707070707070707070707070707070707"
                 }
               ]
             }
@@ -302,7 +242,7 @@
               },
               {
                 "error": {
-                  "contract": 2
+                  "storage": "missing_value"
                 }
               }
             ],
@@ -327,7 +267,7 @@
               },
               {
                 "error": {
-                  "contract": 2
+                  "storage": "missing_value"
                 }
               }
             ],
@@ -352,7 +292,7 @@
               },
               {
                 "error": {
-                  "contract": 2
+                  "storage": "missing_value"
                 }
               }
             ],
@@ -362,75 +302,15 @@
                   "string": "contract call failed"
                 },
                 {
-                  "symbol": "register_contract"
+                  "symbol": "upgrade"
                 },
                 {
                   "vec": [
                     {
-                      "address": "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAHK3M"
+                      "address": "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAFCT4"
                     },
                     {
-                      "bytes": "3232323232323232323232323232323232323232323232323232323232323232"
-                    },
-                    {
-                      "map": [
-                        {
-                          "key": {
-                            "symbol": "abi_version"
-                          },
-                          "val": {
-                            "u32": 0
-                          }
-                        },
-                        {
-                          "key": {
-                            "symbol": "description"
-                          },
-                          "val": {
-                            "string": "desc"
-                          }
-                        },
-                        {
-                          "key": {
-                            "symbol": "functions"
-                          },
-                          "val": {
-                            "vec": []
-                          }
-                        },
-                        {
-                          "key": {
-                            "symbol": "min_ledger"
-                          },
-                          "val": {
-                            "u32": 0
-                          }
-                        },
-                        {
-                          "key": {
-                            "symbol": "name"
-                          },
-                          "val": {
-                            "string": "UnauthorizedReg"
-                          }
-                        },
-                        {
-                          "key": {
-                            "symbol": "registered_by"
-                          },
-                          "val": {
-                            "address": "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAHK3M"
-                          }
-                        },
-                        {
-                          "key": {
-                            "symbol": "version"
-                          },
-                          "val": {
-                            "u32": 1
-                          }
-                        }
-                      ]
+                      "bytes": "0707070707070707070707070707070707070707070707070707070707070707"
                     }
                   ]
                 }
@@ -454,7 +334,7 @@
               },
               {
                 "error": {
-                  "contract": 2
+                  "storage": "missing_value"
                 }
               }
             ],

@@ -1,6 +1,6 @@
 {
   "generators": {
-    "address": 3,
+    "address": 2,
     "nonce": 0
   },
   "auth": [
@@ -179,25 +179,22 @@
                 "bytes": "0000000000000000000000000000000000000000000000000000000000000001"
               },
               {
-                "symbol": "register_contract"
+                "symbol": "submit_event"
               }
             ],
             "data": {
               "vec": [
                 {
-                  "address": "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAHK3M"
-                },
-                {
-                  "bytes": "3232323232323232323232323232323232323232323232323232323232323232"
+                  "address": "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAFCT4"
                 },
                 {
                   "map": [
                     {
                       "key": {
-                        "symbol": "abi_version"
+                        "symbol": "contract_id"
                       },
                       "val": {
-                        "u32": 0
+                        "bytes": "1818181818181818181818181818181818181818181818181818181818181818"
                       }
                     },
                     {
@@ -205,47 +202,39 @@
                         "symbol": "description"
                       },
                       "val": {
-                        "string": "desc"
+                        "string": "test"
                       }
                     },
                     {
                       "key": {
-                        "symbol": "functions"
+                        "symbol": "function"
+                      },
+                      "val": {
+                        "symbol": ""
+                      }
+                    },
+                    {
+                      "key": {
+                        "symbol": "ledger"
+                      },
+                      "val": {
+                        "u32": 100
+                      }
+                    },
+                    {
+                      "key": {
+                        "symbol": "raw_data"
+                      },
+                      "val": {
+                        "bytes": ""
+                      }
+                    },
+                    {
+                      "key": {
+                        "symbol": "raw_topics"
                       },
                       "val": {
                         "vec": []
-                      }
-                    },
-                    {
-                      "key": {
-                        "symbol": "min_ledger"
-                      },
-                      "val": {
-                        "u32": 0
-                      }
-                    },
-                    {
-                      "key": {
-                        "symbol": "name"
-                      },
-                      "val": {
-                        "string": "UnauthorizedReg"
-                      }
-                    },
-                    {
-                      "key": {
-                        "symbol": "registered_by"
-                      },
-                      "val": {
-                        "address": "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAHK3M"
-                      }
-                    },
-                    {
-                      "key": {
-                        "symbol": "version"
-                      },
-                      "val": {
-                        "u32": 1
                       }
                     }
                   ]
@@ -270,7 +259,7 @@
               },
               {
                 "error": {
-                  "contract": 2
+                  "contract": 6
                 }
               }
             ],
@@ -280,7 +269,7 @@
                   "string": "failing with contract error"
                 },
                 {
-                  "u32": 2
+                  "u32": 6
                 }
               ]
             }
@@ -302,7 +291,7 @@
               },
               {
                 "error": {
-                  "contract": 2
+                  "contract": 6
                 }
               }
             ],
@@ -327,7 +316,7 @@
               },
               {
                 "error": {
-                  "contract": 2
+                  "contract": 6
                 }
               }
             ],
@@ -352,7 +341,7 @@
               },
               {
                 "error": {
-                  "contract": 2
+                  "contract": 6
                 }
               }
             ],
@@ -362,24 +351,21 @@
                   "string": "contract call failed"
                 },
                 {
-                  "symbol": "register_contract"
+                  "symbol": "submit_event"
                 },
                 {
                   "vec": [
                     {
-                      "address": "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAHK3M"
-                    },
-                    {
-                      "bytes": "3232323232323232323232323232323232323232323232323232323232323232"
+                      "address": "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAFCT4"
                     },
                     {
                       "map": [
                         {
                           "key": {
-                            "symbol": "abi_version"
+                            "symbol": "contract_id"
                           },
                           "val": {
-                            "u32": 0
+                            "bytes": "1818181818181818181818181818181818181818181818181818181818181818"
                           }
                         },
                         {
@@ -387,47 +373,39 @@
                             "symbol": "description"
                           },
                           "val": {
-                            "string": "desc"
+                            "string": "test"
                           }
                         },
                         {
                           "key": {
-                            "symbol": "functions"
+                            "symbol": "function"
+                          },
+                          "val": {
+                            "symbol": ""
+                          }
+                        },
+                        {
+                          "key": {
+                            "symbol": "ledger"
+                          },
+                          "val": {
+                            "u32": 100
+                          }
+                        },
+                        {
+                          "key": {
+                            "symbol": "raw_data"
+                          },
+                          "val": {
+                            "bytes": ""
+                          }
+                        },
+                        {
+                          "key": {
+                            "symbol": "raw_topics"
                           },
                           "val": {
                             "vec": []
-                          }
-                        },
-                        {
-                          "key": {
-                            "symbol": "min_ledger"
-                          },
-                          "val": {
-                            "u32": 0
-                          }
-                        },
-                        {
-                          "key": {
-                            "symbol": "name"
-                          },
-                          "val": {
-                            "string": "UnauthorizedReg"
-                          }
-                        },
-                        {
-                          "key": {
-                            "symbol": "registered_by"
-                          },
-                          "val": {
-                            "address": "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAHK3M"
-                          }
-                        },
-                        {
-                          "key": {
-                            "symbol": "version"
-                          },
-                          "val": {
-                            "u32": 1
                           }
                         }
                       ]
@@ -454,7 +432,7 @@
               },
               {
                 "error": {
-                  "contract": 2
+                  "contract": 6
                 }
               }
             ],
