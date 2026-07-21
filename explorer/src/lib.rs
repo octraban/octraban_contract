@@ -53,6 +53,9 @@ pub enum DataKey {
 pub const MIN_MAX_EVENTS: u32 = 1_000;
 /// Default ring-buffer capacity used at init when caller passes `0`.
 pub const DEFAULT_MAX_EVENTS: u32 = 50_000;
+/// Maximum number of events returned by a single `get_events` call.
+/// A caller that needs more events must page with the returned cursor.
+pub const MAX_PAGE_SIZE: u32 = 500;
 
 // ── Storage TTL policy ───────────────────────────────────────────────────────
 //
@@ -676,8 +679,30 @@ impl ExplorerContract {
     }
 
     /// Fetch a page of decoded events starting from `cursor`.
-    /// Returns at most `limit` events. Skips events evicted from the ring buffer.
+    ///
+    /// # Pagination contract
+    ///
+    /// | Concept | Behaviour |
+    /// |---|---|
+    /// | **cursor** | The sequence number of the first event to include. The returned `Vec`
+    ///   contains events whose `seq >= cursor`. Pass `0` to start from the
+    ///   oldest retained event. |
+    /// | **Maximum page size** | At most [`MAX_PAGE_SIZE`] events are returned per call. A
+    ///   `limit` larger than [`MAX_PAGE_SIZE`] is silently clamped. |
+    /// | **limit == 0** | Panics with [`Error::InvalidInput`] — a zero limit is not meaningful. |
+    /// | **Detecting the end** | The caller knows the full set is exhausted when the returned
+    ///   `Vec` contains fewer events than the requested (or clamped) limit.
+    ///   The next call should use the `seq` of the **last returned event + 1**
+    ///   as the new cursor. |
+    /// | **Gaps** | Events evicted from the ring buffer are silently skipped. Consecutive
+    ///   calls may see longer or shorter gaps as the ring wraps. |
+    ///
+    /// Skips events evicted from the ring buffer.
     pub fn get_events(env: Env, cursor: u64, limit: u32) -> Vec<DecodedEvent> {
+        if limit == 0 {
+            panic_with_error!(&env, Error::InvalidInput);
+        }
+        let clamped = limit.min(MAX_PAGE_SIZE);
         let total_seq: u64 = env
             .storage()
             .instance()
@@ -692,7 +717,7 @@ impl ExplorerContract {
         let start = cursor.max(oldest);
         let mut out: Vec<DecodedEvent> = Vec::new(&env);
         let mut seq = start;
-        while out.len() < limit && seq < total_seq {
+        while out.len() < clamped && seq < total_seq {
             let slot = seq % (max as u64);
             if let Some(ev) = env
                 .storage()
@@ -1075,6 +1100,68 @@ mod tests {
         let mut input = make_input(&env, &cid);
         input.function = Symbol::new(&env, "");
         client.submit_event(&admin, &input);
+    }
+
+    // ── get_events pagination (#somzilla) ─────────────────────────────────────
+
+    #[test]
+    #[should_panic(expected = "Error(Contract, #6)")]
+    fn test_get_events_rejects_zero_limit() {
+        let (env, client) = setup();
+        let admin = Address::generate(&env);
+        client.init(&admin, &0u32);
+        client.get_events(&0u64, &0u32);
+    }
+
+    #[test]
+    fn test_get_events_clamps_limit_to_max_page_size() {
+        let (env, client) = setup();
+        let admin = Address::generate(&env);
+        client.init(&admin, &5u32);
+        let cid: BytesN<32> = BytesN::from_array(&env, &[25u8; 32]);
+        let base = make_input(&env, &cid);
+        // Fill all 5 slots.
+        for _ in 0..5 {
+            client.submit_event(&admin, &base);
+        }
+        // Request a limit far above MAX_PAGE_SIZE — only the available 5 are returned.
+        let page = client.get_events(&0u64, &MAX_PAGE_SIZE + 1000);
+        assert_eq!(page.len(), 5);
+    }
+
+    #[test]
+    fn test_get_events_paging_returns_each_event_exactly_once() {
+        let (env, client) = setup();
+        let admin = Address::generate(&env);
+        client.init(&admin, &10u32);
+        let cid: BytesN<32> = BytesN::from_array(&env, &[26u8; 32]);
+        let base = make_input(&env, &cid);
+
+        // Submit 10 events.
+        for _ in 0..10 {
+            client.submit_event(&admin, &base);
+        }
+
+        // Page through with a small limit.
+        let mut cursor: u64 = 0;
+        let mut all_seqs: Vec<u64> = Vec::new();
+        loop {
+            let page = client.get_events(&cursor, &3u32);
+            if page.is_empty() {
+                break;
+            }
+            for ev in page.iter() {
+                all_seqs.push(ev.seq);
+            }
+            // Advance cursor past the last returned event.
+            cursor = page.get(page.len() - 1).unwrap().seq + 1;
+        }
+
+        assert_eq!(all_seqs.len(), 10);
+        // Verify every seq from 0..10 appears exactly once.
+        for expected in 0..10u64 {
+            assert_eq!(all_seqs.iter().filter(|&&s| s == expected).count(), 1);
+        }
     }
 
     // ── ABI versioning (#272) ─────────────────────────────────────────────────

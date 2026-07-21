@@ -24,6 +24,8 @@ Both contracts are **deployed and verifiable on the Stellar test network**:
 | **Explorer / registry** | `explorer` (`octraban-contract`) | `CBKPNRQ4D3KTAAE7MMJ4HL6JNF2J2EBG2PSSRW4YHOMHTRHUU734CFWJ` | [View ↗](https://stellar.expert/explorer/testnet/contract/CBKPNRQ4D3KTAAE7MMJ4HL6JNF2J2EBG2PSSRW4YHOMHTRHUU734CFWJ) |
 | **Ticket** | `ticket` | `CDX3V6OE72KUIEEJTBLFCQZFXZCAKOYWYXK2KPRM57M6FLZFAVUSVL42` | [View ↗](https://stellar.expert/explorer/testnet/contract/CDX3V6OE72KUIEEJTBLFCQZFXZCAKOYWYXK2KPRM57M6FLZFAVUSVL42) |
 
+> **Mainnet:** See [`DEPLOYMENTS.md`](./DEPLOYMENTS.md#mainnet) for mainnet prerequisites, procedure, and contract IDs once deployed.
+>
 > **Decision (Issue #8):** these contracts are **treated as upgradeable**.
 > Onchain upgradeability is needed to avoid forced migrations from peer-deployed
 > address changes fixed earlier, and from bugs or storage/tuning issues. Each
