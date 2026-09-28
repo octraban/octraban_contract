@@ -6,7 +6,7 @@
 
 An on-chain contract registry & event ledger, plus a standalone event-ticketing contract — written in Rust for the Soroban VM.
 
-[![Rust](https://img.shields.io/badge/Rust-1.8x-000000?logo=rust&logoColor=white)](https://www.rust-lang.org/)
+[![Rust](https://img.shields.io/badge/Rust-1.81.0-000000?logo=rust&logoColor=white)](https://www.rust-lang.org/)
 [![Soroban SDK](https://img.shields.io/badge/soroban--sdk-21-7D00FF?logo=stellar&logoColor=white)](https://soroban.stellar.org/)
 [![Network](https://img.shields.io/badge/Testnet-live-brightgreen)](https://stellar.expert/explorer/testnet/contract/CBKPNRQ4D3KTAAE7MMJ4HL6JNF2J2EBG2PSSRW4YHOMHTRHUU734CFWJ)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](./LICENSE)
@@ -37,6 +37,23 @@ Both contracts are **deployed and verifiable on the Stellar test network**:
 > **Deployer:** `GDKQB6LSSCL6HPYTRG7HDQWNWWYMLJRI3F3R2EINFGULH2OUVV3E3GOG`
 
 Full deployment details and a one-command redeploy live in [`DEPLOYMENTS.md`](./DEPLOYMENTS.md).
+
+---
+
+## 🛠️ Toolchain
+
+The Rust toolchain is pinned in [`rust-toolchain.toml`](./rust-toolchain.toml) at the repository root:
+
+```toml
+[toolchain]
+channel = "1.81.0"
+targets = ["wasm32-unknown-unknown"]
+components = ["rustfmt", "clippy"]
+```
+
+`rustup` reads this file automatically, so a fresh clone builds with the pinned toolchain and **no manual `rustup` steps** — just run `cargo build`. CI uses the same file, so local development and CI share one toolchain.
+
+**Why 1.81.0 and not the latest?** These contracts pin `soroban-sdk 21`, whose VM rejects the WebAssembly `reference-types` and `multivalue` features. Rust **1.82 and later** emit those features into every wasm they build — including the standard library — and `-C target-feature=-reference-types` does not reliably remove them. Pinning to a pre-1.82 channel keeps the emitted wasm deployable; `build-and-deploy.sh` additionally runs a `wasm-opt` lowering step as a belt-and-braces workaround.
 
 ---
 
@@ -112,118 +129,6 @@ Each bump extends the TTL back out to the full horizon once the remaining TTL dr
 
 **Why the event ring buffer stays on persistent storage instead of `temporary`:** temporary entries are hard-deleted the instant their TTL hits zero, with no restoration path — that would silently drop event history the indexer hasn't caught up on yet if a bump is ever missed (e.g. no writes for an extended period). Persistent entries, by contrast, can be restored (see below) if `explorer`'s own `extend_ttl` calls ever lapse. `get_events` (the paginated read) intentionally does **not** bump every slot it touches, to avoid the per-call cost scaling with `limit`; `get_event` (single-item read) does.
 
-**Restoring an archived entry:** if an entry is ever allowed to lapse (e.g. the contract goes untouched for longer than its bump horizon), Soroban requires an explicit on-chain restore before it can be read or written again — the contract's own transactions cannot "un-archive" it implicitly. Use the Stellar CLI against the relevant ledger key(s):
+**Restoring an archived entry:** if an entry is ever allowed to lapse (e.
 
-```bash
-stellar contract restore \
-  --id <EXPLORER_CONTRACT_ID> \
-  --source <funded-identity> \
-  --network testnet \
-  --durability persistent   # or `instance` for the contract's instance entry
-```
-
-This submits a restoration op that pays the current archival-recovery fee and brings the entry back to a fresh (short) TTL — the next admin-gated call against it will then re-extend it via the paths above. See the [Stellar CLI docs](https://developers.stellar.org/docs/tools/cli/stellar-cli) for the full `contract restore` reference.
-
----
-
-## 🎟️ `ticket` — Event Ticketing
-
-| Function | Description |
-|---|---|
-| `initialize(…)` | Set up organizer, supply, and ticketing parameters |
-| `mint_ticket(organizer, recipient) -> u64` | Mint a ticket to a recipient; returns the ticket id |
-| `transfer_ticket(from, to, ticket_id, sale_price)` | Transfer ownership, recording sale price |
-| `verify_ticket(verifier, ticket_id) -> bool` | Verify a ticket's validity at the gate |
-| `get_ticket(ticket_id) -> Ticket` | Fetch ticket details (errors if absent) |
-| `tickets_sold() -> u64` | Total tickets minted |
-| `upgrade(caller, new_wasm_hash)` | Admin-gated WASM upgrade |
-
-Includes a property-based test suite (`test.rs`).
-
----
-
-## 📁 Layout
-
-```
-.
-├── Cargo.toml            # workspace root — members: explorer, ticket
-├── Cargo.lock
-├── explorer/            # octraban-contract — registry & event ledger
-│   └── src/lib.rs
-├── ticket/              # ticket — event ticketing
-│   ├── src/lib.rs
-│   └── src/test.rs
-├── docs/
-│   ├── EVENTS.md        # explorer event topics, payloads, and versioning
-│   └── INTERFACE.md     # full public interface: functions, types, errors
-├── build-and-deploy.sh  # build → MVP-lower (wasm-opt) → deploy
-├── DEPLOYMENTS.md        # live contract IDs + reproduction steps
-├── LICENSE / NOTICE
-```
-
----
-
-## 🛠️ Building & Deploying
-
-### Prerequisites
-- **Rust** with a wasm target: `rustup target add wasm32-unknown-unknown`
-- **[Stellar CLI](https://github.com/stellar/stellar-cli)**
-- **[Binaryen](https://github.com/WebAssembly/binaryen/releases)** (`wasm-opt`)
-- A funded testnet identity: `stellar keys generate octraban-deployer --network testnet --fund`
-
-### One command
-```bash
-./build-and-deploy.sh            # builds, lowers to MVP wasm, deploys to testnet
-```
-
-### ⚠️ Important build note
-These contracts pin **`soroban-sdk 21`**, whose on-chain VM rejects the WebAssembly `reference-types` and `multivalue` features. Modern Rust (≥ 1.82) emits those features into **every** wasm it builds — including the standard library — and `-C target-feature=-reference-types` does **not** reliably strip them.
-
-The working pipeline is therefore **build normally, then lower with `wasm-opt`**:
-
-```bash
-cargo build --release --target wasm32-unknown-unknown --workspace
-
-wasm-opt <in.wasm> -o <out.wasm> \
-  --disable-reference-types --disable-multivalue \
-  --enable-bulk-memory --enable-bulk-memory-opt \
-  --enable-sign-ext --enable-mutable-globals -Oz
-
-stellar contract deploy --wasm <out.wasm> --source octraban-deployer --network testnet
-```
-
-The retained features (`bulk-memory`, `sign-ext`, `mutable-globals`) are required because the contracts use `memory.copy`; only `reference-types` and `multivalue` are stripped. `build-and-deploy.sh` encapsulates all of this.
-
-### Testing
-`explorer` and `ticket` share a single Cargo workspace rooted at the repo root, so `build`, `test`, `clippy`, and `fmt` all run across both crates from one place:
-```bash
-cargo build --release --target wasm32-unknown-unknown --workspace   # both crates
-cargo test --workspace                                              # both crates' test suites
-cargo clippy --workspace --lib --bins
-cargo fmt --all
-
-cargo test -p ticket                                                 # a single crate
-```
-
-### Fuzzing
-```bash
-cargo install cargo-fuzz
-cd ticket/fuzz && cargo +nightly fuzz run <target> -- -max_total_time=60
-```
-`cargo-fuzz` requires a **nightly** toolchain (`rustup toolchain install nightly`) because it builds with `-Z sanitizer=address`, a nightly-only flag. See [`ticket/fuzz/README.md`](./ticket/fuzz/README.md) for the list of targets, the invariant each one checks, and how regression seeds are organised.
-
----
-
-## 🗺️ How it fits together
-
-Octraban is split across three repositories:
-
-- **octraban_contract** *(this repo)* — the Soroban contracts, deployed to testnet.
-- **[octraban_backend](https://github.com/octraban/octraban_backend)** — API + indexer that reads on-chain data and serves it.
-- **[octraban_frontend](https://github.com/octraban/octraban_frontend)** — the explorer & developer workspace UI.
-
----
-
-## 📄 License
-
-Released under the [MIT License](./LICENSE). "Soroban" refers to Stellar's smart-contract platform and is used here in that technical sense.
+/* … truncated 5086 chars — edit only what you need near the top … */
