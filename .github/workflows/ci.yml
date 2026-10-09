@@ -11,8 +11,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: dtolnay/rust-toolchain@stable
+      # Toolchain is pinned by rust-toolchain.toml at the repo root; the
+      # action reads it so CI uses the same channel/targets/components as
+      # local development.
+      - uses: dtolnay/rust-toolchain@master
         with:
+          toolchain: 1.81.0
           components: rustfmt
       - uses: Swatinem/rust-cache@v2
       - run: cargo fmt --all -- --check
@@ -22,8 +26,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: dtolnay/rust-toolchain@stable
+      - uses: dtolnay/rust-toolchain@master
         with:
+          toolchain: 1.81.0
           components: clippy
       - uses: Swatinem/rust-cache@v2
       - name: clippy (lib + bins, both crates)
@@ -41,7 +46,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: dtolnay/rust-toolchain@stable
+      - uses: dtolnay/rust-toolchain@master
+        with:
+          toolchain: 1.81.0
       - uses: Swatinem/rust-cache@v2
       - name: cargo test (workspace)
         # test_admin_can_upgrade / test_update_contract_by_owner /
@@ -59,8 +66,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: dtolnay/rust-toolchain@stable
+      - uses: dtolnay/rust-toolchain@master
         with:
+          toolchain: 1.81.0
           targets: wasm32-unknown-unknown
       - uses: Swatinem/rust-cache@v2
       - run: cargo build --release --target wasm32-unknown-unknown --workspace
