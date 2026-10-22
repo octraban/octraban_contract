@@ -66,7 +66,7 @@ Both are `no_std`, built against **`soroban-sdk 21`**.
 | `transfer_admin(caller, new_admin)` | Nominate a new admin (step 1 of 2) — does not change the active admin |
 | `accept_admin(caller)` | Nominee accepts, becoming the active admin (step 2 of 2) |
 | `cancel_admin_transfer(caller)` | Admin withdraws a pending nomination |
-| `set_max_events(caller, new_max)` | Resize the event ring buffer |
+| `set_max_events(caller, new_max)` | Resize the event ring buffer (see [Resizing the event ring buffer](#resizing-the-event-ring-buffer)) |
 | `pause(caller)` / `unpause(caller)` | Emergency freeze / resume of state-changing calls |
 | `is_paused() -> bool` | Query pause state |
 | `storage_utilisation() -> (u64, u32)` | Current event count and configured capacity |
@@ -91,6 +91,36 @@ Both are `no_std`, built against **`soroban-sdk 21`**.
 | `event_count() -> u64` | Total events submitted |
 
 **Safety properties:** admin-gated writes (`require_auth`), typed errors, pausability, input validation on submitted events, and a bounded ring buffer so storage never grows unbounded.
+
+### Resizing the event ring buffer
+
+Decoded events are stored in a ring buffer whose physical slot for a given
+sequence number is `seq % max_events`. Because the slot mapping depends on the
+configured capacity, changing `max_events` without remapping the stored entries
+would silently corrupt the readable history: after a resize, `seq % new_max`
+would point at different physical slots than the data was written to, so
+`get_event`/`get_events` would return wrong, misordered, or missing events.
+
+`set_max_events(caller, new_max)` therefore **rebuilds the buffer into the new
+layout** rather than just overwriting the capacity:
+
+1. The new value is validated (`new_max >= MIN_MAX_EVENTS`).
+2. The currently retained events are read back in sequence order and re-written
+   into the new slot layout (`seq % new_max`).
+3. `DataKey::MaxEvents` is updated and the instance TTL is extended.
+4. A resize event is emitted describing the old and new capacity.
+
+**Documented semantics:**
+
+- **Growing** the buffer preserves all retained events; their sequence numbers
+  and read order are unchanged.
+- **Shrinking** the buffer retains only the most recent `new_max` events (the
+  oldest entries are evicted, exactly as they would be by ring-buffer
+  wraparound). Sequence numbers are never renumbered, so `get_event(seq)` keeps
+  returning the event that was submitted with that `seq` for as long as it is
+  retained.
+- In all cases `get_event`/`get_events` return correct, correctly ordered events
+  before and after a resize — there is no silent corruption.
 
 ### Events
 
@@ -228,4 +258,4 @@ Octraban is split across three repositories:
 
 ## 📄 License
 
-Released under the [MIT License](./LICENSE). "Soroban" refers to Stellar's smart-contract platform and is used here in that technical sense.
+/* … truncated 5086 chars — edit only what you need near the top … */
